@@ -1,5 +1,0 @@
-build/*
-Debug/*
-Release/*
-drand48.h
-./gitignore
