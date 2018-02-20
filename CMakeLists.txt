@@ -11,6 +11,7 @@ set (CMAKE_CXX_FLAGS_DEBUG "-g")
 set (CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_executable (inversetransform inversetransform.cpp)
+add_executable (mcsim mcsim.cpp)
 add_executable (raytracer raytracer.cpp)
 add_executable (perspproj perspproj.cpp)
 add_executable (pinhole pinhole.cpp)
