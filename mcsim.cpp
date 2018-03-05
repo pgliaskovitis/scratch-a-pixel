@@ -35,6 +35,10 @@
 #include <fstream>
 #include "drand48.h"
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846f)
+#endif
+
 double getCosTheta(const double &g) // sampling the H-G scattering phase function
 {
     if (g == 0) return 2 * drand48() - 1;

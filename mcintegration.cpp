@@ -33,6 +33,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include <algorithm>
 #include <signal.h>
 #include "drand48.h"
 
@@ -130,7 +131,7 @@ int main(int argc, char **argv)
     float *buffer = new float[3 * width * height];
     memset(buffer, 0x0, sizeof(float) * width * height * 3);
     pixels = new float[3 * width * height];
-    uint32_t pixIndex;
+
     // [comment]
     // Type ctrl+c in the shell where the program is running to stop it.
     // [/comment]
@@ -150,7 +151,7 @@ int main(int argc, char **argv)
             } 
         } 
         npasses++;
-        static float gamma = 1 / 2.2;
+        static float gamma = 1 / 2.2f;
         for (uint32_t i = 0; i < width * height; ++i) { 
             pixels[i * 3] = powf(buffer[i * 3] / npasses, gamma);
             pixels[i * 3 + 1] = powf(buffer[i * 3 + 1] / npasses, gamma);

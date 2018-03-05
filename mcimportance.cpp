@@ -3,6 +3,10 @@
 #include <cmath>
 #include "drand48.h"
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846f)
+#endif
+
 int main(int argc, char **argv)
 {
 	srand48(13);

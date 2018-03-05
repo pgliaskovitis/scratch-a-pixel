@@ -6,9 +6,13 @@ if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif ()
 
-set (CMAKE_CXX_FLAGS "-Wall -Wextra")
-set (CMAKE_CXX_FLAGS_DEBUG "-g")
-set (CMAKE_CXX_FLAGS_RELEASE "-O3")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+	set (CMAKE_CXX_FLAGS "-Wall -Wextra")
+	set (CMAKE_CXX_FLAGS_DEBUG "-g")
+	set (CMAKE_CXX_FLAGS_RELEASE "-O3")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+	set (CMAKE_CXX_FLAGS_RELEASE "/Ox")
+endif ()
 
 # basic Monte-Carlo
 add_executable (inversetransform inversetransform.cpp)

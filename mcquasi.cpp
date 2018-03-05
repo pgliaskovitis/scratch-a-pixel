@@ -13,6 +13,10 @@
 #define RANDOM
 #endif
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846f)
+#endif
+
 float evalFunc(const float &x, const float &y, const float &xmax, const float &ymax)
 {
 	return 1. / 2. + 1. / 2. * powf(1. - y / ymax, 3.) * sin( 2. * M_PI * ( x / xmax) * exp(8. * (x / xmax)));
