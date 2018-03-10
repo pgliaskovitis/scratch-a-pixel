@@ -15,7 +15,9 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
 
 # basic Monte-Carlo
-add_executable (inversetransform inversetransform.cpp)
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+	add_executable (inversetransform inversetransform.cpp)
+endif ()
 add_executable (mcsim mcsim.cpp)
 add_executable (mcintegration mcintegration.cpp)
 add_executable (mcrandom mcrandom.cpp)
@@ -34,3 +36,6 @@ add_executable (raster3d raster3d.cpp)
 add_executable (glorthoprojmatrix glorthoprojmatrix.cpp)
 add_executable (glprojmatrix glprojmatrix.cpp)
 add_executable (projmatrix projmatrix.cpp)
+
+# basic color spaces
+add_executable (mcbeth mcbeth.cpp)
