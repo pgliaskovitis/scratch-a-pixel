@@ -37,5 +37,6 @@ add_executable (glorthoprojmatrix glorthoprojmatrix.cpp)
 add_executable (glprojmatrix glprojmatrix.cpp)
 add_executable (projmatrix projmatrix.cpp)
 
-# basic color spaces
+# basic color spaces/imaging
 add_executable (mcbeth mcbeth.cpp)
+add_executable (readwrite readwrite.cpp)
