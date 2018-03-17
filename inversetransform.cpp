@@ -11,8 +11,8 @@
 
 // standard normal distribution function
 float pdf(const float &x)
-{ 
-	return 1 / sqrtf(2 * M_PI) * exp(-x * x * 0.5f); 
+{
+	return 1 / sqrtf(2 * M_PI) * exp(-x * x * 0.5f);
 }
 
 float sample(float *cdf, const uint32_t &nbins, const float &minBound, const float &maxBound)
@@ -28,13 +28,13 @@ float sample(float *cdf, const uint32_t &nbins, const float &minBound, const flo
 int main(int argc, char ** argv)
 {
 	srand48(13); // seed random generator
-	
+
 	// create CDF
 	int nbins = 32;
 	float minBound = -5.0f, maxBound = 5.0f;
 	float cdf[nbins + 1], dx = (maxBound - minBound) / nbins, sum = 0.0f;
 	cdf[0] = 0.0f;
-	
+
 	for (int n = 1; n < nbins; ++n) {
 		float x = minBound + (maxBound - minBound) * (n / (float)(nbins));
 		float pdf_x = pdf(x) * dx;
@@ -50,7 +50,7 @@ int main(int argc, char ** argv)
 	int bins[numBins]; // to collect data on our sim
 	memset(bins, 0x0, sizeof(int) * numBins); // set all the bins to 0
 	const float dist = 10.0f; // 10 km
-	
+
 	for (int i = 0; i < numSims; ++i) {
 		float diff = sample(cdf, nbins, minBound, maxBound); // random var between -5 and 5
 		int whichBin = (int)(numBins * (diff - minBound) / (maxBound - minBound));
@@ -58,7 +58,7 @@ int main(int argc, char ** argv)
 		float time = 30.0f + diff;
 		float speed = 60.0f * dist / time;
 	}
-	
+
 	sum = 0;
 
 	for (int i = 0; i < numBins; ++i) {
@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
 		printf("%f %f\n", 5 * (2 * (i /(float)(numBins)) -1), r);
 		sum += r;
 	}
-	
+
 	fprintf(stderr, "sum %f\n", sum);
 	return 0;
-} 
+}

@@ -41,9 +41,9 @@
 // [/comment]
 const float colorMatchingFunc[3][72] =
 {
-    {0.001368f, 0.002236f, 0.004243f, 0.007650f, 0.014310f, 0.023190f, 0.043510f, 0.077630f, 0.134380f, 0.214770f, 0.283900f, 0.328500f, 0.348280f, 0.348060f, 0.336200f, 0.318700f, 0.290800f, 0.251100f, 0.195360f, 0.142100f, 0.095640f, 0.057950f, 0.032010f, 0.014700f, 0.004900f, 0.002400f, 0.009300f, 0.029100f, 0.063270f, 0.109600f, 0.165500f, 0.225750f, 0.290400f, 0.359700f, 0.433450f, 0.512050f, 0.594500f, 0.678400f, 0.762100f, 0.842500f, 0.916300f, 0.978600f, 1.026300f, 1.056700f, 1.062200f, 1.045600f, 1.002600f, 0.938400f, 0.854450f, 0.751400f, 0.642400f, 0.541900f, 0.447900f, 0.360800f, 0.283500f, 0.218700f, 0.164900f, 0.121200f, 0.087400f, 0.063600f, 0.046770f, 0.032900f, 0.022700f, 0.015840f, 0.011359f, 0.008111f, 0.005790f, 0.004106f, 0.002899f, 0.002049f, 0.001440f, 0.000000f},
-    {0.000039f, 0.000064f, 0.000120f, 0.000217f, 0.000396f, 0.000640f, 0.001210f, 0.002180f, 0.004000f, 0.007300f, 0.011600f, 0.016840f, 0.023000f, 0.029800f, 0.038000f, 0.048000f, 0.060000f, 0.073900f, 0.090980f, 0.112600f, 0.139020f, 0.169300f, 0.208020f, 0.258600f, 0.323000f, 0.407300f, 0.503000f, 0.608200f, 0.710000f, 0.793200f, 0.862000f, 0.914850f, 0.954000f, 0.980300f, 0.994950f, 1.000000f, 0.995000f, 0.978600f, 0.952000f, 0.915400f, 0.870000f, 0.816300f, 0.757000f, 0.694900f, 0.631000f, 0.566800f, 0.503000f, 0.441200f, 0.381000f, 0.321000f, 0.265000f, 0.217000f, 0.175000f, 0.138200f, 0.107000f, 0.081600f, 0.061000f, 0.044580f, 0.032000f, 0.023200f, 0.017000f, 0.011920f, 0.008210f, 0.005723f, 0.004102f, 0.002929f, 0.002091f, 0.001484f, 0.001047f, 0.000740f, 0.000520f, 0.000000f},
-    {0.006450f, 0.010550f, 0.020050f, 0.036210f, 0.067850f, 0.110200f, 0.207400f, 0.371300f, 0.645600f, 1.039050f, 1.385600f, 1.622960f, 1.747060f, 1.782600f, 1.772110f, 1.744100f, 1.669200f, 1.528100f, 1.287640f, 1.041900f, 0.812950f, 0.616200f, 0.465180f, 0.353300f, 0.272000f, 0.212300f, 0.158200f, 0.111700f, 0.078250f, 0.057250f, 0.042160f, 0.029840f, 0.020300f, 0.013400f, 0.008750f, 0.005750f, 0.003900f, 0.002750f, 0.002100f, 0.001800f, 0.001650f, 0.001400f, 0.001100f, 0.001000f, 0.000800f, 0.000600f, 0.000340f, 0.000240f, 0.000190f, 0.000100f, 0.000050f, 0.000030f, 0.000020f, 0.000010f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f}
+	{0.001368f, 0.002236f, 0.004243f, 0.007650f, 0.014310f, 0.023190f, 0.043510f, 0.077630f, 0.134380f, 0.214770f, 0.283900f, 0.328500f, 0.348280f, 0.348060f, 0.336200f, 0.318700f, 0.290800f, 0.251100f, 0.195360f, 0.142100f, 0.095640f, 0.057950f, 0.032010f, 0.014700f, 0.004900f, 0.002400f, 0.009300f, 0.029100f, 0.063270f, 0.109600f, 0.165500f, 0.225750f, 0.290400f, 0.359700f, 0.433450f, 0.512050f, 0.594500f, 0.678400f, 0.762100f, 0.842500f, 0.916300f, 0.978600f, 1.026300f, 1.056700f, 1.062200f, 1.045600f, 1.002600f, 0.938400f, 0.854450f, 0.751400f, 0.642400f, 0.541900f, 0.447900f, 0.360800f, 0.283500f, 0.218700f, 0.164900f, 0.121200f, 0.087400f, 0.063600f, 0.046770f, 0.032900f, 0.022700f, 0.015840f, 0.011359f, 0.008111f, 0.005790f, 0.004106f, 0.002899f, 0.002049f, 0.001440f, 0.000000f},
+	{0.000039f, 0.000064f, 0.000120f, 0.000217f, 0.000396f, 0.000640f, 0.001210f, 0.002180f, 0.004000f, 0.007300f, 0.011600f, 0.016840f, 0.023000f, 0.029800f, 0.038000f, 0.048000f, 0.060000f, 0.073900f, 0.090980f, 0.112600f, 0.139020f, 0.169300f, 0.208020f, 0.258600f, 0.323000f, 0.407300f, 0.503000f, 0.608200f, 0.710000f, 0.793200f, 0.862000f, 0.914850f, 0.954000f, 0.980300f, 0.994950f, 1.000000f, 0.995000f, 0.978600f, 0.952000f, 0.915400f, 0.870000f, 0.816300f, 0.757000f, 0.694900f, 0.631000f, 0.566800f, 0.503000f, 0.441200f, 0.381000f, 0.321000f, 0.265000f, 0.217000f, 0.175000f, 0.138200f, 0.107000f, 0.081600f, 0.061000f, 0.044580f, 0.032000f, 0.023200f, 0.017000f, 0.011920f, 0.008210f, 0.005723f, 0.004102f, 0.002929f, 0.002091f, 0.001484f, 0.001047f, 0.000740f, 0.000520f, 0.000000f},
+	{0.006450f, 0.010550f, 0.020050f, 0.036210f, 0.067850f, 0.110200f, 0.207400f, 0.371300f, 0.645600f, 1.039050f, 1.385600f, 1.622960f, 1.747060f, 1.782600f, 1.772110f, 1.744100f, 1.669200f, 1.528100f, 1.287640f, 1.041900f, 0.812950f, 0.616200f, 0.465180f, 0.353300f, 0.272000f, 0.212300f, 0.158200f, 0.111700f, 0.078250f, 0.057250f, 0.042160f, 0.029840f, 0.020300f, 0.013400f, 0.008750f, 0.005750f, 0.003900f, 0.002750f, 0.002100f, 0.001800f, 0.001650f, 0.001400f, 0.001100f, 0.001000f, 0.000800f, 0.000600f, 0.000340f, 0.000240f, 0.000190f, 0.000100f, 0.000050f, 0.000030f, 0.000020f, 0.000010f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f}
 };
 
 // [comment]
@@ -79,20 +79,20 @@ const float spectralData[24][36] = {
 // [comment]
 // CIE XYZ to RGB transformation matrix
 // [/comment]
-const double XYZ_to_RGB[][3] = { 
-    { 2.3706743, -0.9000405, -0.4706338}, 
-    {-0.5138850,  1.4253036,  0.0885814}, 
-    { 0.0052982, -0.0146949,  1.0093968} 
+const double XYZ_to_RGB[][3] = {
+	{ 2.3706743, -0.9000405, -0.4706338},
+	{-0.5138850,  1.4253036,  0.0885814},
+	{ 0.0052982, -0.0146949,  1.0093968}
 };
 
 // [comment]
 // Convert XYZ color to RGB color space
 // [/comment]
-void XYZtoRGB(const float &X, const float &Y, const float &Z, float &r, float &g, float &b) 
-{ 
-    r = std::max(0., X * XYZ_to_RGB[0][0] + Y * XYZ_to_RGB[0][1] + Z * XYZ_to_RGB[0][2]); 
-    g = std::max(0., X * XYZ_to_RGB[1][0] + Y * XYZ_to_RGB[1][1] + Z * XYZ_to_RGB[1][2]); 
-    b = std::max(0., X * XYZ_to_RGB[2][0] + Y * XYZ_to_RGB[2][1] + Z * XYZ_to_RGB[2][2]); 
+void XYZtoRGB(const float &X, const float &Y, const float &Z, float &r, float &g, float &b)
+{
+	r = std::max(0., X * XYZ_to_RGB[0][0] + Y * XYZ_to_RGB[0][1] + Z * XYZ_to_RGB[0][2]);
+	g = std::max(0., X * XYZ_to_RGB[1][0] + Y * XYZ_to_RGB[1][1] + Z * XYZ_to_RGB[1][2]);
+	b = std::max(0., X * XYZ_to_RGB[2][0] + Y * XYZ_to_RGB[2][1] + Z * XYZ_to_RGB[2][2]);
 }
 
 // [comment]
@@ -100,94 +100,94 @@ void XYZtoRGB(const float &X, const float &Y, const float &Z, float &r, float &g
 // [/comment]
 void spectrumToXYZ(int colorIndex, float& X, float& Y, float& Z)
 {
-    float S = 0;
-    for (int i = 0; i < 36; ++i) {
-        X += colorMatchingFunc[0][i * 2] * spectralData[colorIndex][i];
-        Y += colorMatchingFunc[1][i * 2] * spectralData[colorIndex][i];
-        Z += colorMatchingFunc[2][i * 2] * spectralData[colorIndex][i];
-        S += colorMatchingFunc[1][i * 2];
-    }
-    X /= S;
-    Y /= S;
-    Z /= S;
+	float S = 0;
+	for (int i = 0; i < 36; ++i) {
+		X += colorMatchingFunc[0][i * 2] * spectralData[colorIndex][i];
+		Y += colorMatchingFunc[1][i * 2] * spectralData[colorIndex][i];
+		Z += colorMatchingFunc[2][i * 2] * spectralData[colorIndex][i];
+		S += colorMatchingFunc[1][i * 2];
+	}
+	X /= S;
+	Y /= S;
+	Z /= S;
 }
 
 class Image
 {
 public:
-    Image(const int &w, const int &h) : width(w), height(h)
-    {
-        imageData = new float [w * h * 3];
-    }
-    ~Image()
-    {
-        delete [] imageData;
-    }
-    void setPixel(const float *pixelValues, const int &x, const int &y)
-    {
-        imageData[(y * width + x) * 3] = pixelValues[0];
-        imageData[(y * width + x) * 3 + 1] = pixelValues[1];
-        imageData[(y * width + x) * 3 + 2] = pixelValues[2];
-    }
-    void saveToPpm(const char *filename)
-    {
-        float gamma = 1;
-        std::ofstream ofs;
-        ofs.open(filename, std::ios::out | std::ios::binary);
-        ofs << "P6\n" << width << " " << height << "\n255\n";
-        float *pixel = imageData;
-        for (int j = 0; j < height; ++j) {
-            for (int i = 0; i < width; ++i) {
-                unsigned char r = (unsigned char)(std::max(0.f, std::min(255.f, powf(pixel[0], 1 / gamma) * 255 + 0.5f)));
-                unsigned char g = (unsigned char)(std::max(0.f, std::min(255.f, powf(pixel[1], 1 / gamma) * 255 + 0.5f)));
-                unsigned char b = (unsigned char)(std::max(0.f, std::min(255.f, powf(pixel[2], 1 / gamma) * 255 + 0.5f)));
-                ofs << r << g << b;
-                pixel += 3;
-            }
-        }
-        ofs.close();
-    }
-    float *imageData;
-    int width, height;
+	Image(const int &w, const int &h) : width(w), height(h)
+	{
+		imageData = new float [w * h * 3];
+	}
+	~Image()
+	{
+		delete [] imageData;
+	}
+	void setPixel(const float *pixelValues, const int &x, const int &y)
+	{
+		imageData[(y * width + x) * 3] = pixelValues[0];
+		imageData[(y * width + x) * 3 + 1] = pixelValues[1];
+		imageData[(y * width + x) * 3 + 2] = pixelValues[2];
+	}
+	void saveToPpm(const char *filename)
+	{
+		float gamma = 1;
+		std::ofstream ofs;
+		ofs.open(filename, std::ios::out | std::ios::binary);
+		ofs << "P6\n" << width << " " << height << "\n255\n";
+		float *pixel = imageData;
+		for (int j = 0; j < height; ++j) {
+			for (int i = 0; i < width; ++i) {
+				unsigned char r = (unsigned char)(std::max(0.f, std::min(255.f, powf(pixel[0], 1 / gamma) * 255 + 0.5f)));
+				unsigned char g = (unsigned char)(std::max(0.f, std::min(255.f, powf(pixel[1], 1 / gamma) * 255 + 0.5f)));
+				unsigned char b = (unsigned char)(std::max(0.f, std::min(255.f, powf(pixel[2], 1 / gamma) * 255 + 0.5f)));
+				ofs << r << g << b;
+				pixel += 3;
+			}
+		}
+		ofs.close();
+	}
+	float *imageData;
+	int width, height;
 };
 
 int main(int argc, char **argv)
 {
-    // [comment]
-    // Convert the spectrum data of each bucket from the McBeth chart to a XYZ then RGB color
-    // [/comment]
-    float rgb[24][3];
-    for (int i = 0; i < 24; ++i) {
-        float X(0), Y(0), Z(0);
-        spectrumToXYZ(i, X, Y, Z);
-        XYZtoRGB(X, Y, Z, rgb[i][0], rgb[i][1], rgb[i][2]);
-        std::cerr << rgb[i][0] << " " << rgb[i][1] << " " << rgb[i][2] << std::endl;
-        fprintf(stderr, "%d RGB %d %d %d\n", i + 1,
-            (unsigned char)(255 * rgb[i][0]),
-            (unsigned char)(255 * rgb[i][1]),
-            (unsigned char)(255 * rgb[i][2]));
-    }
-    
-    // [comment]
-    // Store result to an image (fill a small bucket with the bucket's color)
-    // [/comment]
-    int patchSize = 64;
-    int width = patchSize * 6;
-    int height = patchSize * 4;
-    Image image(width, height);
-    for (int j = 0; j < 4; ++j) {
-        int offsetj = j * patchSize;
-        for (int i = 0; i < 6; ++i) {
-            int offseti = i * patchSize;
-            for (int jj = 0; jj < patchSize; ++jj) {
-                for (int ii = 0; ii < patchSize; ++ii) {
-                    image.setPixel(rgb[j * 6 + i], offseti + ii, offsetj + jj); 
-                }
-            }
-        }
-    }
+	// [comment]
+	// Convert the spectrum data of each bucket from the McBeth chart to a XYZ then RGB color
+	// [/comment]
+	float rgb[24][3];
+	for (int i = 0; i < 24; ++i) {
+		float X(0), Y(0), Z(0);
+		spectrumToXYZ(i, X, Y, Z);
+		XYZtoRGB(X, Y, Z, rgb[i][0], rgb[i][1], rgb[i][2]);
+		std::cerr << rgb[i][0] << " " << rgb[i][1] << " " << rgb[i][2] << std::endl;
+		fprintf(stderr, "%d RGB %d %d %d\n", i + 1,
+			(unsigned char)(255 * rgb[i][0]),
+			(unsigned char)(255 * rgb[i][1]),
+			(unsigned char)(255 * rgb[i][2]));
+	}
 
-    image.saveToPpm("./mcbeth.ppm");
+	// [comment]
+	// Store result to an image (fill a small bucket with the bucket's color)
+	// [/comment]
+	int patchSize = 64;
+	int width = patchSize * 6;
+	int height = patchSize * 4;
+	Image image(width, height);
+	for (int j = 0; j < 4; ++j) {
+		int offsetj = j * patchSize;
+		for (int i = 0; i < 6; ++i) {
+			int offseti = i * patchSize;
+			for (int jj = 0; jj < patchSize; ++jj) {
+				for (int ii = 0; ii < patchSize; ++ii) {
+					image.setPixel(rgb[j * 6 + i], offseti + ii, offsetj + jj);
+				}
+			}
+		}
+	}
 
-    return 0;
+	image.saveToPpm("./mcbeth.ppm");
+
+	return 0;
 }

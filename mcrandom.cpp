@@ -12,4 +12,4 @@ int main(int argc, char **argv)
 		rand = ((int)((rand * 100 - (int)(rand * 100)) * 10000)) / 10000.f;
 	}
 	return 0;
-} 
+}

@@ -51,4 +51,4 @@ int main(int argc, char **argv)
 	ofs.close();
 	delete [] pixels;
 	return 1;
-} 
+}

@@ -24,4 +24,4 @@ int main(int argc, char **argv)
 		printf("%f %f\n", sumUniform, sumImportance);
 	}
 	return 0;
-} 
+}

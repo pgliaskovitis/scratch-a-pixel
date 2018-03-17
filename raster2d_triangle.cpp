@@ -13,8 +13,8 @@ typedef unsigned char Rgb[3];
 
 inline
 float edgeFunction(const Vec2 &a, const Vec2 &b, const Vec2 &c)
-{ 
-	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]); 
+{
+	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
 }
 
 int main(int argc, char **argv)
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	Vec2 v0 = {491.407f, 411.407f};
 	Vec2 v1 = {148.593f, 68.5928f};
 	Vec2 v2 = {148.593f, 411.407f};
-	
+
 	// colors
 	Vec3 c0 = {1.0f, 0.0f, 0.0f};
 	Vec3 c1 = {0.0f, 1.0f, 0.0f};

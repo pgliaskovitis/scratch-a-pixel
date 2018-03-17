@@ -44,25 +44,25 @@
 class Image
 {
 public:
-    
-    struct Rgb
-    {
-        Rgb() : r(0), g(0), b(0)  {}
-        Rgb(float rr) : r(rr), g(rr), b(rr) {}
-        Rgb(float rr, float gg, float bb) : r(rr), g(gg), b(bb) {}
-        float r, g, b;
-    };
-    
-    Image() : w(0), h(0), pixels(nullptr) {}
-    Image(const unsigned int &_w, const unsigned int &_h) :
-        w(_w), h(_h), pixels(nullptr)
-    {
-        pixels = new Rgb[w * h];
-        for (unsigned int i = 0; i < w * h; ++i) pixels[i] = 0;
-    }
-    ~Image() { if (pixels != nullptr) delete [] pixels; }
-    unsigned int w, h;
-    Rgb *pixels;
+
+	struct Rgb
+	{
+		Rgb() : r(0), g(0), b(0)  {}
+		Rgb(float rr) : r(rr), g(rr), b(rr) {}
+		Rgb(float rr, float gg, float bb) : r(rr), g(gg), b(bb) {}
+		float r, g, b;
+	};
+
+	Image() : w(0), h(0), pixels(nullptr) {}
+	Image(const unsigned int &_w, const unsigned int &_h) :
+		w(_w), h(_h), pixels(nullptr)
+	{
+		pixels = new Rgb[w * h];
+		for (unsigned int i = 0; i < w * h; ++i) pixels[i] = 0;
+	}
+	~Image() { if (pixels != nullptr) delete [] pixels; }
+	unsigned int w, h;
+	Rgb *pixels;
 };
 
 // [comment]
@@ -70,30 +70,30 @@ public:
 // [/comment]
 void savePPM(const Image &img, const char *filename)
 {
-    if (img.w == 0 || img.h == 0) { 
-		fprintf(stderr, "Can't save an empty image\n"); 
-		return; 
+	if (img.w == 0 || img.h == 0) {
+		fprintf(stderr, "Can't save an empty image\n");
+		return;
 	}
-	
-    std::ofstream ofs;
-    try {
-        ofs.open(filename, std::ios::out | std::ios::binary);
-        if (ofs.fail()) throw("Can't open output file");
-        ofs << "P6\n" << img.w << " " << img.h << "\n255\n";
-        unsigned char r, g, b;
-        // loop over each pixel in the image, clamp and convert to byte format
-        for (unsigned int i = 0; i < img.w * img.h; ++i) {
-            r = static_cast<unsigned char>(std::min(1.f, img.pixels[i].r) * 255);
-            g = static_cast<unsigned char>(std::min(1.f, img.pixels[i].g) * 255);
-            b = static_cast<unsigned char>(std::min(1.f, img.pixels[i].b) * 255);
-            ofs << r << g << b;
-        }
-        ofs.close();
-    }
-    catch (const char *err) {
-        fprintf(stderr, "%s\n", err);
-        ofs.close();
-    }
+
+	std::ofstream ofs;
+	try {
+		ofs.open(filename, std::ios::out | std::ios::binary);
+		if (ofs.fail()) throw("Can't open output file");
+		ofs << "P6\n" << img.w << " " << img.h << "\n255\n";
+		unsigned char r, g, b;
+		// loop over each pixel in the image, clamp and convert to byte format
+		for (unsigned int i = 0; i < img.w * img.h; ++i) {
+			r = static_cast<unsigned char>(std::min(1.f, img.pixels[i].r) * 255);
+			g = static_cast<unsigned char>(std::min(1.f, img.pixels[i].g) * 255);
+			b = static_cast<unsigned char>(std::min(1.f, img.pixels[i].b) * 255);
+			ofs << r << g << b;
+		}
+		ofs.close();
+	}
+	catch (const char *err) {
+		fprintf(stderr, "%s\n", err);
+		ofs.close();
+	}
 }
 
 // [comment]
@@ -101,39 +101,39 @@ void savePPM(const Image &img, const char *filename)
 // [/comment]
 Image readPPM(const char *filename)
 {
-    std::ifstream ifs;
-    ifs.open(filename, std::ios::in | std::ios::binary);
-    Image img;
-    try {
-        if (ifs.fail()) { 
-			throw("Can't open input file"); 
+	std::ifstream ifs;
+	ifs.open(filename, std::ios::in | std::ios::binary);
+	Image img;
+	try {
+		if (ifs.fail()) {
+			throw("Can't open input file");
 		}
-        std::string header;
-        unsigned int w, h, b;
-        ifs >> header;
-        if (strcmp(header.c_str(), "P6") != 0) {
+		std::string header;
+		unsigned int w, h, b;
+		ifs >> header;
+		if (strcmp(header.c_str(), "P6") != 0) {
 			throw("Can't read input file");
 		}
-        ifs >> w >> h >> b;
-        img.w = w; img.h = h;
-        img.pixels = new Image::Rgb[w * h]; // this will throw an exception if bad_alloc
-        ifs.ignore(256, '\n'); // skip empty lines in necessary until we get to the binary data
-        unsigned char pix[3];
-        // read each pixel one by one and convert bytes to floats
-        for (unsigned int i = 0; i < w * h; ++i) {
-            ifs.read(reinterpret_cast<char *>(pix), 3);
-            img.pixels[i].r = pix[0] / 255.f;
-            img.pixels[i].g = pix[1] / 255.f;
-            img.pixels[i].b = pix[2] / 255.f;
-        }
-        ifs.close();
-    }
-    catch (const char *err) {
-        fprintf(stderr, "%s\n", err);
-        ifs.close();
-    }
+		ifs >> w >> h >> b;
+		img.w = w; img.h = h;
+		img.pixels = new Image::Rgb[w * h]; // this will throw an exception if bad_alloc
+		ifs.ignore(256, '\n'); // skip empty lines in necessary until we get to the binary data
+		unsigned char pix[3];
+		// read each pixel one by one and convert bytes to floats
+		for (unsigned int i = 0; i < w * h; ++i) {
+			ifs.read(reinterpret_cast<char *>(pix), 3);
+			img.pixels[i].r = pix[0] / 255.f;
+			img.pixels[i].g = pix[1] / 255.f;
+			img.pixels[i].b = pix[2] / 255.f;
+		}
+		ifs.close();
+	}
+	catch (const char *err) {
+		fprintf(stderr, "%s\n", err);
+		ifs.close();
+	}
 
-    return img;
+	return img;
 }
 
 // [comment]
@@ -141,8 +141,8 @@ Image readPPM(const char *filename)
 // [/comment]
 int main(int argc, char **argv)
 {
-    Image I = readPPM("./xmas.ppm");
-    savePPM(I, "./readwrite.ppm");
-  
-    return 0;
+	Image I = readPPM("./xmas.ppm");
+	savePPM(I, "./readwrite.ppm");
+
+	return 0;
 }

@@ -2,7 +2,7 @@
 // c++ -o raster3d raster3d.cpp
 // for naive vertex attribute interpolation and:
 // c++ -o raster3d raster3d.cpp -D PERSP_CORRECT
-// for perspective correct interpolation 
+// for perspective correct interpolation
 
 // (c) www.scratchapixel.com
 
@@ -17,8 +17,8 @@ typedef unsigned char Rgb[3];
 
 inline
 float edgeFunction(const Vec3 &a, const Vec3 &b, const Vec3 &c)
-{ 
-	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]); 
+{
+	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
 }
 
 int main(int argc, char **argv)
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	v0[0] /= v0[2], v0[1] /= v0[2];
 	v1[0] /= v1[2], v1[1] /= v1[2];
 	v2[0] /= v2[2], v2[1] /= v2[2];
-	
+
 	// convert from screen space to NDC then raster (in one go)
 	v0[0] = (1 + v0[0]) * 0.5f * width, v0[1] = (1 + v0[1]) * 0.5f * height;
 	v1[0] = (1 + v1[0]) * 0.5f * width, v1[1] = (1 + v1[1]) * 0.5f * height;
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	c0[0] /= v0[2], c0[1] /= v0[2], c0[2] /= v0[2];
 	c1[0] /= v1[2], c1[1] /= v1[2], c1[2] /= v1[2];
 	c2[0] /= v2[2], c2[1] /= v2[2], c2[2] /= v2[2];
-	
+
 	// pre-compute 1 over z
 	v0[2] = 1 / v0[2], v1[2] = 1 / v1[2], v2[2] = 1 / v2[2];
 
@@ -93,4 +93,4 @@ int main(int argc, char **argv)
 	delete [] framebuffer;
 
 	return 0;
-} 
+}
