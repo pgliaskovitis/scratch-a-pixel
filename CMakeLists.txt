@@ -40,3 +40,4 @@ add_executable (projmatrix projmatrix.cpp)
 # basic color spaces/imaging
 add_executable (mcbeth mcbeth.cpp)
 add_executable (readwrite readwrite.cpp)
+add_executable (bokeh bokeh.cpp)
