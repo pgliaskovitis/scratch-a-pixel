@@ -15,6 +15,7 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
 
 # basic Monte-Carlo
+add_executable (sampling_dist sampling_dist.cpp)
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 	add_executable (inversetransform inversetransform.cpp)
 endif ()
@@ -39,5 +40,5 @@ add_executable (projmatrix projmatrix.cpp)
 
 # basic color spaces/imaging
 add_executable (mcbeth mcbeth.cpp)
-add_executable (readwrite readwrite.cpp)
+add_executable (readwrite_img readwrite_img.cpp)
 add_executable (bokeh bokeh.cpp)
