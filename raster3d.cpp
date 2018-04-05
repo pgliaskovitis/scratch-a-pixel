@@ -329,7 +329,7 @@ int main(int argc, char **argv)
 	std::ofstream ofs;
 	ofs.open("./raster3d.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << imageWidth << " " << imageHeight << "\n255\n";
-	ofs.write((char*)frameBuffer, imageWidth * imageWidth * 3);
+	ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));
 	ofs.close();
 
 	delete [] frameBuffer;
