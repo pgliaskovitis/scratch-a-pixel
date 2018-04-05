@@ -11,7 +11,7 @@ Code errata found:
 
 `std::ios::out | std::ios::binary`
 
--raster3d.cpp needs a change to this line when writing to output file stream:
+-Original raster3d.cpp needs a change to this line when writing to output file stream:
 
 `ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));`
 
