@@ -7,9 +7,11 @@ The goal is to support both GCC and MSVC. Minor issues from the original code su
 
 Code errata found:
 
--For Windows machines output file streams must always be opened with the flags: std::ios::out | std::ios::binary
+-For Windows machines output file streams must always be opened with the flags: 
 
--raster.cpp needs a change to this line when writing to output file stream:
+`std::ios::out | std::ios::binary`
 
-  ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));
+-raster3d.cpp needs a change to this line when writing to output file stream:
+
+`ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));`
 
