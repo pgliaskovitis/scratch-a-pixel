@@ -11,5 +11,5 @@ Code errata found:
 
 -raster.cpp needs a change to this line when writing to output file stream:
 
-ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));
--
+  ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));
+
