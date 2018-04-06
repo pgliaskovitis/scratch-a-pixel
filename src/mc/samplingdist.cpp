@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
+#include <iostream>
 #include <random>
 
 static const int MAX_NUM = 20; // items in the population are numbered (number between 0 and 20)
@@ -25,8 +26,10 @@ static const int MAX_FREQ = 50; // number of items holding a particular number v
 
 int main(int argc, char **argv)
 {
-	assert(argv[1]);
-	assert(argv[2]);
+	if (argc < 3) {
+		std::cerr << "Usage: mc_samplingdist <min_samples> <max_samples>" << std::endl;
+		return 1;
+	}
 
 	int minSampples = atoi(argv[1]); // minimum sample size for each "first level" mean
 	int maxSampples = atoi(argv[2]); // maximum sample size for each "first level" mean

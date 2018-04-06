@@ -231,8 +231,8 @@ Image readPPM(const char *filename)
 int main(int argc, char **argv)
 {
 	try {
-		Image I = readPPM("./xmas.ppm");
-		Image J = readPPM("./heart.ppm");
+		Image I = readPPM("data/xmas.ppm");
+		Image J = readPPM("data/heart.ppm");
 		int w = J.w, h = J.h;
 		Image K(w, h);
 		float total = 0;

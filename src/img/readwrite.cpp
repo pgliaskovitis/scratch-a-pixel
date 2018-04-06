@@ -141,8 +141,8 @@ Image readPPM(const char *filename)
 // [/comment]
 int main(int argc, char **argv)
 {
-	Image I = readPPM("./xmas.ppm");
-	savePPM(I, "./readwrite_img.ppm");
+	Image I = readPPM("data/xmas.ppm");
+	savePPM(I, "./readwrite.ppm");
 
 	return 0;
 }

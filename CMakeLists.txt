@@ -14,31 +14,38 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 	set (CMAKE_CXX_FLAGS_RELEASE "/Ox")
 endif ()
 
-# basic Monte-Carlo
-add_executable (sampling_dist sampling_dist.cpp)
-if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-	add_executable (inversetransform inversetransform.cpp)
+include_directories (${CMAKE_SOURCE_DIR}/src/include)
+if (WIN32)
+	include_directories (${CMAKE_SOURCE_DIR})
 endif ()
-add_executable (mcsim mcsim.cpp)
-add_executable (mcintegration mcintegration.cpp)
-add_executable (mcrandom mcrandom.cpp)
-add_executable (mcimportance mcimportance.cpp)
-add_executable (mcquasi mcquasi.cpp)
-
-# basic raytracing
-add_executable (raytracer raytracer.cpp)
-
-# basic rasterization
-add_executable (perspproj perspproj.cpp)
-add_executable (pinhole pinhole.cpp)
-add_executable (raster2d_triangle raster2d_triangle.cpp)
-add_executable (raster3d_triangle raster3d_triangle.cpp)
-add_executable (raster3d raster3d.cpp)
-add_executable (glorthoprojmatrix glorthoprojmatrix.cpp)
-add_executable (glprojmatrix glprojmatrix.cpp)
-add_executable (projmatrix projmatrix.cpp)
 
 # basic color spaces/imaging
-add_executable (mcbeth mcbeth.cpp)
-add_executable (readwrite_img readwrite_img.cpp)
-add_executable (bokeh bokeh.cpp)
+add_executable (img_mcbeth src/img/mcbeth.cpp)
+add_executable (img_readwrite src/img/readwrite.cpp)
+add_executable (img_bokeh src/img/bokeh.cpp)
+
+# basic Monte-Carlo
+add_executable (mc_samplingdist src/mc/samplingdist.cpp)
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+	add_executable (mc_inversetransform src/mc/inversetransform.cpp)
+endif ()
+add_executable (mc_sim src/mc/sim.cpp)
+add_executable (mc_integration src/mc/integration.cpp)
+add_executable (mc_random src/mc/random.cpp)
+add_executable (mc_importance src/mc/importance.cpp)
+add_executable (mc_quasi src/mc/quasi.cpp)
+
+# basic rasterization
+add_executable (geometry src/raster/geometry.cpp)
+add_executable (perspproj src/raster/perspproj.cpp)
+add_executable (pinhole src/raster/pinhole.cpp)
+add_executable (glorthoprojmatrix src/raster/glorthoprojmatrix.cpp)
+add_executable (glprojmatrix src/raster/glprojmatrix.cpp)
+add_executable (projmatrix src/raster/projmatrix.cpp)
+add_executable (raster2d_triangle src/raster/raster2d_triangle.cpp)
+add_executable (raster3d_triangle src/raster/raster3d_triangle.cpp)
+add_executable (raster3d src/raster/raster3d.cpp)
+
+# basic raytracing
+add_executable (ray_basictracer src/ray/basictracer.cpp)
+

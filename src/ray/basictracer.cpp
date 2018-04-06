@@ -233,7 +233,7 @@ void render(const std::vector<Sphere> &spheres)
 		}
 	}
 	// Save result to a PPM image (keep these flags if you compile under Windows)
-	std::ofstream ofs("./raytracer.ppm", std::ios::out | std::ios::binary);
+	std::ofstream ofs("./basictracer.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 	for (unsigned i = 0; i < width * height; ++i) {
 		ofs << (unsigned char)(std::min(float(1), image[i].x) * 255) <<

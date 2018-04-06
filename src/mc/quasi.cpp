@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	}
 
 	std::ofstream ofs;
-	ofs.open("./mcquasi.ppm", std::ios::out | std::ios::binary);
+	ofs.open("./quasi.ppm", std::ios::out | std::ios::binary);
 	ofs << "P5\n" << width << " " << height << "\n255\n";
 	ofs.write((char*)pixels, width * height);
 	ofs.close();
