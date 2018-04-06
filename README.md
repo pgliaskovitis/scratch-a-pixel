@@ -1,11 +1,9 @@
 # scratch-a-pixel
 A repository of the code contained in the amazing Scratchapixel lessons https://www.scratchapixel.com/
 
-Disclaimer: This is for personal use only. I do not own the copyright to this code, https://www.scratchapixel.com/ does.
+This is for personal use and experimentation first and foremost. I do not own the copyright to this code, https://www.scratchapixel.com/ does. The goal is to support both GCC and MSVC. Minor issues from the original code such as floating point literals, constant definitions and occasionally missing headers as expected by MSVC have been corrected.
 
-The goal is to support both GCC and MSVC. Minor issues from the original code such as floating point literals, constant definitions and occasionally missing headers as expected by MSVC have been corrected.
-
-Code errata found:
+Specific issues found in the original code:
 
 -For Windows machines output file streams must always be opened with the flags: 
 
