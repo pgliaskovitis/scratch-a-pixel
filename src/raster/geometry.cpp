@@ -1,10 +1,27 @@
+/*
+ * Copyright (C) 2012  www.scratchapixel.com
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 //[header]
 // This program illustrates how the concept of vector and matrix can be implemented
 // in C++. This is a light version of the implementation. It contains the most
 // essential methods to manipulate vectors and matrices. It should be enough
 // for most projects. Vectors and matrices are really the alphabet as we said
 // in the lesson of any graphics application. It's really important you feel
-// confortable with these techniques especially with the concepts of
+// comfortable with these techniques especially with the concepts of
 // normalizing vectors, computing their length, computing the dot and cross products
 // of two vectors, and the point- and vector-matrix multiplication (and knowing
 // the difference between the two).
@@ -12,22 +29,6 @@
 //[compile]
 // c++ geometry.cpp  -o geometry -std=c++11
 //[/compile]
-//[ignore]
-// Copyright (C) 2012  www.scratchapixel.com
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//[/ignore]
 
 #include <cstdlib>
 #include <cstdio>
