@@ -28,88 +28,16 @@
 // reading PPM files.
 //[/compile]
 
-#include <cstdio>
-#include <cstdlib>
 #include <memory>
 #include <vector>
 #include <utility>
-#include <cstdint>
-#include <iostream>
 #include <fstream>
-#include <cmath>
 #include <algorithm>
 #include <chrono>
 
-#ifndef M_PI
-#define M_PI (3.14159265358979323846f)
-#endif
+#include "geometry.h"
 
 const float kInfinity = std::numeric_limits<float>::max();
-
-class Vec3f {
-public:
-	Vec3f() : x(0), y(0), z(0) {}
-	Vec3f(float xx) : x(xx), y(xx), z(xx) {}
-	Vec3f(float xx, float yy, float zz) : x(xx), y(yy), z(zz) {}
-	Vec3f operator * (const float &r) const { return Vec3f(x * r, y * r, z * r); }
-	Vec3f operator * (const Vec3f &v) const { return Vec3f(x * v.x, y * v.y, z * v.z); }
-	Vec3f operator - (const Vec3f &v) const { return Vec3f(x - v.x, y - v.y, z - v.z); }
-	Vec3f operator + (const Vec3f &v) const { return Vec3f(x + v.x, y + v.y, z + v.z); }
-	Vec3f operator - () const { return Vec3f(-x, -y, -z); }
-	Vec3f& operator += (const Vec3f &v) { x += v.x, y += v.y, z += v.z; return *this; }
-	friend Vec3f operator * (const float &r, const Vec3f &v)
-	{ return Vec3f(v.x * r, v.y * r, v.z * r); }
-	friend std::ostream & operator << (std::ostream &os, const Vec3f &v)
-	{ return os << v.x << ", " << v.y << ", " << v.z; }
-	float x, y, z;
-};
-
-class Vec2f
-{
-public:
-	Vec2f() : x(0), y(0) {}
-	Vec2f(float xx) : x(xx), y(xx) {}
-	Vec2f(float xx, float yy) : x(xx), y(yy) {}
-	Vec2f operator * (const float &r) const { return Vec2f(x * r, y * r); }
-	Vec2f operator + (const Vec2f &v) const { return Vec2f(x + v.x, y + v.y); }
-	float x, y;
-};
-
-Vec3f normalize(const Vec3f &v)
-{
-	float mag2 = v.x * v.x + v.y * v.y + v.z * v.z;
-	if (mag2 > 0) {
-		float invMag = 1 / sqrtf(mag2);
-		return Vec3f(v.x * invMag, v.y * invMag, v.z * invMag);
-	}
-
-	return v;
-}
-
-inline
-float dotProduct(const Vec3f &a, const Vec3f &b)
-{ return a.x * b.x + a.y * b.y + a.z * b.z; }
-
-Vec3f crossProduct(const Vec3f &a, const Vec3f &b)
-{
-	return Vec3f(
-		a.y * b.z - a.z * b.y,
-		a.z * b.x - a.x * b.z,
-		a.x * b.y - a.y * b.x
-	);
-}
-
-inline
-float clamp(const float &lo, const float &hi, const float &v)
-{ return std::max(lo, std::min(hi, v)); }
-
-inline
-float deg2rad(const float &deg)
-{ return deg * M_PI / 180; }
-
-inline
-Vec3f mix(const Vec3f &a, const Vec3f& b, const float &mixValue)
-{ return a * (1 - mixValue) + b * mixValue; }
 
 struct Options
 {
@@ -129,6 +57,26 @@ struct State
 	uint32_t numRefractionRays;
 	uint32_t numShadowRays;
 };
+
+inline float clamp(const float &lo, const float &hi, const float &v)
+{ 
+	return std::max(lo, std::min(hi, v)); 
+}
+
+inline float deg2rad(const float &deg)
+{
+	return deg * M_PI / 180; 
+}
+
+inline Vec3f mix(const Vec3f &a, const Vec3f& b, const float &mixValue)
+{ 
+	return a * (1 - mixValue) + b * mixValue; 
+}
+
+inline Vec3f reflect(const Vec3f &I, const Vec3f &N)
+{
+	return I - 2 * I.dotProduct(N) * N;
+}
 
 class Light
 {
@@ -182,9 +130,9 @@ public:
 	{
 		// analytic solution
 		Vec3f L = orig - center;
-		float a = dotProduct(dir, dir);
-		float b = 2 * dotProduct(dir, L);
-		float c = dotProduct(L, L) - radius2;
+		float a = dir.dotProduct(dir);
+		float b = 2 * dir.dotProduct(L);
+		float c = L.dotProduct(L) - radius2;
 		float t0, t1;
 		if (!solveQuadratic(a, b, c, t0, t1)) return false;
 		if (t0 < 0) t0 = t1;
@@ -195,7 +143,9 @@ public:
 	}
 
 	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
-	{ N = normalize(P - center); }
+	{
+		N = (P - center).normalize();
+	}
 
 	Vec3f center;
 	float radius, radius2;
@@ -208,21 +158,21 @@ bool rayTriangleIntersect(
 {
 	Vec3f edge1 = v1 - v0;
 	Vec3f edge2 = v2 - v0;
-	Vec3f pvec = crossProduct(dir, edge2);
-	float det = dotProduct(edge1, pvec);
+	Vec3f pvec = dir.crossProduct(edge2);
+	float det = edge1.dotProduct(pvec);
 	if (det == 0 || det < 0) return false;
 
 	Vec3f tvec = orig - v0;
-	u = dotProduct(tvec, pvec);
+	u = tvec.dotProduct(pvec);
 	if (u < 0 || u > det) return false;
 
-	Vec3f qvec = crossProduct(tvec, edge1);
-	v = dotProduct(dir, qvec);
+	Vec3f qvec = tvec.crossProduct(edge1);
+	v = dir.dotProduct(qvec);
 	if (v < 0 || u + v > det) return false;
 
 	float invDet = 1 / det;
 
-	tnear = dotProduct(edge2, qvec) * invDet;
+	tnear = edge2.dotProduct(qvec) * invDet;
 	u *= invDet;
 	v *= invDet;
 
@@ -276,9 +226,9 @@ public:
 		const Vec3f &v0 = vertices[vertexIndex[index * 3]];
 		const Vec3f &v1 = vertices[vertexIndex[index * 3 + 1]];
 		const Vec3f &v2 = vertices[vertexIndex[index * 3 + 2]];
-		Vec3f e0 = normalize(v1 - v0);
-		Vec3f e1 = normalize(v2 - v1);
-		N = normalize(crossProduct(e0, e1));
+		Vec3f e0 = (v1 - v0).normalize();
+		Vec3f e1 = (v2 - v1).normalize();
+		N = e0.crossProduct(e1).normalize();
 		const Vec2f &st0 = stCoordinates[vertexIndex[index * 3]];
 		const Vec2f &st1 = stCoordinates[vertexIndex[index * 3 + 1]];
 		const Vec2f &st2 = stCoordinates[vertexIndex[index * 3 + 2]];
@@ -299,14 +249,6 @@ public:
 };
 
 // [comment]
-// Compute reflection direction
-// [/comment]
-Vec3f reflect(const Vec3f &I, const Vec3f &N)
-{
-	return I - 2 * dotProduct(I, N) * N;
-}
-
-// [comment]
 // Compute refraction direction using Snell's law
 //
 // We need to handle with care the two possible situations:
@@ -321,7 +263,7 @@ Vec3f reflect(const Vec3f &I, const Vec3f &N)
 // [/comment]
 Vec3f refract(const Vec3f &I, const Vec3f &N, const float &ior)
 {
-	float cosi = clamp(-1, 1, dotProduct(I, N));
+	float cosi = clamp(-1, 1, I.dotProduct(N));
 	float etai = 1, etat = ior;
 	Vec3f n = N;
 	if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n= -N; }
@@ -343,7 +285,7 @@ Vec3f refract(const Vec3f &I, const Vec3f &N, const float &ior)
 // [/comment]
 void fresnel(const Vec3f &I, const Vec3f &N, const float &ior, float &kr)
 {
-	float cosi = clamp(-1, 1, dotProduct(I, N));
+	float cosi = clamp(-1, 1, I.dotProduct(N));
 	float etai = 1, etat = ior;
 	if (cosi > 0) {  std::swap(etai, etat); }
 	// Compute sini using Snell's law
@@ -446,12 +388,12 @@ Vec3f castRay(
 		switch (hitObject->materialType) {
 			case REFLECTION_AND_REFRACTION:
 			{
-				Vec3f reflectionDirection = normalize(reflect(dir, N));
-				Vec3f refractionDirection = normalize(refract(dir, N, hitObject->ior));
-				Vec3f reflectionRayOrig = (dotProduct(reflectionDirection, N) < 0) ?
+				Vec3f reflectionDirection = reflect(dir, N).normalize();
+				Vec3f refractionDirection = refract(dir, N, hitObject->ior).normalize();
+				Vec3f reflectionRayOrig = (reflectionDirection.dotProduct(N) < 0) ?
 					hitPoint - N * options.bias :
 					hitPoint + N * options.bias;
-				Vec3f refractionRayOrig = (dotProduct(refractionDirection, N) < 0) ?
+				Vec3f refractionRayOrig = (refractionDirection.dotProduct(N) < 0) ?
 					hitPoint - N * options.bias :
 					hitPoint + N * options.bias;
 				state.numReflectionRays++;
@@ -468,7 +410,7 @@ Vec3f castRay(
 				float kr;
 				fresnel(dir, N, hitObject->ior, kr);
 				Vec3f reflectionDirection = reflect(dir, N);
-				Vec3f reflectionRayOrig = (dotProduct(reflectionDirection, N) < 0) ?
+				Vec3f reflectionRayOrig = (reflectionDirection.dotProduct(N) < 0) ?
 					hitPoint + N * options.bias :
 					hitPoint - N * options.bias;
 				state.numReflectionRays++;
@@ -482,7 +424,7 @@ Vec3f castRay(
 				// is composed of a diffuse and a specular reflection component.
 				// [/comment]
 				Vec3f lightAmt = 0, specularColor = 0;
-				Vec3f shadowPointOrig = (dotProduct(dir, N) < 0) ?
+				Vec3f shadowPointOrig = (dir.dotProduct(N) < 0) ?
 					hitPoint + N * options.bias :
 					hitPoint - N * options.bias;
 				// [comment]
@@ -493,9 +435,9 @@ Vec3f castRay(
 					state.numShadowRays++;
 					Vec3f lightDir = lights[i]->position - hitPoint;
 					// square of the distance between hitPoint and the light
-					float lightDistance2 = dotProduct(lightDir, lightDir);
-					lightDir = normalize(lightDir);
-					float LdotN = std::max(0.f, dotProduct(lightDir, N));
+					float lightDistance2 = lightDir.dotProduct(lightDir);
+					lightDir = lightDir.normalize();
+					float LdotN = std::max(0.f, lightDir.dotProduct(N));
 					Object *shadowHitObject = nullptr;
 					float tNearShadow = kInfinity;
 					// is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
@@ -503,7 +445,7 @@ Vec3f castRay(
 						tNearShadow * tNearShadow < lightDistance2;
 					lightAmt += (1.f - inShadow) * lights[i]->intensity * LdotN;
 					Vec3f reflectionDirection = reflect(-lightDir, N);
-					specularColor += powf(std::max(0.f, -dotProduct(reflectionDirection, dir)), hitObject->specularExponent) * lights[i]->intensity;
+					specularColor += powf(std::max(0.f, -reflectionDirection.dotProduct(dir)), hitObject->specularExponent) * lights[i]->intensity;
 				}
 				hitColor = lightAmt * hitObject->evalDiffuseColor(st) * hitObject->Kd + specularColor * hitObject->Ks;
 				break;
@@ -535,7 +477,7 @@ void render(
 			// generate primary ray direction
 			float x = (2 * (i + 0.5f) / (float)options.width - 1) * imageAspectRatio * scale;
 			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale;
-			Vec3f dir = normalize(Vec3f(x, y, -1));
+			Vec3f dir = Vec3f(x, y, -1).normalize();
 			state.numPrimaryRays++;
 			*(pix++) = castRay(orig, dir, objects, lights, options, state, 0);
 		}

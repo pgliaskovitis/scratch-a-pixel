@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -34,10 +34,6 @@
 
 #include "geometry.h"
 #include "cow.h"
-
-#ifndef M_PI
-#define M_PI (3.14159265358979323846f)
-#endif
 
 static const float inchToMm = 25.4f;
 enum FitResolutionGate { kFill = 0, kOverscan };

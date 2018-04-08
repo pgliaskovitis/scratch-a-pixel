@@ -22,56 +22,22 @@
 // c++ -o raytracer -O3 -Wall raytracer.cpp
 // [/compile]
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <fstream>
 #include <vector>
-#include <iostream>
-#include <cassert>
+#include <fstream>
 #include <algorithm>
 #include <chrono>
 
-#ifndef M_PI
-#define M_PI (3.14159265358979323846f)
-#endif
+#include "geometry.h"
 
-template<typename T>
-class Vec3
+//[comment]
+// This variable controls the maximum recursion depth
+//[/comment]
+#define MAX_RAY_DEPTH 5
+
+inline float mix(const float &a, const float &b, const float &mix)
 {
-public:
-	T x, y, z;
-	Vec3() : x(T(0)), y(T(0)), z(T(0)) {}
-	Vec3(T xx) : x(xx), y(xx), z(xx) {}
-	Vec3(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {}
-	Vec3& normalize()
-	{
-		T nor2 = length2();
-		if (nor2 > 0) {
-			T invNor = 1 / sqrt(nor2);
-			x *= invNor, y *= invNor, z *= invNor;
-		}
-		return *this;
-	}
-	Vec3<T> operator * (const T &f) const { return Vec3<T>(x * f, y * f, z * f); }
-	Vec3<T> operator * (const Vec3<T> &v) const { return Vec3<T>(x * v.x, y * v.y, z * v.z); }
-	T dot(const Vec3<T> &v) const { return x * v.x + y * v.y + z * v.z; }
-	Vec3<T> operator - (const Vec3<T> &v) const { return Vec3<T>(x - v.x, y - v.y, z - v.z); }
-	Vec3<T> operator + (const Vec3<T> &v) const { return Vec3<T>(x + v.x, y + v.y, z + v.z); }
-	Vec3<T>& operator += (const Vec3<T> &v) { x += v.x, y += v.y, z += v.z; return *this; }
-	Vec3<T>& operator *= (const Vec3<T> &v) { x *= v.x, y *= v.y, z *= v.z; return *this; }
-	Vec3<T> operator - () const { return Vec3<T>(-x, -y, -z); }
-	T length2() const { return x * x + y * y + z * z; }
-	T length() const { return sqrt(length2()); }
-	friend std::ostream & operator << (std::ostream &os, const Vec3<T> &v)
-	{
-		os << "[" << v.x << " " << v.y << " " << v.z << "]";
-		return os;
-	}
-};
-
-typedef Vec3<float> Vec3f;
+	return b * mix + a * (1 - mix);
+}
 
 class Sphere
 {
@@ -96,9 +62,9 @@ public:
 	bool intersect(const Vec3f &rayorig, const Vec3f &raydir, float &t0, float &t1) const
 	{
 		Vec3f l = center - rayorig;
-		float tca = l.dot(raydir);
+		float tca = l.dotProduct(raydir);
 		if (tca < 0) return false;
-		float d2 = l.dot(l) - tca * tca;
+		float d2 = l.dotProduct(l) - tca * tca;
 		if (d2 > radius2) return false;
 		float thc = sqrt(radius2 - d2);
 		t0 = tca - thc;
@@ -107,16 +73,6 @@ public:
 		return true;
 	}
 };
-
-//[comment]
-// This variable controls the maximum recursion depth
-//[/comment]
-#define MAX_RAY_DEPTH 5
-
-float mix(const float &a, const float &b, const float &mix)
-{
-	return b * mix + a * (1 - mix);
-}
 
 //[comment]
 // This is the main trace function. It takes a ray as argument (defined by its origin
@@ -160,21 +116,21 @@ Vec3f trace(
 	// positive.
 	float bias = 1e-4f; // add some bias to the point from which we will be tracing
 	bool inside = false;
-	if (raydir.dot(nhit) > 0) nhit = -nhit, inside = true;
+	if (raydir.dotProduct(nhit) > 0) nhit = -nhit, inside = true;
 	if ((sphere->transparency > 0 || sphere->reflection > 0) && depth < MAX_RAY_DEPTH) {
-		float facingratio = -raydir.dot(nhit);
+		float facingratio = -raydir.dotProduct(nhit);
 		// change the mix value to tweak the effect
 		float fresneleffect = mix(pow(1 - facingratio, 3), 1, 0.1f);
 		// compute reflection direction (not need to normalize because all vectors
 		// are already normalized)
-		Vec3f refldir = raydir - nhit * 2 * raydir.dot(nhit);
+		Vec3f refldir = raydir - nhit * 2 * raydir.dotProduct(nhit);
 		refldir.normalize();
 		Vec3f reflection = trace(phit + nhit * bias, refldir, spheres, depth + 1);
 		Vec3f refraction = 0;
 		// if the sphere is also transparent compute refraction ray (transmission)
 		if (sphere->transparency) {
 			float ior = 1.1f, eta = (inside) ? ior : 1 / ior; // are we inside or outside the surface?
-			float cosi = -nhit.dot(raydir);
+			float cosi = -nhit.dotProduct(raydir);
 			float k = 1 - eta * eta * (1 - cosi * cosi);
 			Vec3f refrdir = raydir * eta + nhit * (eta *  cosi - sqrt(k));
 			refrdir.normalize();
@@ -203,7 +159,7 @@ Vec3f trace(
 					}
 				}
 				surfaceColor += sphere->surfaceColor * transmission *
-				std::max(float(0), nhit.dot(lightDirection)) * spheres[i].emissionColor;
+				std::max(float(0), nhit.dotProduct(lightDirection)) * spheres[i].emissionColor;
 			}
 		}
 	}
