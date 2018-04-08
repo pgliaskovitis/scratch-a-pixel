@@ -153,8 +153,8 @@ float edgeFunction(const Vec3f &a, const Vec3f &b, const Vec3f &c)
 	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
 }
 
-const uint32_t imageWidth = 640;
-const uint32_t imageHeight = 480;
+const uint32_t imageWidth = 1920;
+const uint32_t imageHeight = 1080;
 const Matrix44f worldToCamera = {0.707107f, -0.331295f, 0.624695f, 0.0f, 0.0f, 0.883452f, 0.468521f, 0.0f, -0.707107f, -0.331295f, 0.624695f, 0.0f, -1.63871f, -5.747777f, -40.400412f, 1.0f};
 
 const uint32_t ntris = 3156;

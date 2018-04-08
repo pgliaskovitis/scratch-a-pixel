@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -31,7 +31,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
-#include <time.h>
+#include <chrono>
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846f)
@@ -103,7 +103,7 @@ public:
 		float thc = sqrt(radius2 - d2);
 		t0 = tca - thc;
 		t1 = tca + thc;
-		
+
 		return true;
 	}
 };
@@ -207,7 +207,7 @@ Vec3f trace(
 			}
 		}
 	}
-	
+
 	return surfaceColor + sphere->emissionColor;
 }
 
@@ -218,7 +218,7 @@ Vec3f trace(
 //[/comment]
 void render(const std::vector<Sphere> &spheres)
 {
-	unsigned width = 640, height = 480;
+	unsigned width = 1920, height = 1080;
 	Vec3f *image = new Vec3f[width * height], *pixel = image;
 	float invWidth = 1 / float(width), invHeight = 1 / float(height);
 	float fov = 30.0f, aspectratio = width / float(height);
@@ -261,7 +261,14 @@ int main(int argc, char **argv)
 	spheres.push_back(Sphere(Vec3f(-5.5f,      0.0f, -15.0f),     3, Vec3f(0.90f, 0.90f, 0.90f), 1, 0.0));
 	// light
 	spheres.push_back(Sphere(Vec3f( 0.0,     20, -30),     3, Vec3f(0.00, 0.00, 0.00), 0, 0.0, Vec3f(3)));
+
+	auto t_start = std::chrono::high_resolution_clock::now();
+
 	render(spheres);
-	
+
+	auto t_end = std::chrono::high_resolution_clock::now();
+	auto passedTime = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+	std::cerr << "Wall passed time:  " << passedTime << " ms" << std::endl;
+
 	return 0;
 }
