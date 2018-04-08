@@ -122,6 +122,14 @@ struct Options
 	float bias;
 };
 
+struct State
+{
+	uint32_t numPrimaryRays;
+	uint32_t numReflectionRays;
+	uint32_t numRefractionRays;
+	uint32_t numShadowRays;
+};
+
 class Light
 {
 public:
@@ -405,10 +413,10 @@ bool trace(
 // then we compute the reflection/refracton direction and cast two new rays into the scene
 // by calling the castRay() function recursively. When the surface is transparent, we mix
 // the reflection and refraction color using the result of the fresnel equations (it computes
-// the amount of reflection and refractin depending on the surface normal, incident view direction
+// the amount of reflection and refraction depending on the surface normal, incident view direction
 // and surface refractive index).
 //
-// If the surface is duffuse/glossy we use the Phong illumation model to compute the color
+// If the surface is diffuse/glossy we use the Phong illumation model to compute the color
 // at the intersection point.
 // [/comment]
 Vec3f castRay(
@@ -416,6 +424,7 @@ Vec3f castRay(
 	const std::vector<std::unique_ptr<Object>> &objects,
 	const std::vector<std::unique_ptr<Light>> &lights,
 	const Options &options,
+	State &state,
 	uint32_t depth,
 	bool test = false)
 {
@@ -445,8 +454,10 @@ Vec3f castRay(
 				Vec3f refractionRayOrig = (dotProduct(refractionDirection, N) < 0) ?
 					hitPoint - N * options.bias :
 					hitPoint + N * options.bias;
-				Vec3f reflectionColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1, 1);
-				Vec3f refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, depth + 1, 1);
+				state.numReflectionRays++;
+				Vec3f reflectionColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, state, depth + 1, 1);
+				state.numRefractionRays++;
+				Vec3f refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, state, depth + 1, 1);
 				float kr;
 				fresnel(dir, N, hitObject->ior, kr);
 				hitColor = reflectionColor * kr + refractionColor * (1 - kr);
@@ -460,7 +471,8 @@ Vec3f castRay(
 				Vec3f reflectionRayOrig = (dotProduct(reflectionDirection, N) < 0) ?
 					hitPoint + N * options.bias :
 					hitPoint - N * options.bias;
-				hitColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1) * kr;
+				state.numReflectionRays++;
+				hitColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, state, depth + 1) * kr;
 				break;
 			}
 			default:
@@ -478,6 +490,7 @@ Vec3f castRay(
 				// We also apply the lambert cosine law here though we haven't explained yet what this means.
 				// [/comment]
 				for (uint32_t i = 0; i < lights.size(); ++i) {
+					state.numShadowRays++;
 					Vec3f lightDir = lights[i]->position - hitPoint;
 					// square of the distance between hitPoint and the light
 					float lightDistance2 = dotProduct(lightDir, lightDir);
@@ -509,7 +522,8 @@ Vec3f castRay(
 void render(
 	const Options &options,
 	const std::vector<std::unique_ptr<Object>> &objects,
-	const std::vector<std::unique_ptr<Light>> &lights)
+	const std::vector<std::unique_ptr<Light>> &lights,
+	State &state)
 {
 	Vec3f *framebuffer = new Vec3f[options.width * options.height];
 	Vec3f *pix = framebuffer;
@@ -522,7 +536,8 @@ void render(
 			float x = (2 * (i + 0.5f) / (float)options.width - 1) * imageAspectRatio * scale;
 			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale;
 			Vec3f dir = normalize(Vec3f(x, y, -1));
-			*(pix++) = castRay(orig, dir, objects, lights, options, 0);
+			state.numPrimaryRays++;
+			*(pix++) = castRay(orig, dir, objects, lights, options, state, 0);
 		}
 	}
 
@@ -580,17 +595,29 @@ int main(int argc, char **argv)
 	options.height = 1080;
 	options.fov = 90;
 	options.backgroundColor = Vec3f(0.235294f, 0.67451f, 0.843137f);
-	options.maxDepth = 5;
+	options.maxDepth = 50;
 	options.bias = 0.00001f;
 
+	//setting up state
+	State state;
+	state.numPrimaryRays = 0;
+	state.numReflectionRays = 0;
+	state.numRefractionRays = 0;
+	state.numShadowRays = 0;
+
 	auto t_start = std::chrono::high_resolution_clock::now();
-	
+
 	// finally, render
-	render(options, objects, lights);
+	render(options, objects, lights, state);
 
 	auto t_end = std::chrono::high_resolution_clock::now();
 	auto passedTime = std::chrono::duration<double, std::milli>(t_end - t_start).count();
 	std::cerr << "Wall passed time:  " << passedTime << " ms" << std::endl;
-	
+
+	std::cerr << "Primary rays cast: " << state.numPrimaryRays << std::endl;
+	std::cerr << "Reflection rays cast: " << state.numReflectionRays << std::endl;
+	std::cerr << "Refraction rays cast: " << state.numRefractionRays << std::endl;
+	std::cerr << "Shadow rays cast: " << state.numShadowRays << std::endl;
+
 	return 0;
 }
