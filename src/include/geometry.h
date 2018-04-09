@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -39,9 +39,7 @@
 #include <iomanip>
 #include <cmath>
 
-#ifndef M_PI
-#define M_PI (3.14159265358979323846f)
-#endif
+#include "utils.h"
 
 template<typename T>
 class Vec2
@@ -69,9 +67,6 @@ public:
 	T x, y;
 };
 
-typedef Vec2<float> Vec2f;
-typedef Vec2<int> Vec2i;
-
 //[comment]
 // Implementation of a generic vector class - it will be used to deal with 3D points, vectors and normals.
 // The class is implemented as a template. While it may complicate the code a bit, it gives us
@@ -81,6 +76,16 @@ typedef Vec2<int> Vec2i;
 // Vec3 is a standard/common way of naming vectors, points, etc. The OpenEXR and Autodesk libraries
 // use this convention for instance.
 //[/comment]
+
+template<typename T>
+class Vec3;
+
+template <typename T>
+inline Vec3<T> mix(const Vec3<T> &a, const Vec3<T> &b, const float &mixValue);
+
+template <typename T>
+inline Vec3<T> reflect(const Vec3<T> &I, const Vec3<T> &N);
+
 template<typename T>
 class Vec3
 {
@@ -152,12 +157,17 @@ public:
 	T x, y, z;
 };
 
-//[comment]
-// Now you can specialize the class. We are just showing two examples here. In your code
-// you can declare a vector either that way: Vec3<float> a, or that way: Vec3f a
-//[/comment]
-typedef Vec3<float> Vec3f;
-typedef Vec3<int> Vec3i;
+template <typename T>
+inline Vec3<T> mix(const Vec3<T> &a, const Vec3<T> &b, const float &mixValue)
+{
+	return a * (1 - mixValue) + b * mixValue;
+}
+
+template <typename T>
+inline Vec3<T> reflect(const Vec3<T> &I, const Vec3<T> &N)
+{
+	return I - 2 * I.dotProduct(N) * N;
+}
 
 //[comment]
 // Implementation of a generic 4x4 Matrix class - Same thing here than with the Vec3 class. It uses
@@ -519,33 +529,12 @@ public:
 	}
 };
 
-typedef Matrix44<float> Matrix44f;
-
 //[comment]
-// Testing our code. To test the matrix inversion code, we used Maya to output
-// the values of a matrix and its inverse (check the video at the top of this page). Of course this implies
-// that Maya actually does the right thing, but we can probably agree, that is actually does;).
-// These are the values for the input matrix:
-//
-// 0.707107 0 -0.707107 0 -0.331295 0.883452 -0.331295 0 0.624695 0.468521 0.624695 0 4.000574 3.00043 4.000574 1
-//
-// Given the input matrix, the inverse matrix computed by our code should match the following values:
-//
-// 0.707107 -0.331295 0.624695 0 0 0.883452 0.468521 0 -0.707107 -0.331295 0.624695 0 0 0 -6.404043 1
+// Now you can specialize the classes. We are just showing some examples here. In your code
+// you can declare a vector either that way: Vec3<float> a, or that way: Vec3f a
 //[/comment]
-#if 0
-int main(int argc, char **argv)
-{
-	Vec3f v(0, 1, 2);
-	std::cerr << v << std::endl;
-	Matrix44f a, b, c;
-	c = a * b;
-
-	Matrix44f d(0.707107, 0, -0.707107, 0, -0.331295, 0.883452, -0.331295, 0, 0.624695, 0.468521, 0.624695, 0, 4.000574, 3.00043, 4.000574, 1);
-	std::cerr << d << std::endl;
-	d.invert();
-	std::cerr << d << std::endl;
-
-	return 0;
-}
-#endif
+typedef Vec2<float> Vec2f;
+typedef Vec2<int> Vec2i;
+typedef Vec3<float> Vec3f;
+typedef Vec3<int> Vec3i;
+typedef Matrix44<float> Matrix44f;

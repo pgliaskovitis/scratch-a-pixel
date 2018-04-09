@@ -32,7 +32,6 @@
 #include <vector>
 #include <utility>
 #include <fstream>
-#include <algorithm>
 #include <chrono>
 
 #include "geometry.h"
@@ -57,26 +56,6 @@ struct State
 	uint32_t numRefractionRays;
 	uint32_t numShadowRays;
 };
-
-inline float clamp(const float &lo, const float &hi, const float &v)
-{ 
-	return std::max(lo, std::min(hi, v)); 
-}
-
-inline float deg2rad(const float &deg)
-{
-	return deg * M_PI / 180; 
-}
-
-inline Vec3f mix(const Vec3f &a, const Vec3f& b, const float &mixValue)
-{ 
-	return a * (1 - mixValue) + b * mixValue; 
-}
-
-inline Vec3f reflect(const Vec3f &I, const Vec3f &N)
-{
-	return I - 2 * I.dotProduct(N) * N;
-}
 
 class Light
 {

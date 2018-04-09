@@ -24,20 +24,11 @@
 
 #include <vector>
 #include <fstream>
-#include <algorithm>
 #include <chrono>
 
 #include "geometry.h"
 
-//[comment]
-// This variable controls the maximum recursion depth
-//[/comment]
 #define MAX_RAY_DEPTH 5
-
-inline float mix(const float &a, const float &b, const float &mix)
-{
-	return b * mix + a * (1 - mix);
-}
 
 class Sphere
 {
