@@ -19,12 +19,12 @@
 // A simple program to demonstrate how to implement Whitted-style ray-tracing
 //[/header]
 
-#include <memory>
 #include <vector>
 #include <fstream>
 #include <chrono>
 
 #include "geometry.h"
+#include "objects.h"
 
 const float kInfinity = std::numeric_limits<float>::max();
 
@@ -46,233 +46,6 @@ struct State
 	uint32_t numRefractionRays;
 	uint32_t numShadowRays;
 };
-
-class Light
-{
-public:
-	Light(const Vec3f &p, const Vec3f &i) : position(p), intensity(i) {}
-	Vec3f position;
-	Vec3f intensity;
-};
-
-enum MaterialType { DIFFUSE_AND_GLOSSY, REFLECTION_AND_REFRACTION, REFLECTION };
-
-class Object
-{
- public:
-	Object() :
-		materialType(DIFFUSE_AND_GLOSSY),
-		ior(1.3f), Kd(0.8f), Ks(0.2f), diffuseColor(0.2f), specularExponent(25) {}
-	virtual ~Object() {}
-	virtual bool intersect(const Vec3f &, const Vec3f &, float &, uint32_t &, Vec2f &) const = 0;
-	virtual void getSurfaceProperties(const Vec3f &, const Vec3f &, const uint32_t &, const Vec2f &, Vec3f &, Vec2f &) const = 0;
-	virtual Vec3f evalDiffuseColor(const Vec2f &) const { return diffuseColor; }
-	// material properties
-	MaterialType materialType;
-	float ior;
-	float Kd, Ks;
-	Vec3f diffuseColor;
-	float specularExponent;
-};
-
-bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, float &x1)
-{
-	float discr = b * b - 4 * a * c;
-	if (discr < 0) return false;
-	else if (discr == 0) x0 = x1 = - 0.5f * b / a;
-	else {
-		float q = (b > 0) ?
-			-0.5f * (b + sqrt(discr)) :
-			-0.5f * (b - sqrt(discr));
-		x0 = q / a;
-		x1 = c / q;
-	}
-	if (x0 > x1) std::swap(x0, x1);
-	return true;
-}
-
-class Sphere : public Object
-{
-public:
-	Sphere(const Vec3f &c, const float &r) : center(c), radius(r), radius2(r * r) {}
-	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
-	{
-		// analytic solution
-		Vec3f L = orig - center;
-		float a = dir.dotProduct(dir);
-		float b = 2 * dir.dotProduct(L);
-		float c = L.dotProduct(L) - radius2;
-		float t0, t1;
-		if (!solveQuadratic(a, b, c, t0, t1)) return false;
-		if (t0 < 0) t0 = t1;
-		if (t0 < 0) return false;
-		tnear = t0;
-
-		return true;
-	}
-
-	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
-	{
-		N = (P - center).normalize();
-	}
-
-	Vec3f center;
-	float radius, radius2;
-};
-
-bool rayTriangleIntersect(
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
-	const Vec3f &orig, const Vec3f &dir,
-	float &tnear, float &u, float &v)
-{
-	Vec3f edge1 = v1 - v0;
-	Vec3f edge2 = v2 - v0;
-	Vec3f pvec = dir.crossProduct(edge2);
-	float det = edge1.dotProduct(pvec);
-	if (det == 0 || det < 0) return false;
-
-	Vec3f tvec = orig - v0;
-	u = tvec.dotProduct(pvec);
-	if (u < 0 || u > det) return false;
-
-	Vec3f qvec = tvec.crossProduct(edge1);
-	v = dir.dotProduct(qvec);
-	if (v < 0 || u + v > det) return false;
-
-	float invDet = 1 / det;
-
-	tnear = edge2.dotProduct(qvec) * invDet;
-	u *= invDet;
-	v *= invDet;
-
-	return true;
-}
-
-class MeshTriangle : public Object
-{
-public:
-	MeshTriangle(
-		const Vec3f *verts,
-		const uint32_t *vertsIndex,
-		const uint32_t &numTris,
-		const Vec2f *st)
-	{
-		uint32_t maxIndex = 0;
-		for (uint32_t i = 0; i < numTris * 3; ++i)
-			if (vertsIndex[i] > maxIndex) maxIndex = vertsIndex[i];
-		maxIndex += 1;
-		vertices = std::unique_ptr<Vec3f[]>(new Vec3f[maxIndex]);
-		memcpy(vertices.get(), verts, sizeof(Vec3f) * maxIndex);
-		vertexIndex = std::unique_ptr<uint32_t[]>(new uint32_t[numTris * 3]);
-		memcpy(vertexIndex.get(), vertsIndex, sizeof(uint32_t) * numTris * 3);
-		numTriangles = numTris;
-		stCoordinates = std::unique_ptr<Vec2f[]>(new Vec2f[maxIndex]);
-		memcpy(stCoordinates.get(), st, sizeof(Vec2f) * maxIndex);
-	}
-
-	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
-	{
-		bool intersect = false;
-		for (uint32_t k = 0; k < numTriangles; ++k) {
-			const Vec3f & v0 = vertices[vertexIndex[k * 3]];
-			const Vec3f & v1 = vertices[vertexIndex[k * 3 + 1]];
-			const Vec3f & v2 = vertices[vertexIndex[k * 3 + 2]];
-			float t, u, v;
-			if (rayTriangleIntersect(v0, v1, v2, orig, dir, t, u, v) && t < tnear) {
-				tnear = t;
-				uv.x = u;
-				uv.y = v;
-				index = k;
-				intersect |= true;
-			}
-		}
-
-		return intersect;
-	}
-
-	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
-	{
-		const Vec3f &v0 = vertices[vertexIndex[index * 3]];
-		const Vec3f &v1 = vertices[vertexIndex[index * 3 + 1]];
-		const Vec3f &v2 = vertices[vertexIndex[index * 3 + 2]];
-		Vec3f e0 = (v1 - v0).normalize();
-		Vec3f e1 = (v2 - v1).normalize();
-		N = e0.crossProduct(e1).normalize();
-		const Vec2f &st0 = stCoordinates[vertexIndex[index * 3]];
-		const Vec2f &st1 = stCoordinates[vertexIndex[index * 3 + 1]];
-		const Vec2f &st2 = stCoordinates[vertexIndex[index * 3 + 2]];
-		st = st0 * (1 - uv.x - uv.y) + st1 * uv.x + st2 * uv.y;
-	}
-
-	Vec3f evalDiffuseColor(const Vec2f &st) const
-	{
-		float scale = 5.f;
-		float pattern = (fmodf(st.x * scale, 1.f) > 0.5f) ^ (fmodf(st.y * scale, 1.f) > 0.5f);
-		return mix(Vec3f(0.815f, 0.235f, 0.031f), Vec3f(0.937f, 0.937f, 0.231f), pattern);
-	}
-
-	std::unique_ptr<Vec3f[]> vertices;
-	uint32_t numTriangles;
-	std::unique_ptr<uint32_t[]> vertexIndex;
-	std::unique_ptr<Vec2f[]> stCoordinates;
-};
-
-// [comment]
-// Compute refraction direction using Snell's law
-//
-// We need to handle with care the two possible situations:
-//
-//    - When the ray is inside the object
-//
-//    - When the ray is outside.
-//
-// If the ray is outside, you need to make cosi positive cosi = -N.I
-//
-// If the ray is inside, you need to invert the refractive indices and negate the normal N
-// [/comment]
-Vec3f refract(const Vec3f &I, const Vec3f &N, const float &ior)
-{
-	float cosi = clamp(-1, 1, I.dotProduct(N));
-	float etai = 1, etat = ior;
-	Vec3f n = N;
-	if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n= -N; }
-	float eta = etai / etat;
-	float k = 1 - eta * eta * (1 - cosi * cosi);
-	return k < 0 ? 0 : eta * I + (eta * cosi - sqrtf(k)) * n;
-}
-
-// [comment]
-// Compute Fresnel equation
-//
-// \param I is the incident view direction
-//
-// \param N is the normal at the intersection point
-//
-// \param ior is the mateural refractive index
-//
-// \param[out] kr is the amount of light reflected
-// [/comment]
-void fresnel(const Vec3f &I, const Vec3f &N, const float &ior, float &kr)
-{
-	float cosi = clamp(-1, 1, I.dotProduct(N));
-	float etai = 1, etat = ior;
-	if (cosi > 0) {  std::swap(etai, etat); }
-	// Compute sini using Snell's law
-	float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
-	// Total internal reflection
-	if (sint >= 1) {
-		kr = 1;
-	}
-	else {
-		float cost = sqrtf(std::max(0.f, 1 - sint * sint));
-		cosi = fabsf(cosi);
-		float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
-		float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
-		kr = (Rs * Rs + Rp * Rp) / 2;
-	}
-	// As a consequence of the conservation of energy, transmittance is given by:
-	// kt = 1 - kr;
-}
 
 // [comment]
 // Returns true if the ray intersects an object, false otherwise.
@@ -479,7 +252,7 @@ int main(int argc, char **argv)
 	std::vector<std::unique_ptr<Object>> objects;
 	std::vector<std::unique_ptr<Light>> lights;
 
-	Sphere *sph1 = new Sphere(Vec3f(-1, 0, -12), 2);
+	Sphere *sph1 = new Sphere(Vec3f(-1, 0, -12), 2.f);
 	sph1->materialType = DIFFUSE_AND_GLOSSY;
 	sph1->diffuseColor = Vec3f(0.6f, 0.7f, 0.8f);
 	Sphere *sph2 = new Sphere(Vec3f(0.5f, -0.5f, -8), 1.5f);

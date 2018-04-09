@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 uint32_t nvertices[9468] = {
 2, 0, 3, 1, 3, 0, 4, 2,
 5, 3, 5, 2, 6, 4, 7, 5,

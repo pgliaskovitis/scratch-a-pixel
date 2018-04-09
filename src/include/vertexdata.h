@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+#pragma once
+
 const uint32_t numVertices = 2630;
 const Vec3f vertices[numVertices] = {
 	{  7.00000f, 12.00000f,  0.00000f},
