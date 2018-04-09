@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,12 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include <fstream>
-#include <algorithm>
 
 typedef float Vec2[2];
 typedef float Vec3[3];

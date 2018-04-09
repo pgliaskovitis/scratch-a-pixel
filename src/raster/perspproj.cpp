@@ -23,21 +23,8 @@
 // world coordinates to 2D pixel coordinates). Triangles are stored in the SVG
 // file by connecting their respective vertices to each other with lines.
 //[/header]
-//[compile]
-// Download the perspproj.cpp and geometry.h files to the same folder.
-// Open a shell/terminal, and run the following command where the files are saved:
-//
-// c++ perspproj.cpp  -o perspproj -std=c++11
-//
-// Run with: ./perspproj. Open the file ./proj.svg in any Internet browser to see
-// the result.
-//[/compile]
 
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
 #include <fstream>
-#include <cmath>
 
 #include "geometry.h"
 

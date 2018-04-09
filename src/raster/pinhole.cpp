@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,26 +19,10 @@
 // This program implements a physical pinhole camera model similar to the model
 // used in popular 3D packages such as Maya.
 //[/header]
-//[compile]
-// Download the pinhole.cpp and geometry.h files to the same folder.
-// Open a shell/terminal, and run the following command where the files are saved:
-//
-// c++ pinhole.cpp -o pinhole -std=c++11
-//
-// Run with: ./pinhole. Open the file ./pinhole.svg in any Internet browser to see
-// the result.
-//[/compile]
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
 #include <fstream>
 
 #include "geometry.h"
-
-#ifndef M_PI
-#define M_PI (3.14159265358979323846f)
-#endif
 
 //[comment]
 // List of vertices making up the object

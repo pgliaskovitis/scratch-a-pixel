@@ -26,9 +26,6 @@
 // of two vectors, and the point- and vector-matrix multiplication (and knowing
 // the difference between the two).
 //[/header]
-//[compile]
-// c++ geometry.cpp  -o geometry -std=c++11
-//[/compile]
 
 #pragma once
 

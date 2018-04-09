@@ -18,27 +18,11 @@
 //[header]
 // A simple program to demonstrate how to build and use the OpenGL perspective projection matrix
 //[/header]
-//[compile]
-// Download the glorthoprojmatrix.cpp, vertexdata.h and geometry.h files to the same folder.
-// Open a shell/terminal, and run the following command where the files are saved:
-//
-// c++ -o glprojmatrix glprojmatrix.cpp -std=c++11 -O3
-//
-// Run with: ./glprojmatrix. Open the file ./out.png in Photoshop or any program
-// reading PPM files.
-//[/compile]
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <fstream>
-#include <algorithm>
+
 #include "geometry.h"
 #include "vertexdata.h"
-
-#ifndef M_PI
-#define M_PI (3.14159265358979323846f)
-#endif
 
 //[comment]
 // Compute screen coordinates

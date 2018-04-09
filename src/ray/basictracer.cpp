@@ -18,9 +18,6 @@
 // [header]
 // A very basic raytracer example.
 // [/header]
-// [compile]
-// c++ -o raytracer -O3 -Wall raytracer.cpp
-// [/compile]
 
 #include <vector>
 #include <fstream>

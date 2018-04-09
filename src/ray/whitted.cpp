@@ -18,19 +18,9 @@
 //[header]
 // A simple program to demonstrate how to implement Whitted-style ray-tracing
 //[/header]
-//[compile]
-// Download the whitted.cpp file to a folder.
-// Open a shell/terminal, and run the following command where the files is saved:
-//
-// c++ -o whitted whitted.cpp -std=c++11 -O3
-//
-// Run with: ./whitted. Open the file ./out.png in Photoshop or any program
-// reading PPM files.
-//[/compile]
 
 #include <memory>
 #include <vector>
-#include <utility>
 #include <fstream>
 #include <chrono>
 

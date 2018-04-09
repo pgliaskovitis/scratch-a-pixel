@@ -18,19 +18,9 @@
 //[header]
 // A practical implementation of the rasterization algorithm.
 //[/header]
-//[compile]
-// Download the raster3d.cpp, cow.h and geometry.h files to the same folder.
-// Open a shell/terminal, and run the following command where the files are saved:
-//
-// c++ -o raster3d raster3d.cpp  -std=c++11 -O3
-//
-// Run with: ./raster3d. Open the file ./output.png in Photoshop or any program
-// reading PPM files.
-//[/compile]
 
 #include <fstream>
 #include <chrono>
-#include <algorithm>
 
 #include "geometry.h"
 #include "cow.h"

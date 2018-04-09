@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,28 +18,11 @@
 //[header]
 // A simple program to demonstrate how to build and use a simple perspective projection matrix
 //[/header]
-//[compile]
-// Download the projmatrix.cpp, vertexdata.h and geometry.h files to the same folder.
-// Open a shell/terminal, and run the following command where the files are saved:
-//
-// c++ -o projmatrix projmatrix.cpp -std=c++11 -O3
-//
-// Run with: ./projmatrix. Open the file ./out.png in Photoshop or any program
-// reading PPM files.
-//[/compile]
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <fstream>
-#include <algorithm>
 
 #include "geometry.h"
 #include "vertexdata.h"
-
-#ifndef M_PI
-#define M_PI (3.14159265358979323846f)
-#endif
 
 //[comment]
 // Set the basic perspective projection matrix
