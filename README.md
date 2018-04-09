@@ -7,7 +7,7 @@ An initial goal is to support both GCC and MSVC.
 
 Specific changes compared to the original code:
 
-- Header files util.h, geometry.h, objects.h have consolidated classes, shared by various source files
+- Header files util.h, geometry.h, objects.h have consolidated classes, shared by various source files.
 
 - For Windows machines output file streams must always be opened with the flags: 
 
