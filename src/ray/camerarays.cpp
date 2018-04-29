@@ -33,6 +33,8 @@
 #include "geometry.h"
 #include "utils.h"
 
+#define MAYA_STYLE 0
+
 const float kInfinity = std::numeric_limits<float>::max();
 
 struct Options
@@ -105,8 +107,13 @@ void render(
 			//
 			// ray.dir = normalize(Vec3f(x,y,-1) - Vec3f(0));
 			// [/comment]
-			float x = (2 * (i + 0.5f) / (float)options.width - 1) * imageAspectRatio * scale;
-			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale;
+#ifdef MAYA_STYLE
+			float x = (2 * (i + 0.5) / (float)options.width - 1) * scale;
+			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale * 1 / imageAspectRatio;
+#elif
+			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
+			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
+#endif 
 			// [comment]
 			// Don't forget to transform the ray direction using the camera-to-world matrix.
 			// [/comment]
