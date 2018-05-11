@@ -18,6 +18,7 @@
 #pragma once
 
 #include <memory>
+#include <random>
 
 #include "geometry.h"
 
@@ -31,8 +32,13 @@ class Object
 {
  public:
 	Object() :
-		materialType(DIFFUSE_AND_GLOSSY),
-		ior(1.3f), Kd(0.8f), Ks(0.2f), diffuseColor(0.2f), specularExponent(25) {}
+		materialType(DIFFUSE_AND_GLOSSY), ior(1.3f), Kd(0.8f), Ks(0.2f), specularExponent(25)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<> dis(0.f, 1.f);
+		diffuseColor = Vec3f(dis(gen), dis(gen), dis(gen));
+	}
 	virtual ~Object() {}
 	virtual bool intersect(const Vec3f &, const Vec3f &, float &, uint32_t &, Vec2f &) const = 0;
 	virtual void getSurfaceProperties(const Vec3f &, const Vec3f &, const uint32_t &, const Vec2f &, Vec3f &, Vec2f &) const = 0;
@@ -74,6 +80,14 @@ public:
 		float c = L.dotProduct(L) - radius2;
 		float t0, t1;
 		if (!solveQuadratic(a, b, c, t0, t1)) return false;
+
+		// will one of t0, t1 always be negative? if yes, no need to swap
+		// if (t0 > t1) {
+		//	float tmp = t0;
+		//	t0 = t1;
+		//	t1 = tmp;
+		// }
+
 		if (t0 < 0) t0 = t1;
 		if (t0 < 0) return false;
 		tnear = t0;
@@ -103,6 +117,13 @@ public:
 	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
 	{
 		N = (P - center).normalize();
+		// In this particular case, the normal is simular to a point on a unit sphere
+		// centred around the origin. We can thus use the normal coordinates to compute
+		// the spherical coordinates of Phit.
+		// atan2 returns a value in the range [-pi, pi] and we need to remap it to range [0, 1]
+		// acosf returns a value in the range [0, pi] and we also need to remap it to the range [0, 1]
+		st.x = (1 + atan2(N.z, N.x) / M_PI) * 0.5f;
+		st.y = acosf(N.y) / M_PI;
 	}
 
 	Vec3f center;                           /// position of the sphere
