@@ -81,6 +81,7 @@ public:
 		return true;
 	}
 
+	/*
 	//[comment]
 	// Compute a ray-sphere intersection using the geometric solution
 	//[/comment]
@@ -97,6 +98,7 @@ public:
 
 			return true;
 	}
+	*/
 
 	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
 	{

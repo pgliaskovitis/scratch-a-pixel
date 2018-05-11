@@ -50,4 +50,4 @@ add_executable (raster3d src/raster/raster3d.cpp)
 add_executable (ray_basictracer src/ray/basictracer.cpp)
 add_executable (ray_whitted src/ray/whitted.cpp)
 add_executable (ray_camerarays src/ray/camerarays.cpp)
-
+add_executable (ray_box src/ray/raybox.cpp)

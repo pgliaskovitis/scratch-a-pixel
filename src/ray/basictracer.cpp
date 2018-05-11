@@ -49,9 +49,10 @@ Vec3f trace(
 	const Sphere* sphere = NULL;
 	// find intersection of this ray with the sphere in the scene
 	for (unsigned i = 0; i < spheres.size(); ++i) {
-		float t0 = INFINITY, t1 = INFINITY;
-		if (spheres[i].intersect(rayorig, raydir, t0, t1)) {
-			if (t0 < 0) t0 = t1;
+		float t0 = INFINITY;
+		uint32_t indexK;
+		Vec2f uvK;
+		if (spheres[i].intersect(rayorig, raydir, t0, indexK, uvK)) {
 			if (t0 < tnear) {
 				tnear = t0;
 				sphere = &spheres[i];
@@ -105,8 +106,10 @@ Vec3f trace(
 				lightDirection.normalize();
 				for (unsigned j = 0; j < spheres.size(); ++j) {
 					if (i != j) {
-						float t0, t1;
-						if (spheres[j].intersect(phit + nhit * bias, lightDirection, t0, t1)) {
+						float t0;
+						uint32_t indexK;
+						Vec2f uvK;
+						if (spheres[j].intersect(phit + nhit * bias, lightDirection, t0, indexK, uvK)) {
 							transmission = 0;
 							break;
 						}
