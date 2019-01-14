@@ -55,9 +55,9 @@ public:
 			return false;
 
 		if (tymin > tmin)
-		tmin = tymin;
+			tmin = tymin;
 		if (tymax < tmax)
-		tmax = tymax;
+			tmax = tymax;
 
 		tzmin = (bounds[r.sign[2]].z - r.orig.z) * r.invdir.z;
 		tzmax = (bounds[1-r.sign[2]].z - r.orig.z) * r.invdir.z;
@@ -66,9 +66,9 @@ public:
 			return false;
 
 		if (tzmin > tmin)
-		tmin = tzmin;
+			tmin = tzmin;
 		if (tzmax < tmax)
-		tmax = tzmax;
+			tmax = tzmax;
 
 		t = tmin;
 
