@@ -142,7 +142,7 @@ void render(
 	}
 
 	// Save result to a PPM image (keep these flags if you compile under Windows)
-	std::ofstream ofs("./simpleshapes.ppm", std::ios::out | std::ios::binary);
+	std::ofstream ofs("./ray_simpleshapes.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.height * options.width; ++i) {
 		char r = (char)(255 * clamp(0, 1, framebuffer[i].x));

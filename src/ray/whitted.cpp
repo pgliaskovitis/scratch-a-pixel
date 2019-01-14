@@ -227,7 +227,7 @@ void render(
 
 	// save framebuffer to file
 	std::ofstream ofs;
-	ofs.open("./whitted.ppm", std::ios::out | std::ios::binary);
+	ofs.open("./ray_whitted.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.height * options.width; ++i) {
 		char r = (char)(255 * clamp(0, 1, framebuffer[i].x));

@@ -113,7 +113,7 @@ void render(
 #elif
 			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
 			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
-#endif 
+#endif
 			// [comment]
 			// Don't forget to transform the ray direction using the camera-to-world matrix.
 			// [/comment]
@@ -125,7 +125,7 @@ void render(
 	}
 
 	// Save result to a PPM image (keep these flags if you compile under Windows)
-	std::ofstream ofs("./camerarays.ppm", std::ios::out | std::ios::binary);
+	std::ofstream ofs("./ray_camerarays.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.height * options.width; ++i) {
 		char r = (char)(255 * clamp(0, 1, framebuffer[i].x));
