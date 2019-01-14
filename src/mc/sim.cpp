@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 
 	// save image to file
 	std::ofstream ofs;
-	ofs.open("./sim.ppm", std::ios::out | std::ios::binary);
+	ofs.open("./mc_sim.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << size << " " << size << "\n255\n";
 	for (uint32_t i = 0; i < size * size; ++i) {
 		unsigned char val = (unsigned char)(255 * std::min(1.0f, pixels[i]));

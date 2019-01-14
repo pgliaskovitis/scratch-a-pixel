@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 
 	printf("Saving image after %d passes\n", npasses);
 	std::ofstream ofs;
-	ofs.open("./integration.ppm", std::ios::out | std::ios::binary);
+	ofs.open("./mc_integration.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 	for (uint32_t i = 0; i < width * height; ++i) {
 		unsigned char r, g, b;
