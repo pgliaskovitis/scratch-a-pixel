@@ -19,6 +19,7 @@
 // A simple program to demonstrate how to build and use the OpenGL perspective projection matrix
 //[/header]
 
+#include <cstring>
 #include <fstream>
 
 #include "geometry.h"

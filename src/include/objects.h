@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <memory>
+#include <cstring>
 #include <random>
 
 #include "geometry.h"

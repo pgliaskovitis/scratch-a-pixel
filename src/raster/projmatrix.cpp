@@ -19,6 +19,7 @@
 // A simple program to demonstrate how to build and use a simple perspective projection matrix
 //[/header]
 
+#include <cstring>
 #include <fstream>
 
 #include "geometry.h"

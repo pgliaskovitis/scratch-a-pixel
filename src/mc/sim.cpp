@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -34,7 +34,10 @@
 #include <cmath>
 #include <algorithm>
 #include <fstream>
+
+#ifdef _WIN32
 #include "drand48.h"
+#endif
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846f)

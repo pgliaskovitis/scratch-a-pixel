@@ -17,10 +17,10 @@
 
 #pragma once
 
-#include <fstream>
-#include <string>
-#include <algorithm>
+#include <cstring>
 #include <cassert>
+#include <fstream>
+#include <algorithm>
 
 // [comment]
 // The main Image class

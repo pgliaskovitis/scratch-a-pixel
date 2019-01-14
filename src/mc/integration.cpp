@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 //[header]
 // Example of Monte Carlo integration
 //[/header]
@@ -28,15 +28,18 @@
 // reading PPM files.
 //[/compile]
 
+#include <cstdlib>
+#include <cstring>
+#include <csignal>
+#include <cstdio>
+#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <cmath>
 #include <algorithm>
-#include <signal.h>
+
+#ifdef _WIN32
 #include "drand48.h"
+#endif
 
 const float colorMatchingFunc[3][72] =
 {

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,11 +16,14 @@
  */
 
 #include <cstdlib>
+#include <cstdint>
 #include <cstdio>
 #include <cmath>
 #include <fstream>
-#include <stdint.h>
+
+#ifdef _WIN32
 #include "drand48.h"
+#endif
 
 //#ifndef REGULAR
 //#define REGULAR
