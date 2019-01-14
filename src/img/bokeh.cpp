@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 			}
 		}
 		K /= total;
-		savePPM(K, "./bokeh.ppm");
+		savePPM(K, "./img_bokeh.ppm");
 	}
 	catch (const std::exception &e) { // catch general exception (bad_alloc mainly?)
 		fprintf(stderr, "Error: %s\n", e.what());

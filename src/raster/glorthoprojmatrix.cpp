@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 	}
 	// export to image
 	std::ofstream ofs;
-	ofs.open("./glorthoprojmatrix.ppm", std::ios::out | std::ios::binary);
+	ofs.open("./raster_glorthoprojmatrix.ppm", std::ios::out | std::ios::binary);
 	ofs << "P5\n" << imageWidth << " " << imageHeight << "\n255\n";
 	ofs.write((char*)buffer, imageWidth * imageHeight);
 	ofs.close();

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016  www.scratchapixel.com
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -27,7 +27,7 @@
 int main(int argc, char **argv)
 {
 	Image I = readPPM("data/xmas.ppm");
-	savePPM(I, "./readwrite.ppm");
+	savePPM(I, "./img_readwrite.ppm");
 
 	return 0;
 }
