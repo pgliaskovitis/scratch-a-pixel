@@ -23,7 +23,7 @@
 #include <chrono>
 
 #include "geometry.h"
-#include "cow.h"
+#include "loader.h"
 
 static const float inchToMm = 25.4f;
 enum FitResolutionGate { kFill = 0, kOverscan };
@@ -156,6 +156,14 @@ int main(int argc, char **argv)
 	// compute screen coordinates
 	float t, b, l, r;
 
+	uint32_t ntris;
+	std::unique_ptr<Vec3f []> vertices;
+	std::unique_ptr<Vec2f []> st;
+	std::unique_ptr<uint32_t []> nvertices;
+
+	loadGeoFile("data/cow.geo", ntris, vertices, st, nvertices);
+	fprintf(stderr, "Geometry file read ok!\n");
+
 	computeScreenCoordinates(
 		filmApertureWidth, filmApertureHeight,
 		imageWidth, imageHeight,
@@ -207,9 +215,9 @@ int main(int argc, char **argv)
 		// Prepare vertex attributes. Divide them by their vertex z-coordinate
 		// (though we use a multiplication here because v.z = 1 / v.z)
 		// [/comment]
-		Vec2f st0 = st[stindices[i * 3]];
-		Vec2f st1 = st[stindices[i * 3 + 1]];
-		Vec2f st2 = st[stindices[i * 3 + 2]];
+		Vec2f st0 = st[i * 3];
+		Vec2f st1 = st[i * 3 + 1];
+		Vec2f st2 = st[i * 3 + 2];
 
 		st0 *= v0Raster.z, st1 *= v1Raster.z, st2 *= v2Raster.z;
 
@@ -312,7 +320,7 @@ int main(int argc, char **argv)
 	// Store the result of the framebuffer to a PPM file (Photoshop reads PPM files).
 	// [/comment]
 	std::ofstream ofs;
-	ofs.open("./raster3d.ppm", std::ios::out | std::ios::binary);
+	ofs.open("./raster3d_loader.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << imageWidth << " " << imageHeight << "\n255\n";
 	ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));
 	ofs.close();

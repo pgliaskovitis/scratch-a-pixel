@@ -45,6 +45,7 @@ add_executable (projmatrix src/raster/projmatrix.cpp)
 add_executable (raster2d_triangle src/raster/raster2d_triangle.cpp)
 add_executable (raster3d_triangle src/raster/raster3d_triangle.cpp)
 add_executable (raster3d src/raster/raster3d.cpp)
+add_executable (raster3d_loader src/raster/raster3d_loader.cpp)
 
 # basic raytracing
 add_executable (ray_basictracer src/ray/basictracer.cpp)
