@@ -320,7 +320,7 @@ int main(int argc, char **argv)
 	// Store the result of the framebuffer to a PPM file (Photoshop reads PPM files).
 	// [/comment]
 	std::ofstream ofs;
-	ofs.open("./raster3d_loader.ppm", std::ios::out | std::ios::binary);
+	ofs.open("./raster3d_mesh_loader.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << imageWidth << " " << imageHeight << "\n255\n";
 	ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));
 	ofs.close();
