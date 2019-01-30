@@ -23,7 +23,7 @@
 #include <fstream>
 
 #include "geometry.h"
-#include "vertexdata.h"
+#include "vertex_data.h"
 
 //[comment]
 // Set the OpenGL orthographic projection matrix

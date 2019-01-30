@@ -23,7 +23,7 @@
 #include <fstream>
 
 #include "geometry.h"
-#include "vertexdata.h"
+#include "vertex_data.h"
 
 //[comment]
 // Compute screen coordinates
