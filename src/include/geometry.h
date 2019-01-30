@@ -38,6 +38,27 @@
 
 #include "utils.h"
 
+template <typename T>
+class Vec2;
+
+template <typename T>
+class Vec3;
+
+template <typename T>
+inline Vec3<T> mix(const Vec3<T> &a, const Vec3<T> &b, const float &mixValue);
+
+template <typename T>
+inline Vec3<T> reflect(const Vec3<T> &I, const Vec3<T> &N);
+
+template <typename T>
+inline float edgeFunction(const Vec3<T> &a, const Vec3<T> &b, const Vec3<T> &c);
+
+template <typename T>
+Vec3<T> refract(const Vec3<T> &I, const Vec3<T> &N, const float &ior);
+
+template <typename T>
+void fresnel(const Vec3<T> &I, const Vec3<T> &N, const float &ior, float &kr);
+
 template<typename T>
 class Vec2
 {
@@ -73,21 +94,6 @@ public:
 // Vec3 is a standard/common way of naming vectors, points, etc. The OpenEXR and Autodesk libraries
 // use this convention for instance.
 //[/comment]
-
-template<typename T>
-class Vec3;
-
-template <typename T>
-inline Vec3<T> mix(const Vec3<T> &a, const Vec3<T> &b, const float &mixValue);
-
-template <typename T>
-inline Vec3<T> reflect(const Vec3<T> &I, const Vec3<T> &N);
-
-template <typename T>
-Vec3<T> refract(const Vec3<T> &I, const Vec3<T> &N, const float &ior);
-
-template <typename T>
-void fresnel(const Vec3<T> &I, const Vec3<T> &N, const float &ior, float &kr);
 
 template<typename T>
 class Vec3
@@ -542,6 +548,12 @@ template <typename T>
 inline Vec3<T> reflect(const Vec3<T> &I, const Vec3<T> &N)
 {
 	return I - 2 * I.dotProduct(N) * N;
+}
+
+template <typename T>
+inline float edgeFunction(const Vec3<T> &a, const Vec3<T> &b, const Vec3<T> &c)
+{
+	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
 }
 
 // [comment]

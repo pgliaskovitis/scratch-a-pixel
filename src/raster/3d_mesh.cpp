@@ -27,7 +27,24 @@
 #include "cow.h"
 
 static const float inchToMm = 25.4f;
-enum FitResolutionGate { kFill = 0, kOverscan };
+
+enum FitResolutionGate {
+	kFill = 0,
+	kOverscan
+};
+
+const uint32_t imageWidth = 1920;
+const uint32_t imageHeight = 1080;
+const Matrix44f worldToCamera = {0.707107f, -0.331295f, 0.624695f, 0.0f, 0.0f, 0.883452f, 0.468521f, 0.0f, -0.707107f, -0.331295f, 0.624695f, 0.0f, -1.63871f, -5.747777f, -40.400412f, 1.0f};
+
+const uint32_t ntris = 3156;
+const float nearClippingPLane = 1;
+const float farClippingPLane = 1000;
+float focalLength = 20; // in mm
+
+// 35mm Full Aperture in inches
+float filmApertureWidth = 0.980f;
+float filmApertureHeight = 0.735f;
 
 //[comment]
 // Compute screen coordinates based on a physically-based camera model
@@ -122,23 +139,6 @@ void convertToRaster(
 	vertexRaster.y = (1 - vertexNDC.y) / 2 * imageHeight;
 	vertexRaster.z = -vertexCamera.z;
 }
-
-float edgeFunction(const Vec3f &a, const Vec3f &b, const Vec3f &c)
-{
-	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
-}
-
-const uint32_t imageWidth = 1920;
-const uint32_t imageHeight = 1080;
-const Matrix44f worldToCamera = {0.707107f, -0.331295f, 0.624695f, 0.0f, 0.0f, 0.883452f, 0.468521f, 0.0f, -0.707107f, -0.331295f, 0.624695f, 0.0f, -1.63871f, -5.747777f, -40.400412f, 1.0f};
-
-const uint32_t ntris = 3156;
-const float nearClippingPLane = 1;
-const float farClippingPLane = 1000;
-float focalLength = 20; // in mm
-// 35mm Full Aperture in inches
-float filmApertureWidth = 0.980f;
-float filmApertureHeight = 0.735f;
 
 int main(int argc, char **argv)
 {
