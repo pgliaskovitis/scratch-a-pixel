@@ -184,8 +184,7 @@ void computePixelCoordinates(
 	const float &canvasWidth,
 	const float &canvasHeight,
 	const uint32_t &imageWidth,
-	const uint32_t &imageHeight
-)
+	const uint32_t &imageHeight)
 {
 	Vec3f pCamera;
 	worldToCamera.multVecMatrix(pWorld, pCamera);
