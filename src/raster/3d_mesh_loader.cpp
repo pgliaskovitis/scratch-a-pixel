@@ -23,6 +23,7 @@
 #include <chrono>
 
 #include "geometry.h"
+#include "utils.h"
 #include "loader.h"
 
 static const float inchToMm = 25.4f;
@@ -120,16 +121,6 @@ void convertToRaster(
 	// in raster space y is down so invert direction
 	vertexRaster.y = (1 - vertexNDC.y) / 2 * imageHeight;
 	vertexRaster.z = -vertexCamera.z;
-}
-
-float min3(const float &a, const float &b, const float &c)
-{
-	return std::min(a, std::min(b, c));
-}
-
-float max3(const float &a, const float &b, const float &c)
-{
-	return std::max(a, std::max(b, c));
 }
 
 float edgeFunction(const Vec3f &a, const Vec3f &b, const Vec3f &c)

@@ -32,6 +32,16 @@ namespace
 		return b * mix + a * (1 - mix);
 	}
 
+	float min3(const float &a, const float &b, const float &c)
+	{
+		return std::min(a, std::min(b, c));
+	}
+
+	float max3(const float &a, const float &b, const float &c)
+	{
+		return std::max(a, std::max(b, c));
+	}
+
 	inline float clamp(const float &lo, const float &hi, const float &v)
 	{
 		return std::max(lo, std::min(hi, v));
