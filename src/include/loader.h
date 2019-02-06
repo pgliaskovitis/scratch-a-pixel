@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-#include "geometry.h"
+#include "objects.h"
 
 namespace
 {
@@ -77,5 +77,61 @@ namespace
 			ifs.close();
 		}
 		ifs.close();
+	}
+
+	TriangleMesh* loadPolyMeshFromFile(const char *file)
+	{
+		std::ifstream ifs;
+		try {
+			ifs.open(file);
+			if (ifs.fail()) throw;
+			std::stringstream ss;
+			ss << ifs.rdbuf();
+			uint32_t numFaces;
+			ss >> numFaces;
+
+			std::unique_ptr<uint32_t []> faceIndex(new uint32_t[numFaces]);
+			uint32_t vertsIndexArraySize = 0;
+			// reading face index array
+			for (uint32_t i = 0; i < numFaces; ++i) {
+				ss >> faceIndex[i];
+				vertsIndexArraySize += faceIndex[i];
+			}
+
+			std::unique_ptr<uint32_t []> vertsIndex(new uint32_t[vertsIndexArraySize]);
+			uint32_t vertsArraySize = 0;
+			// reading vertex index array
+			for (uint32_t i = 0; i < vertsIndexArraySize; ++i) {
+				ss >> vertsIndex[i];
+				if (vertsIndex[i] > vertsArraySize) vertsArraySize = vertsIndex[i];
+			}
+			vertsArraySize += 1;
+
+			// reading vertices
+			std::unique_ptr<Vec3f []> verts(new Vec3f[vertsArraySize]);
+				for (uint32_t i = 0; i < vertsArraySize; ++i) {
+				ss >> verts[i].x >> verts[i].y >> verts[i].z;
+			}
+
+			// reading normals
+			std::unique_ptr<Vec3f []> normals(new Vec3f[vertsIndexArraySize]);
+			for (uint32_t i = 0; i < vertsIndexArraySize; ++i) {
+				ss >> normals[i].x >> normals[i].y >> normals[i].z;
+			}
+
+			// reading st coordinates
+			std::unique_ptr<Vec2f []> st(new Vec2f[vertsIndexArraySize]);
+			for (uint32_t i = 0; i < vertsIndexArraySize; ++i) {
+				ss >> st[i].x >> st[i].y;
+			}
+
+			ifs.close();
+			return new TriangleMesh(numFaces, faceIndex, vertsIndex, verts, normals, st);
+		}
+		catch (...) {
+			ifs.close();
+		}
+
+		return nullptr;
 	}
 }

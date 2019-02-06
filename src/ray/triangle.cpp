@@ -32,6 +32,7 @@
 #include <random>
 
 #include "geometry.h"
+#include "objects.h"
 #include "utils.h"
 
 // [comment]

@@ -23,10 +23,7 @@
 #include <fstream>
 #include <chrono>
 
-#include "geometry.h"
 #include "objects.h"
-
-const float kInfinity = std::numeric_limits<float>::max();
 
 struct Options
 {

@@ -23,8 +23,6 @@
 #define M_PI (3.14159265358979323846f)
 #endif
 
-constexpr float kEpsilon = 1e-8;
-
 namespace
 {
 	inline float mix(const float &a, const float &b, const float &mix)
