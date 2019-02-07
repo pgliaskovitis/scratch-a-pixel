@@ -262,10 +262,10 @@ int main(int argc, char **argv)
 	Vec3f verts[4] = {{-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16}};
 	uint32_t vertIndex[6] = {0, 1, 3, 1, 2, 3};
 	Vec2f st[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
-	MeshTriangle *mesh = new MeshTriangle(verts, vertIndex, 2, st);
+	TriangleMesh *mesh = new TriangleMesh(verts, vertIndex, 2, st);
 	mesh->materialType = DIFFUSE_AND_GLOSSY;
 
-	objects.push_back(std::unique_ptr<MeshTriangle>(mesh));
+	objects.push_back(std::unique_ptr<TriangleMesh>(mesh));
 
 	lights.push_back(std::unique_ptr<Light>(new Light(Vec3f(-20, 70, 20), 0.5f)));
 	lights.push_back(std::unique_ptr<Light>(new Light(Vec3f(30, 50, -12), 1)));

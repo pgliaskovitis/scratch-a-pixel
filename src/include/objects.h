@@ -213,78 +213,30 @@ public:
 	float transparency, reflection;         /// surface transparency and reflectivity
 };
 
-class MeshTriangle : public Object
+class TriangleMesh : public Object
 {
 public:
-	MeshTriangle(
+	// Build a triangle mesh from a face index array and a vertex index array
+	TriangleMesh(
 		const Vec3f *verts,
 		const uint32_t *vertsIndex,
 		const uint32_t &numTris,
 		const Vec2f *st)
 	{
 		uint32_t maxIndex = 0;
-		for (uint32_t i = 0; i < numTris * 3; ++i)
+		for (uint32_t i = 0; i < numTris * 3; ++i) {
 			if (vertsIndex[i] > maxIndex) maxIndex = vertsIndex[i];
-		maxIndex += 1;
-		vertices = std::unique_ptr<Vec3f[]>(new Vec3f[maxIndex]);
-		memcpy(vertices.get(), verts, sizeof(Vec3f) * maxIndex);
-		vertexIndex = std::unique_ptr<uint32_t[]>(new uint32_t[numTris * 3]);
-		memcpy(vertexIndex.get(), vertsIndex, sizeof(uint32_t) * numTris * 3);
-		numTriangles = numTris;
-		stCoordinates = std::unique_ptr<Vec2f[]>(new Vec2f[maxIndex]);
-		memcpy(stCoordinates.get(), st, sizeof(Vec2f) * maxIndex);
-	}
-
-	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
-	{
-		bool intersect = false;
-		for (uint32_t k = 0; k < numTriangles; ++k) {
-			const Vec3f & v0 = vertices[vertexIndex[k * 3]];
-			const Vec3f & v1 = vertices[vertexIndex[k * 3 + 1]];
-			const Vec3f & v2 = vertices[vertexIndex[k * 3 + 2]];
-			float t, u, v;
-			if (rayTriangleIntersectGeometric(v0, v1, v2, orig, dir, t, u, v) && t < tnear) {
-				tnear = t;
-				uv.x = u;
-				uv.y = v;
-				index = k;
-				intersect |= true;
-			}
 		}
-
-		return intersect;
+		maxIndex += 1;
+		P = std::unique_ptr<Vec3f[]>(new Vec3f[maxIndex]);
+		memcpy(P.get(), verts, sizeof(Vec3f) * maxIndex);
+		trisIndex = std::unique_ptr<uint32_t[]>(new uint32_t[numTris * 3]);
+		memcpy(trisIndex.get(), vertsIndex, sizeof(uint32_t) * numTris * 3);
+		this->numTris = numTris;
+		texCoordinates = std::unique_ptr<Vec2f[]>(new Vec2f[maxIndex]);
+		memcpy(texCoordinates.get(), st, sizeof(Vec2f) * maxIndex);
 	}
 
-	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
-	{
-		const Vec3f &v0 = vertices[vertexIndex[index * 3]];
-		const Vec3f &v1 = vertices[vertexIndex[index * 3 + 1]];
-		const Vec3f &v2 = vertices[vertexIndex[index * 3 + 2]];
-		Vec3f e0 = (v1 - v0).normalize();
-		Vec3f e1 = (v2 - v1).normalize();
-		N = e0.crossProduct(e1).normalize();
-		const Vec2f &st0 = stCoordinates[vertexIndex[index * 3]];
-		const Vec2f &st1 = stCoordinates[vertexIndex[index * 3 + 1]];
-		const Vec2f &st2 = stCoordinates[vertexIndex[index * 3 + 2]];
-		st = st0 * (1 - uv.x - uv.y) + st1 * uv.x + st2 * uv.y;
-	}
-
-	Vec3f evalDiffuseColor(const Vec2f &st) const
-	{
-		float scale = 5.f;
-		float pattern = (fmodf(st.x * scale, 1.f) > 0.5f) ^ (fmodf(st.y * scale, 1.f) > 0.5f);
-		return mix(Vec3f(0.815f, 0.235f, 0.031f), Vec3f(0.937f, 0.937f, 0.231f), pattern);
-	}
-
-	std::unique_ptr<Vec3f[]> vertices;
-	uint32_t numTriangles;
-	std::unique_ptr<uint32_t[]> vertexIndex;
-	std::unique_ptr<Vec2f[]> stCoordinates;
-};
-
-class TriangleMesh : public Object
-{
-public:
 	// Build a triangle mesh from a face index array and a vertex index array
 	TriangleMesh(
 		const uint32_t nfaces,
@@ -345,7 +297,28 @@ public:
 		//sts = std::move(st); // transfer ownership
 	}
 
-	 // Test if the ray interesests this triangle mesh
+	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
+	{
+		bool intersect = false;
+		for (uint32_t k = 0; k < numTris; ++k) {
+			const Vec3f & v0 = P[trisIndex[k * 3]];
+			const Vec3f & v1 = P[trisIndex[k * 3 + 1]];
+			const Vec3f & v2 = P[trisIndex[k * 3 + 2]];
+			float t, u, v;
+			if (rayTriangleIntersectGeometric(v0, v1, v2, orig, dir, t, u, v) && t < tnear) {
+				tnear = t;
+				uv.x = u;
+				uv.y = v;
+				index = k;
+				intersect |= true;
+			}
+		}
+
+		return intersect;
+	}
+
+	/*
+	// Test if the ray interesests this triangle mesh
 	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tNear, uint32_t &triIndex, Vec2f &uv) const
 	{
 		uint32_t j = 0;
@@ -367,6 +340,7 @@ public:
 
 		return isect;
 	}
+	*/
 
 	void getSurfaceProperties(
 		const Vec3f &hitPoint,
@@ -396,6 +370,13 @@ public:
 		const Vec3f &n2 = N[triIndex * 3 + 2];
 		hitNormal = (1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2;
 		*/
+	}
+
+	Vec3f evalDiffuseColor(const Vec2f &st) const
+	{
+		float scale = 5.f;
+		float pattern = (fmodf(st.x * scale, 1.f) > 0.5f) ^ (fmodf(st.y * scale, 1.f) > 0.5f);
+		return mix(Vec3f(0.815f, 0.235f, 0.031f), Vec3f(0.937f, 0.937f, 0.231f), pattern);
 	}
 
 	// member variables
