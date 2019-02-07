@@ -148,7 +148,6 @@ float focalLength = 35.0f; // in mm
 // 35mm Full Aperture in inches
 float filmApertureWidth = 0.825f;
 float filmApertureHeight = 0.446f;
-static const float inchToMm = 25.4f;
 float nearClippingPlane = 0.1f;
 float farClipingPlane = 1000.0f;
 // image resolution in pixels

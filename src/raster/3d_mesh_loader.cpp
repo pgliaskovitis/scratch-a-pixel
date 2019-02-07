@@ -26,7 +26,6 @@
 #include "utils.h"
 #include "loader.h"
 
-static const float inchToMm = 25.4f;
 enum FitResolutionGate {
 	kFill = 0,
 	kOverscan
