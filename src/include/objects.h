@@ -150,6 +150,25 @@ public:
 		   transparency(transp),
 		   reflection(refl) {}
 
+	/*
+	//[comment]
+	// Compute a ray-sphere intersection using the geometric solution
+	//[/comment]
+	bool intersect(const Vec3f &rayorig, const Vec3f &raydir, float &t0, float &t1) const
+	{
+			Vec3f l = center - rayorig;
+			float tca = l.dotProduct(raydir);
+			if (tca < 0) return false;
+			float d2 = l.dotProduct(l) - tca * tca;
+			if (d2 > radius2) return false;
+			float thc = sqrt(radius2 - d2);
+			t0 = tca - thc;
+			t1 = tca + thc;
+
+			return true;
+	}
+	*/
+
 	//[comment]
 	// Compute a ray-sphere intersection using the analytic solution
 	//[/comment]
@@ -176,25 +195,6 @@ public:
 
 		return true;
 	}
-
-	/*
-	//[comment]
-	// Compute a ray-sphere intersection using the geometric solution
-	//[/comment]
-	bool intersect(const Vec3f &rayorig, const Vec3f &raydir, float &t0, float &t1) const
-	{
-			Vec3f l = center - rayorig;
-			float tca = l.dotProduct(raydir);
-			if (tca < 0) return false;
-			float d2 = l.dotProduct(l) - tca * tca;
-			if (d2 > radius2) return false;
-			float thc = sqrt(radius2 - d2);
-			t0 = tca - thc;
-			t1 = tca + thc;
-
-			return true;
-	}
-	*/
 
 	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
 	{
@@ -298,28 +298,31 @@ public:
 		//sts = std::move(st); // transfer ownership
 	}
 
+	// Test if the ray intersects this triangle mesh with cross products
 	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
 	{
+		uint32_t j = 0;
 		bool intersect = false;
 		for (uint32_t k = 0; k < numTris; ++k) {
-			const Vec3f & v0 = P[trisIndex[k * 3]];
-			const Vec3f & v1 = P[trisIndex[k * 3 + 1]];
-			const Vec3f & v2 = P[trisIndex[k * 3 + 2]];
+			const Vec3f & v0 = P[trisIndex[j]];
+			const Vec3f & v1 = P[trisIndex[j + 1]];
+			const Vec3f & v2 = P[trisIndex[j + 2]];
 			float t, u, v;
-			if (rayTriangleIntersectGeometric(v0, v1, v2, orig, dir, t, u, v) && t < tnear) {
+			if (rayTriangleIntersectGeometric(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
 				tnear = t;
 				uv.x = u;
 				uv.y = v;
 				index = k;
 				intersect |= true;
 			}
+			j += 3;
 		}
 
 		return intersect;
 	}
 
 	/*
-	// Test if the ray interesests this triangle mesh
+	// Test if the ray intersects this triangle mesh with determinants
 	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tNear, uint32_t &triIndex, Vec2f &uv) const
 	{
 		uint32_t j = 0;
@@ -334,7 +337,7 @@ public:
 				uv.x = u;
 				uv.y = v;
 				triIndex = i;
-				isect = true;
+				isect |= true;
 			}
 			j += 3;
 		}
@@ -389,8 +392,8 @@ public:
 };
 
 bool rayTriangleIntersectGeometric(
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
 	const Vec3f &orig, const Vec3f &dir,
+	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
 	float &tnear, float &u, float &v)
 {
 	Vec3f edge1 = v1 - v0;
