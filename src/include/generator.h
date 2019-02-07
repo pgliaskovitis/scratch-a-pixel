@@ -22,7 +22,7 @@
 #include "objects.h"
 
 namespace {
-	TriangleMesh* generatePolyShphere(float rad, uint32_t divs)
+	TriangleMesh* generatePolySphere(float rad, uint32_t divs)
 	{
 		// generate points
 		uint32_t numVertices = (divs - 1) * divs + 2;

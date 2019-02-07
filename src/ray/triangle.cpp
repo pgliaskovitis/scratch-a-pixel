@@ -41,9 +41,9 @@
 // (use the flag -DMOLLER_TRUMBORE when you compile)
 // [/comment]
 bool rayTriangleIntersect(
-						const Vec3f &orig, const Vec3f &dir,
-						const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
-						float &t, float &u, float &v)
+	const Vec3f &orig, const Vec3f &dir,
+	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
+	float &t, float &u, float &v)
 {
 #ifdef MOLLER_TRUMBORE
 	Vec3f v0v1 = v1 - v0;

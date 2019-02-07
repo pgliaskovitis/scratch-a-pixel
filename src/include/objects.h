@@ -24,6 +24,7 @@
 
 constexpr float kEpsilon = 1e-8;
 constexpr float kInfinity = std::numeric_limits<float>::max();
+static const Vec3f kDefaultBackgroundColor = Vec3f(0.235294, 0.67451, 0.843137);
 
 bool rayTriangleIntersectGeometric(
 	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
