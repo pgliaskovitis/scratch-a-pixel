@@ -32,7 +32,6 @@
 #include <random>
 
 #include "geometry.h"
-#include "objects.h"
 #include "utils.h"
 
 // [comment]
@@ -53,10 +52,10 @@ bool rayTriangleIntersect(
 #ifdef CULLING
 	// if the determinant is negative the triangle is backfacing
 	// if the determinant is close to 0, the ray misses the triangle
-	if (det < kEpsilon) return false;
+	if (det < 1e-8) return false;
 #else
 	// ray and triangle are parallel if det is close to 0
-	if (fabs(det) < kEpsilon) return false;
+	if (fabs(det) < 1e-8) return false;
 #endif
 	float invDet = 1 / det;
 
@@ -83,7 +82,7 @@ bool rayTriangleIntersect(
 
 	// check if ray and plane are parallel ?
 	float NdotRayDirection = N.dotProduct(dir);
-	if (fabs(NdotRayDirection) < kEpsilon) // almost 0
+	if (fabs(NdotRayDirection) < 1e-8) // almost 0
 		return false; // they are parallel so they don't intersect !
 
 	// compute d parameter using equation 2

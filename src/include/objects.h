@@ -26,15 +26,10 @@ constexpr float kEpsilon = 1e-8;
 constexpr float kInfinity = std::numeric_limits<float>::max();
 static const Vec3f kDefaultBackgroundColor = Vec3f(0.235294, 0.67451, 0.843137);
 
-bool rayTriangleIntersectGeometric(
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
+bool rayTriangleIntersect(
 	const Vec3f &orig, const Vec3f &dir,
+	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
 	float &tnear, float &u, float &v);
-
-bool rayTriangleIntersectFast(
-	const Vec3f &orig, const Vec3f &dir,
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
-	float &t, float &u, float &v);
 
 enum MaterialType {
 	DIFFUSE_AND_GLOSSY,
@@ -308,7 +303,7 @@ public:
 			const Vec3f & v1 = P[trisIndex[j + 1]];
 			const Vec3f & v2 = P[trisIndex[j + 2]];
 			float t, u, v;
-			if (rayTriangleIntersectGeometric(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
+			if (rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
 				tnear = t;
 				uv.x = u;
 				uv.y = v;
@@ -320,31 +315,6 @@ public:
 
 		return intersect;
 	}
-
-	/*
-	// Test if the ray intersects this triangle mesh with determinants
-	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tNear, uint32_t &triIndex, Vec2f &uv) const
-	{
-		uint32_t j = 0;
-		bool isect = false;
-		for (uint32_t i = 0; i < numTris; ++i) {
-			const Vec3f &v0 = P[trisIndex[j]];
-			const Vec3f &v1 = P[trisIndex[j + 1]];
-			const Vec3f &v2 = P[trisIndex[j + 2]];
-			float t = kInfinity, u, v;
-			if (rayTriangleIntersectFast(orig, dir, v0, v1, v2, t, u, v) && t < tNear) {
-				tNear = t;
-				uv.x = u;
-				uv.y = v;
-				triIndex = i;
-				isect |= true;
-			}
-			j += 3;
-		}
-
-		return isect;
-	}
-	*/
 
 	void getSurfaceProperties(
 		const Vec3f &hitPoint,
@@ -391,7 +361,7 @@ public:
 	std::unique_ptr<Vec2f []> texCoordinates; // triangles texture coordinates
 };
 
-bool rayTriangleIntersectGeometric(
+bool rayTriangleIntersect(
 	const Vec3f &orig, const Vec3f &dir,
 	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
 	float &tnear, float &u, float &v)
@@ -400,7 +370,9 @@ bool rayTriangleIntersectGeometric(
 	Vec3f edge2 = v2 - v0;
 	Vec3f pvec = dir.crossProduct(edge2);
 	float det = edge1.dotProduct(pvec);
-	if (det == 0 || det < 0) return false;
+
+	// ray and triangle are parallel if det is close to 0
+	if (det < 0 || fabs(det) < kEpsilon) return false;
 
 	Vec3f tvec = orig - v0;
 	u = tvec.dotProduct(pvec);
@@ -415,34 +387,6 @@ bool rayTriangleIntersectGeometric(
 	tnear = edge2.dotProduct(qvec) * invDet;
 	u *= invDet;
 	v *= invDet;
-
-	return true;
-}
-
-bool rayTriangleIntersectFast(
-	const Vec3f &orig, const Vec3f &dir,
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
-	float &t, float &u, float &v)
-{
-	Vec3f v0v1 = v1 - v0;
-	Vec3f v0v2 = v2 - v0;
-	Vec3f pvec = dir.crossProduct(v0v2);
-	float det = v0v1.dotProduct(pvec);
-
-	// ray and triangle are parallel if det is close to 0
-	if (fabs(det) < kEpsilon) return false;
-
-	float invDet = 1 / det;
-
-	Vec3f tvec = orig - v0;
-	u = tvec.dotProduct(pvec) * invDet;
-	if (u < 0 || u > 1) return false;
-
-	Vec3f qvec = tvec.crossProduct(v0v1);
-	v = dir.dotProduct(qvec) * invDet;
-	if (v < 0 || u + v > 1) return false;
-
-	t = v0v2.dotProduct(qvec) * invDet;
 
 	return true;
 }
