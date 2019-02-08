@@ -15,6 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//[header]
+// Ray trace a bounding box
+//[/header]
+
 #include <cstdlib>
 #include <random>
 

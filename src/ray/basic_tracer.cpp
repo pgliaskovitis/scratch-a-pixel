@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// [header]
-// A very basic raytracer example.
-// [/header]
+//[header]
+// A very basic raytracer example
+//[/header]
 
 #include <vector>
 #include <fstream>

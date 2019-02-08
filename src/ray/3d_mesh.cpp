@@ -83,8 +83,10 @@ Vec3f castRay(
 	return hitColor;
 }
 
+//[comment]
 // The main render function. This where we iterate over all pixels in the image, generate primary rays and cast these rays
 // into the scene. The content of the framebuffer is saved to a file.
+//[/comment]
 void render(
 	const Options &options,
 	const std::vector<std::unique_ptr<Object>> &objects,
@@ -128,8 +130,10 @@ void render(
 	ofs.close();
 }
 
+//[comment]
 // In the main function of the program, we create the scene (create objects and lights) as well as set the options for the
 // render (image widht and height, maximum recursion depth, field-of-view, etc.). We then call the render function().
+//[/comment]
 int main(int argc, char **argv)
 {
 	// setting up options
