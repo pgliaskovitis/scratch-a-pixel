@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 		int divs = 5 + i;
 		// creating the scene (adding objects and lights)
 		std::vector<std::unique_ptr<Object>> objects;
-		TriangleMesh *mesh = generatePolySphere(2, divs);
+		TriangleMesh *mesh = generatePolySphere(11, divs);
 		objects.push_back(std::unique_ptr<Object>(mesh));
 		auto timeStart = std::chrono::high_resolution_clock::now();
 		// finally, render
