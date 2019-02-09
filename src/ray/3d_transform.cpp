@@ -16,7 +16,7 @@
  */
 
 //[header]
-// A simple program to demonstrate how to ray-trace a polygon mesh
+// A simple program to demonstrate how to transform objects in world coordinates
 //[/header]
 
 #include <fstream>
@@ -73,11 +73,11 @@ Vec3f castRay(
 		Vec2f hitTexCoordinates;
 		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, hitNormal, hitTexCoordinates);
 		float NdotView = std::max(0.f, hitNormal.dotProduct(-dir));
-		const int M = 10;
+		const int M = 4;
 		float checker = (fmod(hitTexCoordinates.x * M, 1.0) > 0.5) ^ (fmod(hitTexCoordinates.y * M, 1.0) < 0.5);
 		float c = 0.3 * (1 - checker) + 0.7 * checker;
 
-		hitColor = c * NdotView; //Vec3f(uv.x, uv.y, 0);
+		hitColor = c * NdotView; //Vec3f(uv.x, uv.y, 0); // Vec3f(hitTexCoordinates.x, hitTexCoordinates.y, 0);
 	}
 
 	return hitColor;
@@ -117,7 +117,7 @@ void render(
 
 	// save framebuffer to file
 	char buff[256];
-	sprintf(buff, "ray_3d_mesh.%04d.ppm", frame);
+	sprintf(buff, "ray_3d_transform.%04d.ppm", frame);
 	std::ofstream ofs;
 	ofs.open(buff, std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
@@ -138,32 +138,17 @@ int main(int argc, char **argv)
 {
 	// setting up options
 	Options options;
-	//options.cameraToWorld[3][2] = 10;
-	Matrix44f tmp = Matrix44f(0.707107, -0.331295, 0.624695, 0, 0, 0.883452, 0.468521, 0, -0.707107, -0.331295, 0.624695, 0, -1.63871, -5.747777, -40.400412, 1);
-	options.cameraToWorld = tmp.inverse();
-	options.fov = 50.0393;
-#if 1
+	options.cameraToWorld = Matrix44f(0.931056, 0, 0.364877, 0, 0.177666, 0.873446, -0.45335, 0, -0.3187, 0.48692, 0.813227, 0, -41.229214, 81.862351, 112.456908, 1);
+	options.fov = 18;
+
+	// loading gemetry
 	std::vector<std::unique_ptr<Object>> objects;
-	TriangleMesh *mesh = loadPolyMeshFromFile("data/cow.geo", nullptr);
+	Matrix44f objectToWorld = Matrix44f(1.624241, 0, 2.522269, 0, 0, 3, 0, 0, -2.522269, 0, 1.624241, 0, 0, 0, 0, 1); // Matrix44f::kIdentity;
+	TriangleMesh *mesh = loadPolyMeshFromFile("data/teapot.geo", &objectToWorld);
 	if (mesh != nullptr) objects.push_back(std::unique_ptr<Object>(mesh));
 
 	// finally, render
 	render(options, objects, 0);
-#else
-	for (uint32_t i = 0; i < 10; ++i) {
-		int divs = 5 + i;
-		// creating the scene (adding objects and lights)
-		std::vector<std::unique_ptr<Object>> objects;
-		TriangleMesh *mesh = generatePolySphere(11, divs);
-		objects.push_back(std::unique_ptr<Object>(mesh));
-		auto timeStart = std::chrono::high_resolution_clock::now();
-		// finally, render
-		render(options, objects, i);
-		auto timeEnd = std::chrono::high_resolution_clock::now();
-		auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-		std::cerr << mesh->numTris << " " << passedTime << std::endl;
-	}
-#endif
 
 	return 0;
 }

@@ -48,16 +48,24 @@ class Object
 		std::uniform_real_distribution<> dis(0.f, 1.f);
 		diffuseColor = Vec3f(dis(gen), dis(gen), dis(gen));
 	}
+
+	Object(const Matrix44f &o2w) : objectToWorld(o2w), worldToObject(o2w.inverse()) {}
+
 	virtual ~Object() {}
 	virtual bool intersect(const Vec3f &, const Vec3f &, float &, uint32_t &, Vec2f &) const = 0;
 	virtual void getSurfaceProperties(const Vec3f &, const Vec3f &, const uint32_t &, const Vec2f &, Vec3f &, Vec2f &) const = 0;
 	virtual Vec3f evalDiffuseColor(const Vec2f &) const { return diffuseColor; }
+
 	// material properties
 	MaterialType materialType;
 	float ior;
 	float Kd, Ks;
 	Vec3f diffuseColor;
 	float specularExponent;
+
+	// transforms
+	Matrix44f objectToWorld;
+	Matrix44f worldToObject;
 };
 
 class Light
@@ -293,6 +301,63 @@ public:
 		//sts = std::move(st); // transfer ownership
 	}
 
+	TriangleMesh(
+		const Matrix44f &o2w,
+		const uint32_t nfaces,
+		const std::unique_ptr<uint32_t []> &faceIndex,
+		const std::unique_ptr<uint32_t []> &vertsIndex,
+		const std::unique_ptr<Vec3f []> &verts,
+		std::unique_ptr<Vec3f []> &normals,
+		std::unique_ptr<Vec2f []> &st) :
+			Object(o2w),
+			numTris(0)
+	{
+		uint32_t k = 0, maxVertIndex = 0;
+		// find out how many triangles we need to create for this mesh
+		for (uint32_t i = 0; i < nfaces; ++i) {
+			numTris += faceIndex[i] - 2;
+			for (uint32_t j = 0; j < faceIndex[i]; ++j) {
+				if (vertsIndex[k + j] > maxVertIndex)
+					maxVertIndex = vertsIndex[k + j];
+			}
+			k += faceIndex[i];
+		}
+		maxVertIndex += 1;
+
+		// allocate memory to store the position of the mesh vertices
+		P = std::unique_ptr<Vec3f []>(new Vec3f[maxVertIndex]);
+		for (uint32_t i = 0; i < maxVertIndex; ++i) {
+			objectToWorld.multVecMatrix(verts[i], P[i]);
+		}
+
+		// allocate memory to store triangle indices
+		trisIndex = std::unique_ptr<uint32_t []>(new uint32_t [numTris * 3]);
+		uint32_t l = 0;
+		N = std::unique_ptr<Vec3f []>(new Vec3f[numTris * 3]);
+		texCoordinates = std::unique_ptr<Vec2f []>(new Vec2f[numTris * 3]);
+
+		Matrix44f transformNormals = worldToObject.transpose();
+		// generate the triangle index array and set normals and st coordinates
+		for (uint32_t i = 0, k = 0; i < nfaces; ++i) { // for each face
+			for (uint32_t j = 0; j < faceIndex[i] - 2; ++j) { // for each triangle in the face
+				trisIndex[l] = vertsIndex[k];
+				trisIndex[l + 1] = vertsIndex[k + j + 1];
+				trisIndex[l + 2] = vertsIndex[k + j + 2];
+				transformNormals.multDirMatrix(normals[k], N[l]);
+				transformNormals.multDirMatrix(normals[k + j + 1], N[l + 1]);
+				transformNormals.multDirMatrix(normals[k + j + 2], N[l + 2]);
+				N[l].normalize();
+				N[l + 1].normalize();
+				N[l + 2].normalize();
+				texCoordinates[l] = st[k];
+				texCoordinates[l + 1] = st[k + j + 1];
+				texCoordinates[l + 2] = st[k + j + 2];
+				l += 3;
+			}
+			k += faceIndex[i];
+		}
+	}
+
 	// Test if the ray intersects this triangle mesh with cross products
 	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
 	{
@@ -343,6 +408,8 @@ public:
 		const Vec3f &n1 = N[triIndex * 3 + 1];
 		const Vec3f &n2 = N[triIndex * 3 + 2];
 		hitNormal = (1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2;
+		// doesn't need to be normalized as the N's are normalized but just for safety
+		hitNormal.normalize()
 		*/
 	}
 

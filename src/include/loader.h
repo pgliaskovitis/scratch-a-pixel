@@ -79,7 +79,7 @@ namespace
 		ifs.close();
 	}
 
-	TriangleMesh* loadPolyMeshFromFile(const char *file)
+	TriangleMesh* loadPolyMeshFromFile(const char *file, const Matrix44f *o2w)
 	{
 		std::ifstream ifs;
 		try {
@@ -109,7 +109,7 @@ namespace
 
 			// reading vertices
 			std::unique_ptr<Vec3f []> verts(new Vec3f[vertsArraySize]);
-				for (uint32_t i = 0; i < vertsArraySize; ++i) {
+			for (uint32_t i = 0; i < vertsArraySize; ++i) {
 				ss >> verts[i].x >> verts[i].y >> verts[i].z;
 			}
 
@@ -126,7 +126,12 @@ namespace
 			}
 
 			ifs.close();
-			return new TriangleMesh(numFaces, faceIndex, vertsIndex, verts, normals, st);
+
+			if (o2w == nullptr) {
+				return new TriangleMesh(numFaces, faceIndex, vertsIndex, verts, normals, st);
+			} else {
+				return new TriangleMesh(*o2w, numFaces, faceIndex, vertsIndex, verts, normals, st);
+			}
 		}
 		catch (...) {
 			ifs.close();
