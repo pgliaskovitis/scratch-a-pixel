@@ -574,7 +574,7 @@ inline float edgeFunction(const Vec3<T> &a, const Vec3<T> &b, const Vec3<T> &c)
 template <typename T>
 Vec3<T> refract(const Vec3<T> &I, const Vec3<T> &N, const float &ior)
 {
-	float cosi = clamp(-1, 1, I.dotProduct(N));
+	float cosi = scratch::utils::clamp(-1, 1, I.dotProduct(N));
 	float etai = 1, etat = ior;
 	Vec3f n = N;
 	if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n= -N; }
@@ -597,7 +597,7 @@ Vec3<T> refract(const Vec3<T> &I, const Vec3<T> &N, const float &ior)
 template <typename T>
 void fresnel(const Vec3<T> &I, const Vec3<T> &N, const float &ior, float &kr)
 {
-	float cosi = clamp(-1, 1, I.dotProduct(N));
+	float cosi = scratch::utils::clamp(-1, 1, I.dotProduct(N));
 	float etai = 1, etat = ior;
 	if (cosi > 0) {  std::swap(etai, etat); }
 	// Compute sini using Snell's law

@@ -23,7 +23,9 @@
 #define M_PI (3.14159265358979323846f)
 #endif
 
-namespace
+namespace scratch
+{
+namespace utils
 {
 	inline float mix(const float &a, const float &b, const float &mix)
 	{
@@ -65,4 +67,5 @@ namespace
 		if (x0 > x1) std::swap(x0, x1);
 		return true;
 	}
+}
 }

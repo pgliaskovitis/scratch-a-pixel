@@ -21,7 +21,10 @@
 
 #include "objects.h"
 
-namespace {
+namespace scratch
+{
+namespace loader
+{
 	TriangleMesh* generatePolySphere(float rad, uint32_t divs)
 	{
 		// generate points
@@ -90,4 +93,5 @@ namespace {
 
 		return new TriangleMesh(npolys, faceIndex, vertsIndex, P, N, st);
 	}
+}
 }

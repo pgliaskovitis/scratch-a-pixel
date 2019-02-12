@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 	Vec3f *framebuffer = new Vec3f[width * height];
 	Vec3f *pix = framebuffer;
 	float fov = 51.52;
-	float scale = tan(deg2rad(fov * 0.5));
+	float scale = tan(scratch::utils::deg2rad(fov * 0.5));
 	float imageAspectRatio = width / (float)height;
 	Vec3f orig(0);
 	for (uint32_t j = 0; j < height; ++j) {
@@ -160,9 +160,9 @@ int main(int argc, char **argv)
 	std::ofstream ofs("./ray_triangle.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 	for (uint32_t i = 0; i < height * width; ++i) {
-		char r = (char)(255 * clamp(0, 1, framebuffer[i].x));
-		char g = (char)(255 * clamp(0, 1, framebuffer[i].y));
-		char b = (char)(255 * clamp(0, 1, framebuffer[i].z));
+		char r = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].x));
+		char g = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].y));
+		char b = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].z));
 		ofs << r << g << b;
 	}
 

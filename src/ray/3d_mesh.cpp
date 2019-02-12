@@ -94,7 +94,7 @@ void render(
 {
 	std::unique_ptr<Vec3f []> framebuffer(new Vec3f[options.width * options.height]);
 	Vec3f *pix = framebuffer.get();
-	float scale = tan(deg2rad(options.fov * 0.5));
+	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5));
 	float imageAspectRatio = options.width / (float)options.height;
 	Vec3f orig;
 	options.cameraToWorld.multVecMatrix(Vec3f(0), orig);
@@ -122,9 +122,9 @@ void render(
 	ofs.open(buff, std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.height * options.width; ++i) {
-		char r = (char)(255 * clamp(0, 1, framebuffer[i].x));
-		char g = (char)(255 * clamp(0, 1, framebuffer[i].y));
-		char b = (char)(255 * clamp(0, 1, framebuffer[i].z));
+		char r = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].x));
+		char g = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].y));
+		char b = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].z));
 		ofs << r << g << b;
 	}
 	ofs.close();
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 	options.fov = 50.0393;
 #if 1
 	std::vector<std::unique_ptr<Object>> objects;
-	TriangleMesh *mesh = loadPolyMeshFromFile("data/cow.geo", nullptr);
+	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/cow.geo", nullptr);
 	if (mesh != nullptr) objects.push_back(std::unique_ptr<Object>(mesh));
 
 	// finally, render

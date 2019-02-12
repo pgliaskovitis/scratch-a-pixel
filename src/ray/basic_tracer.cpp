@@ -75,7 +75,7 @@ Vec3f trace(
 	if ((sphere->transparency > 0 || sphere->reflection > 0) && depth < MAX_RAY_DEPTH) {
 		float facingratio = -raydir.dotProduct(nhit);
 		// change the mix value to tweak the effect
-		float fresneleffect = mix(pow(1 - facingratio, 3), 1, 0.1f);
+		float fresneleffect = scratch::utils::mix(pow(1 - facingratio, 3), 1, 0.1f);
 		// compute reflection direction (not need to normalize because all vectors
 		// are already normalized)
 		Vec3f refldir = raydir - nhit * 2 * raydir.dotProduct(nhit);

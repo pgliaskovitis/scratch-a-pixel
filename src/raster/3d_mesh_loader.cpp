@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 	std::unique_ptr<Vec2f []> st;
 	std::unique_ptr<uint32_t []> nvertices;
 
-	loadGeoFile("data/cow.geo", ntris, vertices, st, nvertices);
+	scratch::loader::loadGeoFile("data/cow.geo", ntris, vertices, st, nvertices);
 	fprintf(stderr, "Geometry file read ok!\n");
 
 	computeScreenCoordinates(
@@ -210,10 +210,10 @@ int main(int argc, char **argv)
 
 		st0 *= v0Raster.z, st1 *= v1Raster.z, st2 *= v2Raster.z;
 
-		float xmin = min3(v0Raster.x, v1Raster.x, v2Raster.x);
-		float ymin = min3(v0Raster.y, v1Raster.y, v2Raster.y);
-		float xmax = max3(v0Raster.x, v1Raster.x, v2Raster.x);
-		float ymax = max3(v0Raster.y, v1Raster.y, v2Raster.y);
+		float xmin = scratch::utils::min3(v0Raster.x, v1Raster.x, v2Raster.x);
+		float ymin = scratch::utils::min3(v0Raster.y, v1Raster.y, v2Raster.y);
+		float xmax = scratch::utils::max3(v0Raster.x, v1Raster.x, v2Raster.x);
+		float ymax = scratch::utils::max3(v0Raster.y, v1Raster.y, v2Raster.y);
 
 		// the triangle is out of screen
 		if (xmin > imageWidth - 1 || xmax < 0 || ymin > imageHeight - 1 || ymax < 0) {

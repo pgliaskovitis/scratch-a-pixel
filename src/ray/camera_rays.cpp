@@ -86,7 +86,7 @@ void render(
 	Matrix44f cameraToWorld;
 	Vec3f *framebuffer = new Vec3f[options.width * options.height];
 	Vec3f *pix = framebuffer;
-	float scale = tan(deg2rad(options.fov * 0.5f));
+	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5f));
 	float imageAspectRatio = options.width / (float)options.height;
 	// [comment]
 	// Don't forget to transform the ray origin (which is also the camera origin
@@ -128,9 +128,9 @@ void render(
 	std::ofstream ofs("./ray_camerarays.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.height * options.width; ++i) {
-		char r = (char)(255 * clamp(0, 1, framebuffer[i].x));
-		char g = (char)(255 * clamp(0, 1, framebuffer[i].y));
-		char b = (char)(255 * clamp(0, 1, framebuffer[i].z));
+		char r = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].x));
+		char g = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].y));
+		char b = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].z));
 		ofs << r << g << b;
 	}
 

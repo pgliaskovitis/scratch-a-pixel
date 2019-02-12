@@ -183,7 +183,7 @@ public:
 		float b = 2 * dir.dotProduct(L);
 		float c = L.dotProduct(L) - radius2;
 		float t0, t1;
-		if (!solveQuadratic(a, b, c, t0, t1)) return false;
+		if (!scratch::utils::solveQuadratic(a, b, c, t0, t1)) return false;
 
 		// will one of t0, t1 always be negative? if yes, no need to swap
 		// if (t0 > t1) {

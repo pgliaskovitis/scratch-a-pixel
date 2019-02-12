@@ -21,7 +21,9 @@
 
 #include "objects.h"
 
-namespace
+namespace scratch
+{
+namespace loader
 {
 	void loadGeoFile(
 		const char *file,
@@ -139,4 +141,5 @@ namespace
 
 		return nullptr;
 	}
+}
 }
