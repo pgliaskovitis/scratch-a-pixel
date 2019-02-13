@@ -19,7 +19,7 @@ Changes compared to the original code:
 
 `ofs.write((char*)frameBuffer, imageWidth * imageHeight * (sizeof *frameBuffer));`
 
-- Original loadPolyMeshFromFile function needs to close the file before returning a mesh object
+- Original loadPolyMeshFromFile function needs to close the file when returning a valid mesh object.
 
 - Render timers have been added where applicable.
 
