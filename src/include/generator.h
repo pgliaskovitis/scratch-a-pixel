@@ -23,7 +23,7 @@
 
 namespace scratch
 {
-namespace loader
+namespace generator
 {
 	TriangleMesh* generatePolySphere(float rad, uint32_t divs)
 	{

@@ -26,10 +26,16 @@ constexpr float kEpsilon = 1e-8;
 constexpr float kInfinity = std::numeric_limits<float>::max();
 static const Vec3f kDefaultBackgroundColor = Vec3f(0.235294, 0.67451, 0.843137);
 
+namespace scratch
+{
+namespace objects
+{
 bool rayTriangleIntersect(
 	const Vec3f &orig, const Vec3f &dir,
 	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
 	float &tnear, float &u, float &v);
+}
+}
 
 enum MaterialType {
 	DIFFUSE_AND_GLOSSY,
@@ -368,7 +374,7 @@ public:
 			const Vec3f & v1 = P[trisIndex[j + 1]];
 			const Vec3f & v2 = P[trisIndex[j + 2]];
 			float t, u, v;
-			if (rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
+			if (scratch::objects::rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
 				tnear = t;
 				uv.x = u;
 				uv.y = v;
@@ -428,6 +434,10 @@ public:
 	std::unique_ptr<Vec2f []> texCoordinates; // triangles texture coordinates
 };
 
+namespace scratch
+{
+namespace objects
+{
 bool rayTriangleIntersect(
 	const Vec3f &orig, const Vec3f &dir,
 	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
@@ -456,4 +466,6 @@ bool rayTriangleIntersect(
 	v *= invDet;
 
 	return true;
+}
+}
 }
