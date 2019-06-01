@@ -18,6 +18,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846f)
@@ -50,6 +51,18 @@ namespace utils
 	inline float deg2rad(const float &deg)
 	{
 		return deg * M_PI / 180;
+	}
+
+	template<typename T = float>
+	inline float edgeFunction(const T (&a)[2], const T (&b)[2], const T (&c)[2])
+	{
+		return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
+	}
+
+	template<typename T = float>
+	inline float edgeFunction(const T (&a)[3], const T (&b)[3], const T (&c)[3])
+	{
+		return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
 	}
 
 	template<typename T = float>

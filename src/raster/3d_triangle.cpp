@@ -18,15 +18,11 @@
 #include <cstring>
 #include <fstream>
 
+#include "utils.h"
+
 typedef float Vec2[2];
 typedef float Vec3[3];
 typedef unsigned char Rgb[3];
-
-inline
-float edgeFunction(const Vec3 &a, const Vec3 &b, const Vec3 &c)
-{
-	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
-}
 
 int main(int argc, char **argv)
 {
@@ -64,14 +60,14 @@ int main(int argc, char **argv)
 	Rgb *framebuffer = new Rgb[width * height];
 	memset(framebuffer, 0x0, width * height * 3);
 
-	float area = edgeFunction(v0, v1, v2);
+	float area = scratch::utils::edgeFunction(v0, v1, v2);
 
 	for (uint32_t j = 0; j < height; ++j) {
 		for (uint32_t i = 0; i < width; ++i) {
 			Vec3 p = {i + 0.5f, j + 0.5f, 0};
-			float w0 = edgeFunction(v1, v2, p);
-			float w1 = edgeFunction(v2, v0, p);
-			float w2 = edgeFunction(v0, v1, p);
+			float w0 = scratch::utils::edgeFunction(v1, v2, p);
+			float w1 = scratch::utils::edgeFunction(v2, v0, p);
+			float w2 = scratch::utils::edgeFunction(v0, v1, p);
 			if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
 				w0 /= area;
 				w1 /= area;
