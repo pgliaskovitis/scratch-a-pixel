@@ -32,12 +32,12 @@ namespace utils
 		return b * mix + a * (1 - mix);
 	}
 
-	float min3(const float &a, const float &b, const float &c)
+	inline float min3(const float &a, const float &b, const float &c)
 	{
 		return std::min(a, std::min(b, c));
 	}
 
-	float max3(const float &a, const float &b, const float &c)
+	inline float max3(const float &a, const float &b, const float &c)
 	{
 		return std::max(a, std::max(b, c));
 	}
@@ -50,6 +50,18 @@ namespace utils
 	inline float deg2rad(const float &deg)
 	{
 		return deg * M_PI / 180;
+	}
+
+	template<typename T = float>
+	inline T lerp(const T &lo, const T &hi, const T &t)
+	{
+    	return lo * (1 - t) + hi * t;
+	}
+
+	template<typename T = float>
+	inline T smoothstep(const T &t)
+	{
+    	return t * t * (3 - 2 * t);
 	}
 
 	inline bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, float &x1)

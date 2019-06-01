@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1)
 project (scratch_a_pixel)
 
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif ()
@@ -56,3 +56,6 @@ add_executable (ray_box src/ray/box.cpp)
 add_executable (ray_triangle src/ray/triangle.cpp)
 add_executable (ray_3d_mesh src/ray/3d_mesh.cpp)
 add_executable (ray_3d_transform src/ray/3d_transform.cpp)
+
+# basic noise
+add_executable (noise_value src/noise/value.cpp)
