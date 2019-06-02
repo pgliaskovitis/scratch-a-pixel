@@ -98,133 +98,152 @@ int main(int argc, char **argv)
 	unsigned imageHeight = 2048;
 	float *noiseMap = new float[imageWidth * imageHeight]{ 0 };
 
+	auto whiteNoiseFunc = [&](void) {
+		// [comment]
+		// Generate white noise
+		// [/comment]
+		unsigned seed = 2016;
+		std::mt19937 gen(seed);
+		std::uniform_real_distribution<float> distr;
+		auto dice = std::bind(distr, gen); // std::function<float()>
+
+		for (unsigned j = 0; j < imageHeight; ++j) {
+			for (unsigned i = 0; i < imageWidth; ++i) {
+				// generate a float in the range [0:1]
+				noiseMap[j * imageWidth + i] = dice();
+			}
+		}
+	};
+
+	auto valueNoiseFunc = [&](void) {
+		// [comment]
+		// Generate value noise
+		// [/comment]
+		ValueNoise noise;
+		float frequency = 0.05f;
+		for (unsigned j = 0; j < imageHeight; ++j) {
+			for (unsigned i = 0; i < imageWidth; ++i) {
+				// generate a float in the range [0:1]
+				Vec2f pNoise = Vec2f(i, j) * frequency;
+				noiseMap[j * imageWidth + i] = noise.eval(pNoise);
+			}
+		}
+	};
+
+	auto fractalSumFunc = [&](void) {
+		// [comment]
+		// Generate fractal pattern
+		// [/comment]
+		ValueNoise noise;
+		float frequency = 0.02f;
+		float frequencyMult = 1.8;
+		float amplitudeMult = 0.35;
+		unsigned numLayers = 5;
+		float maxNoiseVal = 0;
+		for (unsigned j = 0; j < imageHeight; ++j) {
+			for (unsigned i = 0; i < imageWidth; ++i) {
+				Vec2f pNoise = Vec2f(i, j) * frequency;
+				float amplitude = 1;
+				for (unsigned l = 0; l < numLayers; ++l) {
+				noiseMap[j * imageWidth + i] += noise.eval(pNoise) * amplitude;
+				pNoise *= frequencyMult;
+				amplitude *= amplitudeMult;
+				}
+				if (noiseMap[j * imageWidth + i] > maxNoiseVal) {
+					maxNoiseVal = noiseMap[j * imageWidth + i];
+				}
+			}
+		}
+
+		for (unsigned i = 0; i < imageWidth * imageHeight; ++i) {
+			noiseMap[i] /= maxNoiseVal;
+		}
+	};
+
+	auto turbulenceFunc = [&](void) {
+		// [comment]
+		// Generate turbulence pattern
+		// [/comment]
+		ValueNoise noise;
+		float frequency = 0.02f;
+		float frequencyMult = 1.8;
+		float amplitudeMult = 0.35;
+		unsigned numLayers = 5;
+		float maxNoiseVal = 0;
+		for (unsigned j = 0; j < imageHeight; ++j) {
+			for (unsigned i = 0; i < imageWidth; ++i) {
+				Vec2f pNoise = Vec2f(i, j) * frequency;
+				float amplitude = 1;
+				for (unsigned l = 0; l < numLayers; ++l) {
+					noiseMap[j * imageWidth + i] += std::fabs(2 * noise.eval(pNoise) - 1) * amplitude;
+					pNoise *= frequencyMult;
+					amplitude *= amplitudeMult;
+				}
+				if (noiseMap[j * imageWidth + i] > maxNoiseVal) {
+					maxNoiseVal = noiseMap[j * imageWidth + i];
+				}
+			}
+		}
+
+		for (unsigned i = 0; i < imageWidth * imageHeight; ++i) {
+			noiseMap[i] /= maxNoiseVal;
+		}
+	};
+
+	auto marblePatternFunc = [&](void) {
+		// [comment]
+		// Generate marble pattern
+		// [/comment]
+		ValueNoise noise;
+		float frequency = 0.02f;
+		float frequencyMult = 1.8;
+		float amplitudeMult = 0.35;
+		unsigned numLayers = 5;
+		for (unsigned j = 0; j < imageHeight; ++j) {
+			for (unsigned i = 0; i < imageWidth; ++i) {
+				Vec2f pNoise = Vec2f(i, j) * frequency;
+				float amplitude = 1;
+				float noiseValue = 0;
+				// compute some fractal noise
+				for (unsigned l = 0; l < numLayers; ++l) {
+					noiseValue += noise.eval(pNoise) * amplitude;
+					pNoise *= frequencyMult;
+					amplitude *= amplitudeMult;
+				}
+
+				// we "displace" the value i used in the sin() expression by noiseValue * 100
+				noiseMap[j * imageWidth + i] = (sin((i + noiseValue * 100) * 2 * M_PI / 200.f) + 1) / 2.f;
+			}
+		}
+	};
+
+	auto woodPatternFunc = [&](void) {
+		// [comment]
+		// Generate wood pattern
+		// [/comment]
+		ValueNoise noise;
+		float frequency = 0.01f;
+		for (unsigned j = 0; j < imageHeight; ++j) {
+			for (unsigned i = 0; i < imageWidth; ++i) {
+				Vec2f pNoise = Vec2f(i, j) * frequency;
+				float g = noise.eval(pNoise) * 10;
+				noiseMap[j * imageWidth + i] = g - (int)g;
+			}
+		}
+	};
+
 #if 0
-	// [comment]
-	// Generate white noise
-	// [/comment]
-	unsigned seed = 2016;
-	std::mt19937 gen(seed);
-	std::uniform_real_distribution<float> distr;
-	auto dice = std::bind(distr, gen); // std::function<float()>
-
-	for (unsigned j = 0; j < imageHeight; ++j) {
-		for (unsigned i = 0; i < imageWidth; ++i) {
-			// generate a float in the range [0:1]
-			noiseMap[j * imageWidth + i] = dice();
-		}
-	}
-
+	whiteNoiseFunc();
 #elif 0
-	// [comment]
-	// Generate value noise
-	// [/comment]
-	ValueNoise noise;
-	float frequency = 0.05f;
-	for (unsigned j = 0; j < imageHeight; ++j) {
-		for (unsigned i = 0; i < imageWidth; ++i) {
-			// generate a float in the range [0:1]
-			Vec2f pNoise = Vec2f(i, j) * frequency;
-			noiseMap[j * imageWidth + i] = noise.eval(pNoise);
-		}
-	}
-
+	valueNoiseFunc();
 #elif 0
-	// [comment]
-	// Generate fractal pattern
-	// [/comment]
-	ValueNoise noise;
-	float frequency = 0.02f;
-	float frequencyMult = 1.8;
-	float amplitudeMult = 0.35;
-	unsigned numLayers = 5;
-	float maxNoiseVal = 0;
-	for (unsigned j = 0; j < imageHeight; ++j) {
-		for (unsigned i = 0; i < imageWidth; ++i) {
-			Vec2f pNoise = Vec2f(i, j) * frequency;
-			float amplitude = 1;
-			for (unsigned l = 0; l < numLayers; ++l) {
-			noiseMap[j * imageWidth + i] += noise.eval(pNoise) * amplitude;
-			pNoise *= frequencyMult;
-			amplitude *= amplitudeMult;
-			}
-			if (noiseMap[j * imageWidth + i] > maxNoiseVal) {
-				maxNoiseVal = noiseMap[j * imageWidth + i];
-			}
-		}
-	}
-
-	for (unsigned i = 0; i < imageWidth * imageHeight; ++i) {
-		noiseMap[i] /= maxNoiseVal;
-	}
-
+	fractalSumFunc();
 #elif 0
-	// [comment]
-	// Generate turbulence pattern
-	// [/comment]
-	ValueNoise noise;
-	float frequency = 0.02f;
-	float frequencyMult = 1.8;
-	float amplitudeMult = 0.35;
-	unsigned numLayers = 5;
-	float maxNoiseVal = 0;
-	for (unsigned j = 0; j < imageHeight; ++j) {
-		for (unsigned i = 0; i < imageWidth; ++i) {
-			Vec2f pNoise = Vec2f(i, j) * frequency;
-			float amplitude = 1;
-			for (unsigned l = 0; l < numLayers; ++l) {
-				noiseMap[j * imageWidth + i] += std::fabs(2 * noise.eval(pNoise) - 1) * amplitude;
-				pNoise *= frequencyMult;
-				amplitude *= amplitudeMult;
-			}
-			if (noiseMap[j * imageWidth + i] > maxNoiseVal) {
-				maxNoiseVal = noiseMap[j * imageWidth + i];
-			}
-		}
-	}
-
-	for (unsigned i = 0; i < imageWidth * imageHeight; ++i) {
-		noiseMap[i] /= maxNoiseVal;
-	}
-
+	turbulenceFunc();
 #elif 1
-	// [comment]
-	// Generate marble pattern
-	// [/comment]
-	ValueNoise noise;
-	float frequency = 0.02f;
-	float frequencyMult = 1.8;
-	float amplitudeMult = 0.35;
-	unsigned numLayers = 5;
-	for (unsigned j = 0; j < imageHeight; ++j) {
-		for (unsigned i = 0; i < imageWidth; ++i) {
-			Vec2f pNoise = Vec2f(i, j) * frequency;
-			float amplitude = 1;
-			float noiseValue = 0;
-			// compute some fractal noise
-			for (unsigned l = 0; l < numLayers; ++l) {
-				noiseValue += noise.eval(pNoise) * amplitude;
-				pNoise *= frequencyMult;
-				amplitude *= amplitudeMult;
-			}
-
-			// we "displace" the value i used in the sin() expression by noiseValue * 100
-			noiseMap[j * imageWidth + i] = (sin((i + noiseValue * 100) * 2 * M_PI / 200.f) + 1) / 2.f;
-		}
-	}
-
+	marblePatternFunc();
 #else
-	// [comment]
-	// Generate wood pattern
-	// [/comment]
-	ValueNoise noise;
-	float frequency = 0.01f;
-	for (unsigned j = 0; j < imageHeight; ++j) {
-		for (unsigned i = 0; i < imageWidth; ++i) {
-			Vec2f pNoise = Vec2f(i, j) * frequency;
-			float g = noise.eval(pNoise) * 10;
-			noiseMap[j * imageWidth + i] = g - (int)g;
-		}
-	}
+	woodPatternFunc();
 #endif
 
 	// output noise map to PPM
