@@ -29,6 +29,7 @@
 #include "geometry.h"
 #include "utils.h"
 
+template <float (*F)(const float &)>
 class ValueNoise
 {
 public:
@@ -74,8 +75,8 @@ public:
 		const float & c11 = r[permutationTable[permutationTable[rx1] + ry1]];
 
 		// remapping of tx and ty using the Smoothstep function
-		float sx = scratch::utils::smoothstep(tx);
-		float sy = scratch::utils::smoothstep(ty);
+		float sx = F(tx);
+		float sy = F(ty);
 
 		// linearly interpolate values along the x axis
 		float nx0 = scratch::utils::lerp(c00, c10, sx);
@@ -119,7 +120,7 @@ int main(int argc, char **argv)
 		// [comment]
 		// Generate value noise
 		// [/comment]
-		ValueNoise noise;
+		ValueNoise<scratch::utils::smoothstep> noise;
 		float frequency = 0.05f;
 		for (unsigned j = 0; j < imageHeight; ++j) {
 			for (unsigned i = 0; i < imageWidth; ++i) {
@@ -134,7 +135,7 @@ int main(int argc, char **argv)
 		// [comment]
 		// Generate fractal pattern
 		// [/comment]
-		ValueNoise noise;
+		ValueNoise<scratch::utils::smoothstep> noise;
 		float frequency = 0.02f;
 		float frequencyMult = 1.8;
 		float amplitudeMult = 0.35;
@@ -164,7 +165,7 @@ int main(int argc, char **argv)
 		// [comment]
 		// Generate turbulence pattern
 		// [/comment]
-		ValueNoise noise;
+		ValueNoise<scratch::utils::smoothstep> noise;
 		float frequency = 0.02f;
 		float frequencyMult = 1.8;
 		float amplitudeMult = 0.35;
@@ -194,7 +195,7 @@ int main(int argc, char **argv)
 		// [comment]
 		// Generate marble pattern
 		// [/comment]
-		ValueNoise noise;
+		ValueNoise<scratch::utils::smoothstep> noise;
 		float frequency = 0.02f;
 		float frequencyMult = 1.8;
 		float amplitudeMult = 0.35;
@@ -221,7 +222,7 @@ int main(int argc, char **argv)
 		// [comment]
 		// Generate wood pattern
 		// [/comment]
-		ValueNoise noise;
+		ValueNoise<scratch::utils::smoothstep> noise;
 		float frequency = 0.01f;
 		for (unsigned j = 0; j < imageHeight; ++j) {
 			for (unsigned i = 0; i < imageWidth; ++i) {
