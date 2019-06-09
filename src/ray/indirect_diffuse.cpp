@@ -265,7 +265,7 @@ int main(int argc, char **argv)
 	}
 
 	Matrix44f l2w(0.916445, -0.218118, 0.335488, 0, 0.204618, -0.465058, -0.861309, 0, 0.343889, 0.857989, -0.381569, 0, 0, 0, 0, 1);
-	// lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 16)));
+	lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 16)));
 
 	// finally, render
 	render(options, objects, lights);
