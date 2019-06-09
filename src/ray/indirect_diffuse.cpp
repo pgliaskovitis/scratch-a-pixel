@@ -40,8 +40,8 @@ static std::uniform_real_distribution<float> distribution(0, 1);
 
 struct Options
 {
-	uint32_t width = 100;
-	uint32_t height = 40;
+	uint32_t width = 1920;
+	uint32_t height = 1080;
 	float fov = 90;
 	Vec3f backgroundColor = kDefaultBackgroundColor;
 	Matrix44f cameraToWorld;
