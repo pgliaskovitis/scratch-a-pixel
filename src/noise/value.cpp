@@ -75,8 +75,8 @@ public:
 		const float & c11 = r[permutationTable[permutationTable[rx1] + ry1]];
 
 		// remapping of tx and ty using the Smoothstep function
-		float sx = F(tx);
-		float sy = F(ty);
+		float sx = (*F)(tx);
+		float sy = (*F)(ty);
 
 		// linearly interpolate values along the x axis
 		float nx0 = scratch::utils::lerp(c00, c10, sx);

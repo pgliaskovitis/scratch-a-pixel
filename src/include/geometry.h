@@ -241,7 +241,7 @@ public:
 			}
 		}
 #else
-		// A restric qualified pointer (or reference) is basically a promise
+		// A restrict qualified pointer (or reference) is basically a promise
 		// to the compiler that for the scope of the pointer, the target of the
 		// pointer will only be accessed through that pointer (and pointers
 		// copied from it.
@@ -539,6 +539,7 @@ typedef Vec2<int> Vec2i;
 typedef Vec3<float> Vec3f;
 typedef Vec3<int> Vec3i;
 typedef Matrix44<float> Matrix44f;
+template <> const Matrix44f Matrix44f::kIdentity = Matrix44f();
 
 template <typename T>
 inline Vec3<T> mix(const Vec3<T> &a, const Vec3<T> &b, const float &mixValue)

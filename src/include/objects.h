@@ -38,48 +38,10 @@ bool rayTriangleIntersect(
 }
 
 enum MaterialType {
-	DIFFUSE_AND_GLOSSY,
-	REFLECTION_AND_REFRACTION,
-	REFLECTION
-};
-
-class Object
-{
- public:
-	Object() :
-		materialType(DIFFUSE_AND_GLOSSY), ior(1.3f), Kd(0.8f), Ks(0.2f), specularExponent(25)
-	{
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_real_distribution<> dis(0.f, 1.f);
-		diffuseColor = Vec3f(dis(gen), dis(gen), dis(gen));
-	}
-
-	Object(const Matrix44f &o2w) : objectToWorld(o2w), worldToObject(o2w.inverse()) {}
-
-	virtual ~Object() {}
-	virtual bool intersect(const Vec3f &, const Vec3f &, float &, uint32_t &, Vec2f &) const = 0;
-	virtual void getSurfaceProperties(const Vec3f &, const Vec3f &, const uint32_t &, const Vec2f &, Vec3f &, Vec2f &) const = 0;
-	virtual Vec3f evalDiffuseColor(const Vec2f &) const { return diffuseColor; }
-
-	// material properties
-	MaterialType materialType;
-	float ior;
-	float Kd, Ks;
-	Vec3f diffuseColor;
-	float specularExponent;
-
-	// transforms
-	Matrix44f objectToWorld;
-	Matrix44f worldToObject;
-};
-
-class Light
-{
-public:
-	Light(const Vec3f &p, const Vec3f &i) : position(p), intensity(i) {}
-	Vec3f position;
-	Vec3f intensity;
+	kDiffuse,
+	kDiffuseAndGlossy,
+	kReflectionAndRefraction,
+	kReflection
 };
 
 class Ray
@@ -97,6 +59,42 @@ public:
 	int sign[3];
 };
 
+class Object
+{
+ public:
+	explicit Object(MaterialType type = kDiffuseAndGlossy) :
+		materialType(type), ior(1.3f), Kd(0.8f), Ks(0.2f), specularExponent(25)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<> dis(0.f, 1.f);
+		diffuseColor = Vec3f(dis(gen), dis(gen), dis(gen));
+	}
+
+	Object(const Matrix44f &o2w) : objectToWorld(o2w), worldToObject(o2w.inverse()) {}
+
+	virtual ~Object() {}
+	virtual bool intersect(const Vec3f &, const Vec3f &, float &, uint32_t &, Vec2f &) const = 0;
+	virtual void getSurfaceProperties(const Vec3f &, const Vec3f &, const uint32_t &, const Vec2f &, Vec3f &, Vec2f &) const = 0;
+	virtual Vec3f evalDiffuseColor(const Vec2f &) const { return diffuseColor; }
+
+	// material properties
+	MaterialType materialType;
+	Vec3f diffuseColor;
+	Vec3f albedo;
+	float specularExponent;
+	float ior;
+	float Kd;
+	float Ks;
+
+	// transforms
+	Matrix44f objectToWorld;
+	Matrix44f worldToObject;
+
+	// shading
+	bool smoothShading = false;
+};
+
 class AABBox
 {
 public:
@@ -111,30 +109,38 @@ public:
 		tymin = (bounds[r.sign[1]].y - r.orig.y) * r.invdir.y;
 		tymax = (bounds[1-r.sign[1]].y - r.orig.y) * r.invdir.y;
 
-		if ((tmin > tymax) || (tymin > tmax))
+		if ((tmin > tymax) || (tymin > tmax)) {
 			return false;
+		}
 
-		if (tymin > tmin)
+		if (tymin > tmin) {
 			tmin = tymin;
-		if (tymax < tmax)
+		}
+		if (tymax < tmax) {
 			tmax = tymax;
+		}
 
 		tzmin = (bounds[r.sign[2]].z - r.orig.z) * r.invdir.z;
 		tzmax = (bounds[1-r.sign[2]].z - r.orig.z) * r.invdir.z;
 
-		if ((tmin > tzmax) || (tzmin > tmax))
+		if ((tmin > tzmax) || (tzmin > tmax)) {
 			return false;
+		}
 
-		if (tzmin > tmin)
+		if (tzmin > tmin) {
 			tmin = tzmin;
-		if (tzmax < tmax)
+		}
+		if (tzmax < tmax) {
 			tmax = tzmax;
+		}
 
 		t = tmin;
 
 		if (t < 0) {
 			t = tmax;
-			if (t < 0) return false;
+			if (t < 0) {
+				return false;
+			}
 		}
 
 		return true;
@@ -145,6 +151,12 @@ public:
 class Sphere : public Object
 {
 public:
+
+	Sphere(const Matrix44f &o2w, const float &r) : Object(o2w), radius(r), radius2(r *r)
+	{
+		o2w.multVecMatrix(Vec3f(0), center);
+	}
+
 	Sphere(const Vec3f &c,
 		   const float &r,
 		   const Vec3f &sc = 0,
@@ -304,7 +316,7 @@ public:
 
 		// you can use move if the input geometry is already triangulated
 		//N = std::move(normals); // transfer ownership
-		//sts = std::move(st); // transfer ownership
+		//texCoordinates = std::move(st); // transfer ownership
 	}
 
 	TriangleMesh(
@@ -365,7 +377,7 @@ public:
 	}
 
 	// Test if the ray intersects this triangle mesh with cross products
-	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
+	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &triIndex, Vec2f &uv) const
 	{
 		uint32_t j = 0;
 		bool intersect = false;
@@ -378,7 +390,7 @@ public:
 				tnear = t;
 				uv.x = u;
 				uv.y = v;
-				index = k;
+				triIndex = k;
 				intersect |= true;
 			}
 			j += 3;
@@ -395,11 +407,21 @@ public:
 		Vec3f &hitNormal,
 		Vec2f &hitTextureCoordinates) const
 	{
-		// face normal
-		const Vec3f &v0 = P[trisIndex[triIndex * 3]];
-		const Vec3f &v1 = P[trisIndex[triIndex * 3 + 1]];
-		const Vec3f &v2 = P[trisIndex[triIndex * 3 + 2]];
-		hitNormal = (v1 - v0).crossProduct(v2 - v0);
+		if (smoothShading) {
+			// vertex normal
+			const Vec3f &n0 = N[triIndex * 3];
+			const Vec3f &n1 = N[triIndex * 3 + 1];
+			const Vec3f &n2 = N[triIndex * 3 + 2];
+			hitNormal = (1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2;
+		}
+		else {
+			// face normal
+			const Vec3f &v0 = P[trisIndex[triIndex * 3]];
+			const Vec3f &v1 = P[trisIndex[triIndex * 3 + 1]];
+			const Vec3f &v2 = P[trisIndex[triIndex * 3 + 2]];
+			hitNormal = (v1 - v0).crossProduct(v2 - v0);
+		}
+
 		hitNormal.normalize();
 
 		// texture coordinates
@@ -425,6 +447,7 @@ public:
 		float pattern = (fmodf(st.x * scale, 1.f) > 0.5f) ^ (fmodf(st.y * scale, 1.f) > 0.5f);
 		return mix(Vec3f(0.815f, 0.235f, 0.031f), Vec3f(0.937f, 0.937f, 0.231f), pattern);
 	}
+
 
 	// member variables
 	uint32_t numTris; // number of triangles

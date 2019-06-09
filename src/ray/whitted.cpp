@@ -24,6 +24,7 @@
 #include <chrono>
 
 #include "objects.h"
+#include "lights.h"
 
 struct Options
 {
@@ -103,7 +104,7 @@ bool trace(
 Vec3f castRay(
 	const Vec3f &orig, const Vec3f &dir,
 	const std::vector<std::unique_ptr<Object>> &objects,
-	const std::vector<std::unique_ptr<Light>> &lights,
+	const std::vector<std::unique_ptr<LightLite>> &lights,
 	const Options &options,
 	State &state,
 	uint32_t depth,
@@ -125,7 +126,7 @@ Vec3f castRay(
 		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, N, st);
 		Vec3f tmp = hitPoint;
 		switch (hitObject->materialType) {
-			case REFLECTION_AND_REFRACTION:
+			case kReflectionAndRefraction:
 			{
 				Vec3f reflectionDirection = reflect(dir, N).normalize();
 				Vec3f refractionDirection = refract(dir, N, hitObject->ior).normalize();
@@ -144,7 +145,7 @@ Vec3f castRay(
 				hitColor = reflectionColor * kr + refractionColor * (1 - kr);
 				break;
 			}
-			case REFLECTION:
+			case kReflection:
 			{
 				float kr;
 				fresnel(dir, N, hitObject->ior, kr);
@@ -203,7 +204,7 @@ Vec3f castRay(
 void render(
 	const Options &options,
 	const std::vector<std::unique_ptr<Object>> &objects,
-	const std::vector<std::unique_ptr<Light>> &lights,
+	const std::vector<std::unique_ptr<LightLite>> &lights,
 	State &state)
 {
 	Vec3f *framebuffer = new Vec3f[options.width * options.height];
@@ -247,14 +248,14 @@ int main(int argc, char **argv)
 {
 	// creating the scene (adding objects and lights)
 	std::vector<std::unique_ptr<Object>> objects;
-	std::vector<std::unique_ptr<Light>> lights;
+	std::vector<std::unique_ptr<LightLite>> lights;
 
 	Sphere *sph1 = new Sphere(Vec3f(-1, 0, -12), 2.f);
-	sph1->materialType = DIFFUSE_AND_GLOSSY;
+	sph1->materialType = kDiffuseAndGlossy;
 	sph1->diffuseColor = Vec3f(0.6f, 0.7f, 0.8f);
 	Sphere *sph2 = new Sphere(Vec3f(0.5f, -0.5f, -8), 1.5f);
 	sph2->ior = 1.5;
-	sph2->materialType = REFLECTION_AND_REFRACTION;
+	sph2->materialType = kReflectionAndRefraction;
 
 	objects.push_back(std::unique_ptr<Sphere>(sph1));
 	objects.push_back(std::unique_ptr<Sphere>(sph2));
@@ -263,12 +264,12 @@ int main(int argc, char **argv)
 	uint32_t vertIndex[6] = {0, 1, 3, 1, 2, 3};
 	Vec2f st[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 	TriangleMesh *mesh = new TriangleMesh(verts, vertIndex, 2, st);
-	mesh->materialType = DIFFUSE_AND_GLOSSY;
+	mesh->materialType = kDiffuseAndGlossy;
 
 	objects.push_back(std::unique_ptr<TriangleMesh>(mesh));
 
-	lights.push_back(std::unique_ptr<Light>(new Light(Vec3f(-20, 70, 20), 0.5f)));
-	lights.push_back(std::unique_ptr<Light>(new Light(Vec3f(30, 50, -12), 1)));
+	lights.push_back(std::unique_ptr<LightLite>(new LightLite(Vec3f(-20, 70, 20), 0.5f)));
+	lights.push_back(std::unique_ptr<LightLite>(new LightLite(Vec3f(30, 50, -12), 1)));
 
 	// setting up options
 	Options options;

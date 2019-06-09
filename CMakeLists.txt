@@ -56,6 +56,7 @@ add_executable (ray_box src/ray/box.cpp)
 add_executable (ray_triangle src/ray/triangle.cpp)
 add_executable (ray_3d_mesh src/ray/3d_mesh.cpp)
 add_executable (ray_3d_transform src/ray/3d_transform.cpp)
+add_executable (ray_indirect_diffuse src/ray/indirect_diffuse.cpp)
 
 # basic noise
 add_executable (noise_value src/noise/value.cpp)
