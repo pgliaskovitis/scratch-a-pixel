@@ -62,8 +62,7 @@ public:
 class Object
 {
  public:
-	explicit Object(MaterialType type = kDiffuseAndGlossy) :
-		materialType(type), ior(1.3f), Kd(0.8f), Ks(0.2f), specularExponent(25)
+	explicit Object(MaterialType type = kDiffuseAndGlossy)
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
@@ -82,10 +81,10 @@ class Object
 	MaterialType materialType;
 	Vec3f diffuseColor;
 	Vec3f albedo;
-	float specularExponent;
-	float ior;
-	float Kd;
-	float Ks;
+	float ior = 1.3;
+	float Kd = 0.8; // phong model diffuse weight
+	float Ks = 0.2; // phong model specular weight
+	float specularExponent = 25; // phong specular exponent
 
 	// transforms
 	Matrix44f objectToWorld;
@@ -152,7 +151,7 @@ class Sphere : public Object
 {
 public:
 
-	Sphere(const Matrix44f &o2w, const float &r) : Object(o2w), radius(r), radius2(r *r)
+	Sphere(const Matrix44f &o2w, const float &r) : Object(o2w), radius(r), radius2(r * r)
 	{
 		o2w.multVecMatrix(Vec3f(0), center);
 	}
@@ -169,7 +168,8 @@ public:
 		   surfaceColor(sc),
 		   emissionColor(ec),
 		   transparency(transp),
-		   reflection(refl) {}
+		   reflection(refl)
+	{}
 
 	/*
 	//[comment]
@@ -196,28 +196,31 @@ public:
 	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &index, Vec2f &uv) const
 	{
 		// analytic solution
+		float t0, t1;
 		Vec3f L = orig - center;
 		float a = dir.dotProduct(dir);
 		float b = 2 * dir.dotProduct(L);
 		float c = L.dotProduct(L) - radius2;
-		float t0, t1;
 		if (!scratch::utils::solveQuadratic(a, b, c, t0, t1)) return false;
 
-		// will one of t0, t1 always be negative? if yes, no need to swap
-		// if (t0 > t1) {
-		//	float tmp = t0;
-		//	t0 = t1;
-		//	t1 = tmp;
-		// }
-
-		if (t0 < 0) t0 = t1;
-		if (t0 < 0) return false;
+		if (t0 < 0) {
+			t0 = t1;
+			if (t0 < 0) {
+				return false;
+			}
+		}
 		tnear = t0;
 
 		return true;
 	}
 
-	void getSurfaceProperties(const Vec3f &P, const Vec3f &I, const uint32_t &index, const Vec2f &uv, Vec3f &N, Vec2f &st) const
+	void getSurfaceProperties(
+		const Vec3f &P,
+		const Vec3f &I,
+		const uint32_t &index,
+		const Vec2f &uv,
+		Vec3f &N,
+		Vec2f &st) const
 	{
 		N = (P - center).normalize();
 		// In this particular case, the normal is simular to a point on a unit sphere
@@ -429,16 +432,6 @@ public:
 		const Vec2f &st1 = texCoordinates[triIndex * 3 + 1];
 		const Vec2f &st2 = texCoordinates[triIndex * 3 + 2];
 		hitTextureCoordinates = (1 - uv.x - uv.y) * st0 + uv.x * st1 + uv.y * st2;
-
-		// vertex normal
-		/*
-		const Vec3f &n0 = N[triIndex * 3];
-		const Vec3f &n1 = N[triIndex * 3 + 1];
-		const Vec3f &n2 = N[triIndex * 3 + 2];
-		hitNormal = (1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2;
-		// doesn't need to be normalized as the N's are normalized but just for safety
-		hitNormal.normalize()
-		*/
 	}
 
 	Vec3f evalDiffuseColor(const Vec2f &st) const
@@ -461,6 +454,7 @@ namespace scratch
 {
 namespace objects
 {
+/*
 bool rayTriangleIntersect(
 	const Vec3f &orig, const Vec3f &dir,
 	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
@@ -489,6 +483,35 @@ bool rayTriangleIntersect(
 	v *= invDet;
 
 	return true;
+}
+*/
+
+bool rayTriangleIntersect(
+	const Vec3f &orig, const Vec3f &dir,
+	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
+	float &t, float &u, float &v)
+{
+	Vec3f v0v1 = v1 - v0;
+	Vec3f v0v2 = v2 - v0;
+	Vec3f pvec = dir.crossProduct(v0v2);
+	float det = v0v1.dotProduct(pvec);
+
+	// ray and triangle are parallel if det is close to 0
+	if (fabs(det) < kEpsilon) return false;
+
+	float invDet = 1 / det;
+
+	Vec3f tvec = orig - v0;
+	u = tvec.dotProduct(pvec) * invDet;
+	if (u < 0 || u > 1) return false;
+
+	Vec3f qvec = tvec.crossProduct(v0v1);
+	v = dir.dotProduct(qvec) * invDet;
+	if (v < 0 || u + v > 1) return false;
+
+	t = v0v2.dotProduct(qvec) * invDet;
+
+	return (t > 0) ? true : false;
 }
 }
 }

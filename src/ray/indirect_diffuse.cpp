@@ -140,7 +140,8 @@ Vec3f castRay(
 			// Compute indirect ligthing
 			// [/comment]
 			Vec3f indirectLigthing = 0;
-			uint32_t N = 128;// / (depth + 1);
+
+			uint32_t N = 32;// / (depth + 1);
 			Vec3f Nt, Nb;
 			createCoordinateSystem(hitNormal, Nt, Nb);
 			float pdf = 1 / (2 * M_PI);
@@ -158,6 +159,7 @@ Vec3f castRay(
 			}
 			// divide by N
 			indirectLigthing /= (float)N;
+
 			hitColor = (directLighting / M_PI + 2 * indirectLigthing) * isect.hitObject->albedo;
 			break;
 		}
@@ -259,13 +261,14 @@ int main(int argc, char **argv)
 	xformSphere[3][1] = 1;
 	Sphere *sph = new Sphere(xformSphere, 1);
 	if (sph != nullptr) {
+		sph->albedo = Vec3f(0.18, 0.18, 0.18);
 		sph->materialType = kDiffuse;
 		sph->specularExponent = 10;
 		objects.push_back(std::unique_ptr<Object>(sph));
 	}
 
 	Matrix44f l2w(0.916445, -0.218118, 0.335488, 0, 0.204618, -0.465058, -0.861309, 0, 0.343889, 0.857989, -0.381569, 0, 0, 0, 0, 1);
-	lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 16)));
+	// lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 16)));
 
 	// finally, render
 	render(options, objects, lights);
