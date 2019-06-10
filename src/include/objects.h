@@ -79,8 +79,7 @@ class Object
 
 	// material properties
 	MaterialType materialType;
-	Vec3f diffuseColor;
-	Vec3f albedo;
+	Vec3f diffuseColor; // albedo
 	float ior = 1.3;
 	float Kd = 0.8; // phong model diffuse weight
 	float Ks = 0.2; // phong model specular weight

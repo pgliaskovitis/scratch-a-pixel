@@ -160,7 +160,7 @@ Vec3f castRay(
 			// divide by N
 			indirectLigthing /= (float)N;
 
-			hitColor = (directLighting / M_PI + 2 * indirectLigthing) * isect.hitObject->albedo;
+			hitColor = (directLighting / M_PI + 2 * indirectLigthing) * isect.hitObject->diffuseColor;
 			break;
 		}
 		default:
@@ -209,7 +209,7 @@ void render(
 	// save framebuffer to file
 	float gamma = 1;
 	std::ofstream ofs;
-	ofs.open("ray_indirect_diffuse.ppm");
+	ofs.open("ray_indirect_diffuse.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.height * options.width; ++i) {
 		char r = (char)(255 * scratch::utils::clamp(0, 1, powf(framebuffer[i].x, 1/gamma)));
@@ -241,7 +241,7 @@ int main(int argc, char **argv)
 
 	TriangleMesh *plane = scratch::loader::loadPolyMeshFromFile("data/planegi.geo", &Matrix44f::kIdentity);
 	if (plane != nullptr) {
-		plane->albedo = Vec3f(0.225, 0.144, 0.144);
+		plane->diffuseColor = Vec3f(0.225, 0.144, 0.144);
 		plane->materialType = kDiffuse;
 		plane->specularExponent = 10;
 		plane->smoothShading = true;
@@ -250,7 +250,7 @@ int main(int argc, char **argv)
 
 	TriangleMesh *cube = scratch::loader::loadPolyMeshFromFile("data/cubegi.geo", &Matrix44f::kIdentity);
 	if (cube != nullptr) {
-		cube->albedo = Vec3f(0.188559, 0.287, 0.200726);
+		cube->diffuseColor = Vec3f(0.188559, 0.287, 0.200726);
 		cube->materialType = kDiffuse;
 		cube->specularExponent = 10;
 		cube->smoothShading = true;
@@ -261,7 +261,7 @@ int main(int argc, char **argv)
 	xformSphere[3][1] = 1;
 	Sphere *sph = new Sphere(xformSphere, 1);
 	if (sph != nullptr) {
-		sph->albedo = Vec3f(0.18, 0.18, 0.18);
+		sph->diffuseColor = Vec3f(0.18, 0.18, 0.18);
 		sph->materialType = kDiffuse;
 		sph->specularExponent = 10;
 		objects.push_back(std::unique_ptr<Object>(sph));
