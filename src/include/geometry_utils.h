@@ -21,6 +21,7 @@
 #include "utils.h"
 
 constexpr float kEpsilon = 1e-8;
+constexpr float inchToMm = 25.4f;
 
 template <typename T>
 inline Vec3<T> mix(const Vec3<T> &a, const Vec3<T> &b, const float &mixValue)

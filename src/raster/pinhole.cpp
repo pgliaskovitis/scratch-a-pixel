@@ -22,7 +22,7 @@
 
 #include <fstream>
 
-#include "geometry.h"
+#include "geometry_utils.h"
 
 //[comment]
 // List of vertices making up the object

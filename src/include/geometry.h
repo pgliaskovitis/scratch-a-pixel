@@ -38,8 +38,6 @@
 
 #include "utils.h"
 
-constexpr float inchToMm = 25.4f;
-
 template<typename T>
 class Vec2
 {
