@@ -24,6 +24,9 @@
 #define M_PI (3.14159265358979323846f)
 #endif
 
+constexpr float kInfinity = std::numeric_limits<float>::max();
+constexpr float kEpsilon = 1e-8;
+
 namespace scratch
 {
 namespace utils

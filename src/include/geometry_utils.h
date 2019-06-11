@@ -20,7 +20,6 @@
 #include "geometry.h"
 #include "utils.h"
 
-constexpr float kEpsilon = 1e-8;
 constexpr float inchToMm = 25.4f;
 
 template <typename T>

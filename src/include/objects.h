@@ -22,7 +22,6 @@
 
 #include "geometry_utils.h"
 
-constexpr float kInfinity = std::numeric_limits<float>::max();
 static const Vec3f kDefaultBackgroundColor = Vec3f(0.235294, 0.67451, 0.843137);
 
 enum MaterialType {

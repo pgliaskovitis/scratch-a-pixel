@@ -35,8 +35,6 @@
 
 #define MAYA_STYLE 0
 
-const float kInfinity = std::numeric_limits<float>::max();
-
 struct Options
 {
 	uint32_t width;
