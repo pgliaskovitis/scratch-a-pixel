@@ -20,22 +20,10 @@
 #include <cstring>
 #include <random>
 
-#include "geometry.h"
+#include "geometry_utils.h"
 
-constexpr float kEpsilon = 1e-8;
 constexpr float kInfinity = std::numeric_limits<float>::max();
 static const Vec3f kDefaultBackgroundColor = Vec3f(0.235294, 0.67451, 0.843137);
-
-namespace scratch
-{
-namespace objects
-{
-bool rayTriangleIntersect(
-	const Vec3f &orig, const Vec3f &dir,
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
-	float &tnear, float &u, float &v);
-}
-}
 
 enum MaterialType {
 	kDiffuse,
@@ -388,7 +376,7 @@ public:
 			const Vec3f & v1 = P[trisIndex[j + 1]];
 			const Vec3f & v2 = P[trisIndex[j + 2]];
 			float t, u, v;
-			if (scratch::objects::rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
+			if (scratch::geometry_utils::rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
 				tnear = t;
 				uv.x = u;
 				uv.y = v;
@@ -448,69 +436,3 @@ public:
 	std::unique_ptr<Vec3f []> N; // triangles vertex normals
 	std::unique_ptr<Vec2f []> texCoordinates; // triangles texture coordinates
 };
-
-namespace scratch
-{
-namespace objects
-{
-/*
-bool rayTriangleIntersect(
-	const Vec3f &orig, const Vec3f &dir,
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
-	float &tnear, float &u, float &v)
-{
-	Vec3f edge1 = v1 - v0;
-	Vec3f edge2 = v2 - v0;
-	Vec3f pvec = dir.crossProduct(edge2);
-	float det = edge1.dotProduct(pvec);
-
-	// ray and triangle are parallel if det is close to 0
-	if (det < 0 || fabs(det) < kEpsilon) return false;
-
-	Vec3f tvec = orig - v0;
-	u = tvec.dotProduct(pvec);
-	if (u < 0 || u > det) return false;
-
-	Vec3f qvec = tvec.crossProduct(edge1);
-	v = dir.dotProduct(qvec);
-	if (v < 0 || u + v > det) return false;
-
-	float invDet = 1 / det;
-
-	tnear = edge2.dotProduct(qvec) * invDet;
-	u *= invDet;
-	v *= invDet;
-
-	return true;
-}
-*/
-
-bool rayTriangleIntersect(
-	const Vec3f &orig, const Vec3f &dir,
-	const Vec3f &v0, const Vec3f &v1, const Vec3f &v2,
-	float &t, float &u, float &v)
-{
-	Vec3f v0v1 = v1 - v0;
-	Vec3f v0v2 = v2 - v0;
-	Vec3f pvec = dir.crossProduct(v0v2);
-	float det = v0v1.dotProduct(pvec);
-
-	// ray and triangle are parallel if det is close to 0
-	if (fabs(det) < kEpsilon) return false;
-
-	float invDet = 1 / det;
-
-	Vec3f tvec = orig - v0;
-	u = tvec.dotProduct(pvec) * invDet;
-	if (u < 0 || u > 1) return false;
-
-	Vec3f qvec = tvec.crossProduct(v0v1);
-	v = dir.dotProduct(qvec) * invDet;
-	if (v < 0 || u + v > 1) return false;
-
-	t = v0v2.dotProduct(qvec) * invDet;
-
-	return (t > 0) ? true : false;
-}
-}
-}

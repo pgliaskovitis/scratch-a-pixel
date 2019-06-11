@@ -22,7 +22,7 @@
 #include <fstream>
 #include <chrono>
 
-#include "geometry.h"
+#include "geometry_utils.h"
 #include "utils.h"
 #include "cow.h"
 
