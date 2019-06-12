@@ -141,7 +141,7 @@ Vec3f castRay(
 			// [/comment]
 			Vec3f indirectLigthing = 0;
 
-			uint32_t N = 32;// / (depth + 1);
+			uint32_t N = 128;// / (depth + 1);
 			Vec3f Nt, Nb;
 			createCoordinateSystem(hitNormal, Nt, Nb);
 			float pdf = 1 / (2 * M_PI);
@@ -275,3 +275,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
