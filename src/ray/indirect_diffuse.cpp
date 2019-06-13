@@ -15,6 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//[header]
+// This program simulates indirect diffuse using Monte-Carlo integration
+//[/header]
+
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
@@ -42,10 +46,10 @@ struct Options
 {
 	uint32_t width = 1920;
 	uint32_t height = 1080;
-	float fov = 90;
+	float fov = 90.f;
 	Vec3f backgroundColor = kDefaultBackgroundColor;
 	Matrix44f cameraToWorld;
-	float bias = 0.0001;
+	float bias = 0.0001f;
 	uint32_t maxDepth = 2;
 };
 
@@ -82,9 +86,9 @@ bool trace(
 void createCoordinateSystem(const Vec3f &N, Vec3f &Nt, Vec3f &Nb)
 {
 	if (std::fabs(N.x) > std::fabs(N.y)) {
-		Nt = Vec3f(N.z, 0, -N.x) / sqrtf(N.x * N.x + N.z * N.z);
+		Nt = Vec3f(N.z, 0.f, -N.x) / sqrtf(N.x * N.x + N.z * N.z);
 	} else {
-		Nt = Vec3f(0, -N.z, N.y) / sqrtf(N.y * N.y + N.z * N.z);
+		Nt = Vec3f(0.f, -N.z, N.y) / sqrtf(N.y * N.y + N.z * N.z);
 	}
 	Nb = N.crossProduct(Nt);
 }
@@ -93,7 +97,7 @@ Vec3f uniformSampleHemisphere(const float &r1, const float &r2)
 {
 	// cos(theta) = u1 = y
 	// cos^2(theta) + sin^2(theta) = 1 -> sin(theta) = srtf(1 - cos^2(theta))
-	float sinTheta = sqrtf(1 - r1 * r1);
+	float sinTheta = sqrtf(1.f - r1 * r1);
 	float phi = 2 * M_PI * r2;
 	float x = sinTheta * cosf(phi);
 	float z = sinTheta * sinf(phi);
@@ -193,8 +197,8 @@ void render(
 	for (uint32_t j = 0; j < options.height; ++j) {
 		for (uint32_t i = 0; i < options.width; ++i) {
 			// generate primary ray direction
-			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
-			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
+			float x = (2 * (i + 0.5f) / (float)options.width - 1) * imageAspectRatio * scale;
+			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale;
 			Vec3f dir;
 			options.cameraToWorld.multDirMatrix(Vec3f(x, y, -1), dir);
 			dir.normalize();
@@ -234,14 +238,14 @@ int main(int argc, char **argv)
 	Options options;
 
 	// aliasing example
-	options.fov = 39.89;
-	options.width = 512;
-	options.height = 512;
-	options.cameraToWorld = Matrix44f(0.965926, 0, -0.258819, 0, 0.0066019, 0.999675, 0.0246386, 0, 0.258735, -0.0255078, 0.965612, 0, 0.764985, 0.791882, 5.868275, 1);
+	options.fov = 39.89f;
+	options.width = 1920;
+	options.height = 1080;
+	options.cameraToWorld = Matrix44f(0.965926f, 0.f, -0.258819f, 0.f, 0.0066019f, 0.999675f, 0.0246386f, 0.f, 0.258735f, -0.0255078f, 0.965612f, 0.f, 0.764985f, 0.791882f, 5.868275f, 1.f);
 
 	TriangleMesh *plane = scratch::loader::loadPolyMeshFromFile("data/planegi.geo", &Matrix44f::kIdentity);
 	if (plane != nullptr) {
-		plane->diffuseColor = Vec3f(0.225, 0.144, 0.144);
+		plane->diffuseColor = Vec3f(0.225f, 0.144f, 0.144f);
 		plane->materialType = kDiffuse;
 		plane->specularExponent = 10;
 		plane->smoothShading = true;
@@ -250,7 +254,7 @@ int main(int argc, char **argv)
 
 	TriangleMesh *cube = scratch::loader::loadPolyMeshFromFile("data/cubegi.geo", &Matrix44f::kIdentity);
 	if (cube != nullptr) {
-		cube->diffuseColor = Vec3f(0.188559, 0.287, 0.200726);
+		cube->diffuseColor = Vec3f(0.188559f, 0.287f, 0.200726f);
 		cube->materialType = kDiffuse;
 		cube->specularExponent = 10;
 		cube->smoothShading = true;
@@ -261,13 +265,13 @@ int main(int argc, char **argv)
 	xformSphere[3][1] = 1;
 	Sphere *sph = new Sphere(xformSphere, 1);
 	if (sph != nullptr) {
-		sph->diffuseColor = Vec3f(0.18, 0.18, 0.18);
+		sph->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
 		sph->materialType = kDiffuse;
 		sph->specularExponent = 10;
 		objects.push_back(std::unique_ptr<Object>(sph));
 	}
 
-	Matrix44f l2w(0.916445, -0.218118, 0.335488, 0, 0.204618, -0.465058, -0.861309, 0, 0.343889, 0.857989, -0.381569, 0, 0, 0, 0, 1);
+	Matrix44f l2w(0.916445f, -0.218118f, 0.335488f, 0.f, 0.204618f, -0.465058f, -0.861309f, 0.f, 0.343889f, 0.857989f, -0.381569f, 0.f, 0.f, 0.f, 0.f, 1.f);
 	// lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 16)));
 
 	// finally, render

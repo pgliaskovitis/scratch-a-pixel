@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	for (uint32_t i = 0; i < 16; ++i) {
 		Vec3f randDir(2 * dis(gen) - 1, 2 * dis(gen) - 1, 2 * dis(gen) - 1);
 		randDir.normalize();
-		Ray ray(Vec3f(0), randDir);
+		Ray ray(Vec3f(0.f), randDir);
 		float t;
 		if (box.intersect(ray, t)) {
 			Vec3f Phit = ray.orig + ray.dir * t;

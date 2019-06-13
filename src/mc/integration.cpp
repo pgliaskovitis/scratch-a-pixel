@@ -18,15 +18,6 @@
 //[header]
 // Example of Monte Carlo integration
 //[/header]
-//[compile]
-// Download the mcintegration.cpp file to a folder.
-// Open a shell/terminal, and run the following command where the files is saved:
-//
-// c++ -O3 -o mcintegration mcintegration.cpp -std=c++11
-//
-// Run with: ./mcintegration. Open the file ./out.png in Photoshop or any program
-// reading PPM files.
-//[/compile]
 
 #include <cstdlib>
 #include <cstring>

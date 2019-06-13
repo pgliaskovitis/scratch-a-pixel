@@ -15,6 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//[header]
+// A simple program to demonstrate the concept of value noise
+//[/header]
+
 // if you use windows uncomment these two lines
 //#include "stdafx.h"
 //#define _USE_MATH_DEFINES

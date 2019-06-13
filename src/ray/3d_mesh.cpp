@@ -31,7 +31,7 @@ struct Options
 {
 	uint32_t width = 1920;
 	uint32_t height = 1080;
-	float fov = 90;
+	float fov = 90.f;
 	Vec3f backgroundColor = kDefaultBackgroundColor;
 	Matrix44f cameraToWorld;
 };
@@ -74,8 +74,8 @@ Vec3f castRay(
 		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, hitNormal, hitTexCoordinates);
 		float NdotView = std::max(0.f, hitNormal.dotProduct(-dir));
 		const int M = 10;
-		float checker = (fmod(hitTexCoordinates.x * M, 1.0) > 0.5) ^ (fmod(hitTexCoordinates.y * M, 1.0) < 0.5);
-		float c = 0.3 * (1 - checker) + 0.7 * checker;
+		float checker = (fmod(hitTexCoordinates.x * M, 1.0f) > 0.5f) ^ (fmod(hitTexCoordinates.y * M, 1.0) < 0.5);
+		float c = 0.3f * (1.f - checker) + 0.7f * checker;
 
 		hitColor = c * NdotView; //Vec3f(uv.x, uv.y, 0);
 	}
@@ -94,7 +94,7 @@ void render(
 {
 	std::unique_ptr<Vec3f []> framebuffer(new Vec3f[options.width * options.height]);
 	Vec3f *pix = framebuffer.get();
-	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5));
+	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5f));
 	float imageAspectRatio = options.width / (float)options.height;
 	Vec3f orig;
 	options.cameraToWorld.multVecMatrix(Vec3f(0), orig);
@@ -102,8 +102,8 @@ void render(
 	for (uint32_t j = 0; j < options.height; ++j) {
 		for (uint32_t i = 0; i < options.width; ++i) {
 			// generate primary ray direction
-			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
-			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
+			float x = (2 * (i + 0.5f) / (float)options.width - 1) * imageAspectRatio * scale;
+			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale;
 			Vec3f dir;
 			options.cameraToWorld.multDirMatrix(Vec3f(x, y, -1), dir);
 			dir.normalize();
@@ -139,9 +139,9 @@ int main(int argc, char **argv)
 	// setting up options
 	Options options;
 	//options.cameraToWorld[3][2] = 10;
-	Matrix44f tmp = Matrix44f(0.707107, -0.331295, 0.624695, 0, 0, 0.883452, 0.468521, 0, -0.707107, -0.331295, 0.624695, 0, -1.63871, -5.747777, -40.400412, 1);
+	Matrix44f tmp = Matrix44f(0.707107f, -0.331295f, 0.624695f, 0.f, 0.f, 0.883452f, 0.468521f, 0.f, -0.707107f, -0.331295f, 0.624695f, 0.f, -1.63871f, -5.747777f, -40.400412f, 1.f);
 	options.cameraToWorld = tmp.inverse();
-	options.fov = 50.0393;
+	options.fov = 50.0393f;
 #if 1
 	std::vector<std::unique_ptr<Object>> objects;
 	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/cow.geo", nullptr);

@@ -18,17 +18,6 @@
 //[header]
 // Simple example that demonstrates how to convert a color defined as a spectrum to RGB
 //[/header]
-//[compile]
-// Download the mcbeth.cpp file to a folder.
-// Open a shell/terminal, and run the following command where the files is saved:
-//
-// clang++ -o mcbeth mcbeth.cpp -std=c++11 -O3
-//
-// You can use c++ if you don't use clang++
-//
-// Run with: ./mcbeth. Open the resulting image (ppm) in Photoshop or any program
-// reading PPM files.
-//[/compile]
 
 #include <fstream>
 #include <iostream>

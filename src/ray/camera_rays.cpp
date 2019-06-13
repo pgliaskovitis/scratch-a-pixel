@@ -67,7 +67,7 @@ Vec3f castRay(
 	const Options &options,
 	uint32_t depth)
 {
-	Vec3f hitColor = (dir + Vec3f(1)) * 0.5;
+	Vec3f hitColor = (dir + Vec3f(1.f)) * 0.5f;
 	return hitColor;
 }
 
@@ -106,11 +106,11 @@ void render(
 			// ray.dir = normalize(Vec3f(x,y,-1) - Vec3f(0));
 			// [/comment]
 #ifdef MAYA_STYLE
-			float x = (2 * (i + 0.5) / (float)options.width - 1) * scale;
-			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale * 1 / imageAspectRatio;
+			float x = (2 * (i + 0.5f) / (float)options.width - 1) * scale;
+			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale * 1 / imageAspectRatio;
 #elif
-			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
-			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
+			float x = (2 * (i + 0.5f) / (float)options.width - 1) * imageAspectRatio * scale;
+			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale;
 #endif
 			// [comment]
 			// Don't forget to transform the ray direction using the camera-to-world matrix.
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
 	Options options;
 	options.width = 1920;
 	options.height = 1080;
-	options.fov = 90;
+	options.fov = 90.f;
 
 	// finally, render
 	render(options, objects, lights);

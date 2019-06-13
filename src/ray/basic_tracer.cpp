@@ -60,7 +60,7 @@ Vec3f trace(
 		}
 	}
 	// if there's no intersection return black or background color
-	if (!sphere) return Vec3f(2);
+	if (!sphere) return Vec3f(2.f);
 	Vec3f surfaceColor = 0; // color of the ray/surfaceof the object intersected by the ray
 	Vec3f phit = rayorig + raydir * tnear; // point of intersection
 	Vec3f nhit = phit - sphere->center; // normal at the intersection point
@@ -131,7 +131,8 @@ Vec3f trace(
 //[/comment]
 void render(const std::vector<Sphere> &spheres)
 {
-	unsigned width = 1920, height = 1080;
+	unsigned width = 1920;
+	unsigned height = 1080;
 	Vec3f *image = new Vec3f[width * height], *pixel = image;
 	float invWidth = 1 / float(width), invHeight = 1 / float(height);
 	float fov = 30.0f, aspectratio = width / float(height);

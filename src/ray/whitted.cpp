@@ -250,32 +250,35 @@ int main(int argc, char **argv)
 	std::vector<std::unique_ptr<Object>> objects;
 	std::vector<std::unique_ptr<LightLite>> lights;
 
-	Sphere *sph1 = new Sphere(Vec3f(-1, 0, -12), 2.f);
+	Sphere *sph1 = new Sphere(Vec3f(-1.f, 0.f, -12.f), 2.f);
 	sph1->materialType = kDiffuseAndGlossy;
 	sph1->diffuseColor = Vec3f(0.6f, 0.7f, 0.8f);
-	Sphere *sph2 = new Sphere(Vec3f(0.5f, -0.5f, -8), 1.5f);
+	Sphere *sph2 = new Sphere(Vec3f(0.5f, -0.5f, -8.f), 1.5f);
 	sph2->ior = 1.5;
 	sph2->materialType = kReflectionAndRefraction;
 
 	objects.push_back(std::unique_ptr<Sphere>(sph1));
 	objects.push_back(std::unique_ptr<Sphere>(sph2));
 
-	Vec3f verts[4] = {{-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16}};
+	Vec3f verts[4] = {{-5.f,-3.f,-6.f},
+					  {5.f,-3.f,-6.f},
+					  {5.f,-3.f,-16.f},
+					  {-5.f,-3.f,-16.f}};
 	uint32_t vertIndex[6] = {0, 1, 3, 1, 2, 3};
-	Vec2f st[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+	Vec2f st[4] = {{0.f, 0.f}, {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f}};
 	TriangleMesh *mesh = new TriangleMesh(verts, vertIndex, 2, st);
 	mesh->materialType = kDiffuseAndGlossy;
 
 	objects.push_back(std::unique_ptr<TriangleMesh>(mesh));
 
-	lights.push_back(std::unique_ptr<LightLite>(new LightLite(Vec3f(-20, 70, 20), 0.5f)));
-	lights.push_back(std::unique_ptr<LightLite>(new LightLite(Vec3f(30, 50, -12), 1)));
+	lights.push_back(std::unique_ptr<LightLite>(new LightLite(Vec3f(-20.f, 70.f, 20.f), 0.5f)));
+	lights.push_back(std::unique_ptr<LightLite>(new LightLite(Vec3f(30.f, 50.f, -12.f), 1.f)));
 
 	// setting up options
 	Options options;
 	options.width = 1920;
 	options.height = 1080;
-	options.fov = 90;
+	options.fov = 90.f;
 	options.backgroundColor = Vec3f(0.235294f, 0.67451f, 0.843137f);
 	options.maxDepth = 50;
 	options.bias = 0.00001f;

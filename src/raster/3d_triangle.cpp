@@ -36,8 +36,8 @@ int main(int argc, char **argv)
 	Vec3 c1 = {0.0f, 1.0f, 0.f};
 	Vec3 c2 = {0.0f, 0.0f, 1.0f};
 
-	const uint32_t width = 640;
-	const uint32_t height = 480;
+	const uint32_t width = 1920;
+	const uint32_t height = 1080;
 
 	// project triangle onto the screen
 	v0[0] /= v0[2], v0[1] /= v0[2];

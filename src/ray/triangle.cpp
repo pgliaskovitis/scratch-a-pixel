@@ -52,10 +52,10 @@ bool rayTriangleIntersect(
 #ifdef CULLING
 	// if the determinant is negative the triangle is backfacing
 	// if the determinant is close to 0, the ray misses the triangle
-	if (det < 1e-8) return false;
+	if (det < kEpsilon) return false;
 #else
 	// ray and triangle are parallel if det is close to 0
-	if (fabs(det) < 1e-8) return false;
+	if (fabs(det) < kEpsilon) return false;
 #endif
 	float invDet = 1 / det;
 
@@ -82,7 +82,7 @@ bool rayTriangleIntersect(
 
 	// check if ray and plane are parallel ?
 	float NdotRayDirection = N.dotProduct(dir);
-	if (fabs(NdotRayDirection) < 1e-8) // almost 0
+	if (fabs(NdotRayDirection) < kEpsilon) // almost 0
 		return false; // they are parallel so they don't intersect !
 
 	// compute d parameter using equation 2
@@ -126,24 +126,24 @@ bool rayTriangleIntersect(
 
 int main(int argc, char **argv)
 {
-	Vec3f v0(-1, -1, -5);
-	Vec3f v1( 1, -1, -5);
-	Vec3f v2( 0, 1, -5);
+	Vec3f v0(-1.f, -1.f, -5.f);
+	Vec3f v1( 1.f, -1.f, -5.f);
+	Vec3f v2( 0.f, 1.f, -5.f);
 
-	const uint32_t width = 640;
-	const uint32_t height = 480;
-	Vec3f cols[3] = {{0.6, 0.4, 0.1}, {0.1, 0.5, 0.3}, {0.1, 0.3, 0.7}};
+	const uint32_t width = 1920;
+	const uint32_t height = 1080;
+	Vec3f cols[3] = {{0.6f, 0.4f, 0.1f}, {0.1f, 0.5f, 0.3f}, {0.1f, 0.3f, 0.7f}};
 	Vec3f *framebuffer = new Vec3f[width * height];
 	Vec3f *pix = framebuffer;
-	float fov = 51.52;
+	float fov = 51.52f;
 	float scale = tan(scratch::utils::deg2rad(fov * 0.5));
 	float imageAspectRatio = width / (float)height;
 	Vec3f orig(0);
 	for (uint32_t j = 0; j < height; ++j) {
 		for (uint32_t i = 0; i < width; ++i) {
 			// compute primary ray
-			float x = (2 * (i + 0.5) / (float)width - 1) * imageAspectRatio * scale;
-			float y = (1 - 2 * (j + 0.5) / (float)height) * scale;
+			float x = (2 * (i + 0.5f) / (float)width - 1) * imageAspectRatio * scale;
+			float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
 			Vec3f dir(x, y, -1);
 			dir.normalize();
 			float t, u, v;

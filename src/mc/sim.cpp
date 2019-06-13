@@ -18,15 +18,6 @@
 //[header]
 // Monte Carlo simulation of light transport
 //[/header]
-//[compile]
-// Download the mcsim.cpp file to a folder.
-// Open a shell/terminal, and run the following command where the files is saved:
-//
-// c++ -O3 -o mcsim mcsim.cpp -std=c++11
-//
-// Run with: ./mcsim. Open the file ./out.png in Photoshop or any program
-// reading PPM files.
-//[/compile]
 
 #include <cstdlib>
 #include <cstdio>

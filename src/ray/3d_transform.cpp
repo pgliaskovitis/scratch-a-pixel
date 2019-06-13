@@ -31,7 +31,7 @@ struct Options
 {
 	uint32_t width = 1920;
 	uint32_t height = 1080;
-	float fov = 90;
+	float fov = 90.f;
 	Vec3f backgroundColor = kDefaultBackgroundColor;
 	Matrix44f cameraToWorld;
 };
@@ -74,8 +74,8 @@ Vec3f castRay(
 		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, hitNormal, hitTexCoordinates);
 		float NdotView = std::max(0.f, hitNormal.dotProduct(-dir));
 		const int M = 4;
-		float checker = (fmod(hitTexCoordinates.x * M, 1.0) > 0.5) ^ (fmod(hitTexCoordinates.y * M, 1.0) < 0.5);
-		float c = 0.3 * (1 - checker) + 0.7 * checker;
+		float checker = (fmod(hitTexCoordinates.x * M, 1.0f) > 0.5f) ^ (fmod(hitTexCoordinates.y * M, 1.0) < 0.5);
+		float c = 0.3f * (1.f - checker) + 0.7f * checker;
 
 		hitColor = c * NdotView; //Vec3f(uv.x, uv.y, 0); // Vec3f(hitTexCoordinates.x, hitTexCoordinates.y, 0);
 	}
@@ -94,7 +94,7 @@ void render(
 {
 	std::unique_ptr<Vec3f []> framebuffer(new Vec3f[options.width * options.height]);
 	Vec3f *pix = framebuffer.get();
-	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5));
+	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5f));
 	float imageAspectRatio = options.width / (float)options.height;
 	Vec3f orig;
 	options.cameraToWorld.multVecMatrix(Vec3f(0), orig);
@@ -102,8 +102,8 @@ void render(
 	for (uint32_t j = 0; j < options.height; ++j) {
 		for (uint32_t i = 0; i < options.width; ++i) {
 			// generate primary ray direction
-			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
-			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
+			float x = (2 * (i + 0.5f) / (float)options.width - 1) * imageAspectRatio * scale;
+			float y = (1 - 2 * (j + 0.5f) / (float)options.height) * scale;
 			Vec3f dir;
 			options.cameraToWorld.multDirMatrix(Vec3f(x, y, -1), dir);
 			dir.normalize();
@@ -138,12 +138,12 @@ int main(int argc, char **argv)
 {
 	// setting up options
 	Options options;
-	options.cameraToWorld = Matrix44f(0.931056, 0, 0.364877, 0, 0.177666, 0.873446, -0.45335, 0, -0.3187, 0.48692, 0.813227, 0, -41.229214, 81.862351, 112.456908, 1);
+	options.cameraToWorld = Matrix44f(0.931056f, 0.f, 0.364877f, 0.f, 0.177666f, 0.873446f, -0.45335f, 0.f, -0.3187f, 0.48692f, 0.813227f, 0.f, -41.229214f, 81.862351f, 112.456908f, 1.f);
 	options.fov = 18;
 
 	// loading gemetry
 	std::vector<std::unique_ptr<Object>> objects;
-	Matrix44f objectToWorld = Matrix44f(1.624241, 0, 2.522269, 0, 0, 3, 0, 0, -2.522269, 0, 1.624241, 0, 0, 0, 0, 1); // Matrix44f::kIdentity;
+	Matrix44f objectToWorld = Matrix44f(1.624241f, 0.f, 2.522269f, 0.f, 0.f, 3.f, 0.f, 0.f, -2.522269f, 0.f, 1.624241f, 0.f, 0.f, 0.f, 0.f, 1.f); // Matrix44f::kIdentity;
 	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/teapot.geo", &objectToWorld);
 	if (mesh != nullptr) objects.push_back(std::unique_ptr<Object>(mesh));
 
