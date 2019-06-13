@@ -7,7 +7,7 @@ An initial goal is to support both GCC and MSVC.
 
 Changes compared to the original code:
 
-- Header files util.h, geometry.h, objects.h now have consolidated classes, reused by various source files.
+- Header files utils.h, geometry.h, geometry_utils.h, objects.h now have consolidated classes, reused by various source files.
 
 - Explicit floating point literals, constant definitions and headers have been added as expected by MSVC.
 
