@@ -8,7 +8,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-	set (CMAKE_CXX_FLAGS "-Wall -Wextra -WConversion -Wfloat-equal")
+	set (CMAKE_CXX_FLAGS "-Wall -Wextra")
 	set (CMAKE_CXX_FLAGS_DEBUG "-g")
 	set (CMAKE_CXX_FLAGS_RELEASE "-O3")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "CLANG")
