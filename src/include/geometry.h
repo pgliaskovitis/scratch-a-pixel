@@ -188,7 +188,7 @@ public:
 	T* operator [] (uint8_t i) { return x[i]; }
 
 	// Multiply the current matrix with another matrix (rhs)
-	Matrix44 operator * (const Matrix44& v) const
+	Matrix44 operator * (const Matrix44 &v) const
 	{
 		Matrix44 tmp;
 		multiply (*this, v, tmp);
@@ -208,7 +208,7 @@ public:
 	// useful nor really necessary (but nice to have -- and it gives you an example of how
 	// it can be done, as this how you will this operation implemented in most libraries).
 	//[/comment]
-	static void multiply(const Matrix44<T> &a, const Matrix44& b, Matrix44 &c)
+	static void multiply(const Matrix44<T> &a, const Matrix44<T> &b, Matrix44<T> &c)
 	{
 #if 0
 		for (uint8_t i = 0; i < 4; ++i) {
@@ -340,7 +340,7 @@ public:
 	// 1 especially when the matrix is projective matrix (perspective projection matrix).
 	//[/comment]
 	template<typename S>
-	void multVecMatrix(const Vec3<S>& src, Vec3<S>& dst) const
+	void multVecMatrix(const Vec3<S> &src, Vec3<S> &dst) const
 	{
 		S a, b, c, w;
 
@@ -361,7 +361,7 @@ public:
 	// and we don't compute w.
 	//[/comment]
 	template<typename S>
-	void multDirMatrix(const Vec3<S>& src, Vec3<S>& dst) const
+	void multDirMatrix(const Vec3<S> &src, Vec3<S> &dst) const
 	{
 		S a, b, c;
 
