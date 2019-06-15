@@ -21,6 +21,10 @@
 #include "utils.h"
 
 constexpr float inchToMm = 25.4f;
+static const Vec3f kDefaultBackgroundColor = Vec3f(0.235294, 0.67451, 0.843137);
+static const Vec3u kDefaultBackgroundColorU = Vec3u((unsigned char)(255 * 0.235294),
+													(unsigned char)(255 * 0.67451),
+													(unsigned char)(255 * 0.843137));
 
 template <typename T>
 inline Vec3<T> mix(const Vec3<T> &a, const Vec3<T> &b, const float &mixValue)

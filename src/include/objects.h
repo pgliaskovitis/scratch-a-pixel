@@ -22,8 +22,6 @@
 
 #include "geometry_utils.h"
 
-static const Vec3f kDefaultBackgroundColor = Vec3f(0.235294, 0.67451, 0.843137);
-
 enum MaterialType {
 	kDiffuse,
 	kDiffuseAndGlossy,
@@ -49,7 +47,7 @@ public:
 class Object
 {
  public:
-	explicit Object(MaterialType type = kDiffuseAndGlossy)
+	Object()
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
@@ -65,7 +63,7 @@ class Object
 	virtual Vec3f evalDiffuseColor(const Vec2f &) const { return diffuseColor; }
 
 	// material properties
-	MaterialType materialType;
+	MaterialType materialType = kDiffuseAndGlossy;
 	Vec3f diffuseColor; // albedo
 	float ior = 1.3;
 	float Kd = 0.8; // phong model diffuse weight

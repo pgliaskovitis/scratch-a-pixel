@@ -214,7 +214,6 @@ int main(int argc, char **argv)
 	ofs << "<svg version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.w3.org/2000/svg\" width=\"" << imageWidth << "\" height=\"" << imageHeight << "\">" << std::endl;
 	Matrix44f cameraToWorld(-0.95424f, 0.0f, 0.299041f, 0.0f, 0.0861242f, 0.95763f, 0.274823f, 0.0f, -0.28637f, 0.288002f, -0.913809f, 0.0f, -3.734612f, 7.610426f, -14.152769f, 1.0f);
 	Matrix44f worldToCamera = cameraToWorld.inverse();
-	float canvasWidth = 2, canvasHeight = 2;
 	for (uint32_t i = 0; i < numTris; ++i) {
 		const Vec3f &v0World = verts[tris[i * 3]];
 		const Vec3f &v1World = verts[tris[i * 3 + 1]];

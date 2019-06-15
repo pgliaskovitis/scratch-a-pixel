@@ -514,6 +514,6 @@ public:
 typedef Vec2<float> Vec2f;
 typedef Vec2<int> Vec2i;
 typedef Vec3<float> Vec3f;
-typedef Vec3<int> Vec3i;
+typedef Vec3<unsigned char> Vec3u;
 typedef Matrix44<float> Matrix44f;
 template <> const Matrix44f Matrix44f::kIdentity = Matrix44f();

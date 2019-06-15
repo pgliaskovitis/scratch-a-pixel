@@ -155,10 +155,10 @@ int main(int argc, char **argv)
 
 	// define the frame-buffer and the depth-buffer. Initialize depth buffer
 	// to far clipping plane.
-	Vec3<unsigned char> *frameBuffer = new Vec3<unsigned char>[imageWidth * imageHeight];
+	Vec3u *frameBuffer = new Vec3u[imageWidth * imageHeight];
 
 	for (uint32_t i = 0; i < imageWidth * imageHeight; ++i) {
-		frameBuffer[i] = Vec3<unsigned char>(255);
+		frameBuffer[i] = kDefaultBackgroundColorU;
 	}
 
 	float *depthBuffer = new float[imageWidth * imageHeight];

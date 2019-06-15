@@ -77,7 +77,7 @@ Vec3f castRay(
 		float checker = (fmod(hitTexCoordinates.x * M, 1.0f) > 0.5f) ^ (fmod(hitTexCoordinates.y * M, 1.0) < 0.5);
 		float c = 0.3f * (1.f - checker) + 0.7f * checker;
 
-		hitColor = c * NdotView; //Vec3f(uv.x, uv.y, 0); // Vec3f(hitTexCoordinates.x, hitTexCoordinates.y, 0);
+		hitColor = c * NdotView; // Vec3f(uv.x, uv.y, 0); // Vec3f(hitTexCoordinates.x, hitTexCoordinates.y, 0);
 	}
 
 	return hitColor;
