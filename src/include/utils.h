@@ -56,6 +56,11 @@ namespace utils
 		return deg * M_PI / 180;
 	}
 
+	inline float modulo(const float &f)
+	{
+		return f - std::floor(f);
+	}
+
 	template<typename T = float>
 	inline float edgeFunction(const T (&a)[2], const T (&b)[2], const T (&c)[2])
 	{

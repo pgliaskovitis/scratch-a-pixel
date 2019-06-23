@@ -26,7 +26,8 @@ enum MaterialType {
 	kDiffuse,
 	kDiffuseAndGlossy,
 	kReflectionAndRefraction,
-	kReflection
+	kReflection,
+	kPhong
 };
 
 class Ray
