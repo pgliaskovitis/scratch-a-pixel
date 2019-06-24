@@ -48,7 +48,7 @@ struct Options
 	uint32_t maxDepth = 5;
 };
 
-struct IsectInfo
+struct IntersectInfo
 {
 	const Object *hitObject = nullptr;
 	float tNear = kInfinity;
@@ -59,7 +59,7 @@ struct IsectInfo
 bool trace(
 	const Vec3f &orig, const Vec3f &dir,
 	const std::vector<std::unique_ptr<Object>> &objects,
-	IsectInfo &isect,
+	IntersectInfo &isect,
 	RayType rayType = kPrimaryRay)
 {
 	isect.hitObject = nullptr;
@@ -87,7 +87,7 @@ Vec3f castRay(
 {
 	if (depth > options.maxDepth) return options.backgroundColor;
 	Vec3f hitColor = 0;
-	IsectInfo isect;
+	IntersectInfo isect;
 	if (trace(orig, dir, objects, isect)) {
 		// [comment]
 		// Evaluate surface properties (P, N, texture coordinates, etc.)
@@ -108,7 +108,7 @@ Vec3f castRay(
 			Vec3f diffuse = 0, specular = 0;
 			for (uint32_t i = 0; i < lights.size(); ++i) {
 				Vec3f lightDir, lightIntensity;
-				IsectInfo isectShad;
+				IntersectInfo isectShad;
 				lights[i]->illuminate(hitPoint, lightDir, lightIntensity, isectShad.tNear);
 
 				bool vis = !trace(hitPoint + hitNormal * options.bias, -lightDir, objects, isectShad, kShadowRay);
@@ -226,7 +226,7 @@ int main(int argc, char **argv)
 	}
 
 	Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
-	lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 5)));
+	lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1.f, 5.f)));
 
 	// finally, render
 	render(options, objects, lights);

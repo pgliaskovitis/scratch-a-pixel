@@ -53,7 +53,7 @@ struct Options
 	uint32_t maxDepth = 2;
 };
 
-struct IsectInfo
+struct IntersectInfo
 {
 	const Object *hitObject = nullptr;
 	float tNear = kInfinity;
@@ -64,7 +64,7 @@ struct IsectInfo
 bool trace(
 	const Vec3f &orig, const Vec3f &dir,
 	const std::vector<std::unique_ptr<Object>> &objects,
-	IsectInfo &isect,
+	IntersectInfo &isect,
 	RayType rayType = kPrimaryRay)
 {
 	isect.hitObject = nullptr;
@@ -113,7 +113,7 @@ Vec3f castRay(
 {
 	if (depth > options.maxDepth) return 0;//options.backgroundColor;
 	Vec3f hitColor = 0;
-	IsectInfo isect;
+	IntersectInfo isect;
 	if (trace(orig, dir, objects, isect)) {
 		// [comment]
 		// Evaluate surface properties (P, N, texture coordinates, etc.)
@@ -134,7 +134,7 @@ Vec3f castRay(
 			Vec3f directLighting = 0;
 			for (uint32_t i = 0; i < lights.size(); ++i) {
 				Vec3f lightDir, lightIntensity;
-				IsectInfo isectShad;
+				IntersectInfo isectShad;
 				lights[i]->illuminate(hitPoint, lightDir, lightIntensity, isectShad.tNear);
 				bool vis = !trace(hitPoint + hitNormal * options.bias, -lightDir, objects, isectShad, kShadowRay);
 				directLighting = vis * lightIntensity * std::max(0.f, hitNormal.dotProduct(-lightDir));
