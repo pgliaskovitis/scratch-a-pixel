@@ -16,7 +16,7 @@
  */
 
 //[header]
-// A simple program to demonstrate some basic shading techniques
+// This program simulates indirect diffuse using Monte-Carlo integration
 //[/header]
 
 #include <cstdio>
@@ -31,11 +31,16 @@
 #include <sstream>
 #include <chrono>
 
+#include <random>
+
 #include "geometry.h"
 #include "objects.h"
 #include "lights.h"
 #include "loader.h"
 #include "utils.h"
+
+static std::default_random_engine generator;
+static std::uniform_real_distribution<float> distribution(0, 1);
 
 struct Options
 {
@@ -45,7 +50,7 @@ struct Options
 	Vec3f backgroundColor = kDefaultBackgroundColor;
 	Matrix44f cameraToWorld;
 	float bias = 0.0001f;
-	uint32_t maxDepth = 5;
+	uint32_t maxDepth = 2;
 };
 
 struct IntersectInfo
@@ -75,7 +80,28 @@ bool trace(
 		}
 	}
 
-	return (isect.hitObject != nullptr);
+    return (isect.hitObject != nullptr);
+}
+
+void createCoordinateSystem(const Vec3f &N, Vec3f &Nt, Vec3f &Nb)
+{
+	if (std::fabs(N.x) > std::fabs(N.y)) {
+		Nt = Vec3f(N.z, 0.f, -N.x) / sqrtf(N.x * N.x + N.z * N.z);
+	} else {
+		Nt = Vec3f(0.f, -N.z, N.y) / sqrtf(N.y * N.y + N.z * N.z);
+	}
+	Nb = N.crossProduct(Nt);
+}
+
+Vec3f uniformSampleHemisphere(const float &r1, const float &r2)
+{
+	// cos(theta) = u1 = y
+	// cos^2(theta) + sin^2(theta) = 1 -> sin(theta) = srtf(1 - cos^2(theta))
+	float sinTheta = sqrtf(1.f - r1 * r1);
+	float phi = 2 * M_PI * r2;
+	float x = sinTheta * cosf(phi);
+	float z = sinTheta * sinf(phi);
+	return Vec3f(x, r1, z);
 }
 
 Vec3f castRay(
@@ -85,7 +111,7 @@ Vec3f castRay(
 	const Options &options,
 	const uint32_t & depth = 0)
 {
-	if (depth > options.maxDepth) return options.backgroundColor;
+	if (depth > options.maxDepth) return 0;//options.backgroundColor;
 	Vec3f hitColor = 0;
 	IntersectInfo isect;
 	if (trace(orig, dir, objects, isect)) {
@@ -100,37 +126,52 @@ Vec3f castRay(
 		// [comment]
 		// Simulate diffuse object
 		// [/comment]
-		case kPhong:
+		case kDiffuse:
 		{
 			// [comment]
-			// Light loop (loop over all lights in the scene and accumulate their contribution)
+			// Compute direct ligthing
 			// [/comment]
-			Vec3f diffuse = 0, specular = 0;
+			Vec3f directLighting = 0;
 			for (uint32_t i = 0; i < lights.size(); ++i) {
 				Vec3f lightDir, lightIntensity;
 				IntersectInfo isectShad;
 				lights[i]->illuminate(hitPoint, lightDir, lightIntensity, isectShad.tNear);
-
 				bool vis = !trace(hitPoint + hitNormal * options.bias, -lightDir, objects, isectShad, kShadowRay);
-
-				// compute the diffuse component
-				diffuse += vis * isect.hitObject->diffuseColor * lightIntensity * std::max(0.f, hitNormal.dotProduct(-lightDir));
-
-				// compute the specular component
-				// what would be the ideal reflection direction for this light ray
-				Vec3f R = reflect(lightDir, hitNormal);
-				specular += vis * lightIntensity * std::pow(std::max(0.f, R.dotProduct(-dir)), isect.hitObject->specularExponent);
+				directLighting = vis * lightIntensity * std::max(0.f, hitNormal.dotProduct(-lightDir));
 			}
-			hitColor = diffuse * isect.hitObject->Kd + specular * isect.hitObject->Ks;
-			//std::cerr << hitColor << std::endl;
+
+			// [comment]
+			// Compute indirect ligthing
+			// [/comment]
+			Vec3f indirectLigthing = 0;
+
+			uint32_t N = 128;// / (depth + 1);
+			Vec3f Nt, Nb;
+			createCoordinateSystem(hitNormal, Nt, Nb);
+			float pdf = 1 / (2 * M_PI);
+			for (uint32_t n = 0; n < N; ++n) {
+				float r1 = distribution(generator);
+				float r2 = distribution(generator);
+				Vec3f sample = uniformSampleHemisphere(r1, r2);
+				Vec3f sampleWorld(
+					sample.x * Nb.x + sample.y * hitNormal.x + sample.z * Nt.x,
+					sample.x * Nb.y + sample.y * hitNormal.y + sample.z * Nt.y,
+					sample.x * Nb.z + sample.y * hitNormal.z + sample.z * Nt.z);
+				// don't forget to divide by PDF and multiply by cos(theta)
+				indirectLigthing += r1 * castRay(hitPoint + sampleWorld * options.bias,
+				sampleWorld, objects, lights, options, depth + 1) / pdf;
+			}
+			// divide by N
+			indirectLigthing /= (float)N;
+
+			hitColor = (directLighting / M_PI + 2 * indirectLigthing) * isect.hitObject->diffuseColor;
 			break;
 		}
 		default:
 			break;
 		}
-	}
-	else {
-		hitColor = options.backgroundColor;
+	} else {
+		hitColor = 1;
 	}
 
 	return hitColor;
@@ -148,7 +189,7 @@ void render(
 {
 	std::unique_ptr<Vec3f []> framebuffer(new Vec3f[options.width * options.height]);
 	Vec3f *pix = framebuffer.get();
-	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5f));
+	float scale = tan(scratch::utils::deg2rad(options.fov * 0.5));
 	float imageAspectRatio = options.width / (float)options.height;
 	Vec3f orig;
 	options.cameraToWorld.multVecMatrix(Vec3f(0), orig);
@@ -170,13 +211,14 @@ void render(
 	fprintf(stderr, "\rDone: %.2f (sec)\n", passedTime / 1000);
 
 	// save framebuffer to file
+	float gamma = 1;
 	std::ofstream ofs;
-	ofs.open("ray_phong.ppm");
+	ofs.open("ray_indirect_diffuse_shading.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.height * options.width; ++i) {
-		char r = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].x));
-		char g = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].y));
-		char b = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].z));
+		char r = (char)(255 * scratch::utils::clamp(0, 1, powf(framebuffer[i].x, 1/gamma)));
+		char g = (char)(255 * scratch::utils::clamp(0, 1, powf(framebuffer[i].y, 1/gamma)));
+		char b = (char)(255 * scratch::utils::clamp(0, 1, powf(framebuffer[i].z, 1/gamma)));
 		ofs << r << g << b;
 	}
 	ofs.close();
@@ -196,40 +238,45 @@ int main(int argc, char **argv)
 	Options options;
 
 	// aliasing example
-	options.fov = 36.87f;
+	options.fov = 39.89f;
 	options.width = 1920;
 	options.height = 1080;
-	options.cameraToWorld[3][2] = 12;
-	options.cameraToWorld[3][1] = 1;
+	options.cameraToWorld = Matrix44f(0.965926f, 0.f, -0.258819f, 0.f, 0.0066019f, 0.999675f, 0.0246386f, 0.f, 0.258735f, -0.0255078f, 0.965612f, 0.f, 0.764985f, 0.791882f, 5.868275f, 1.f);
 
-	Matrix44f xform;
-	xform[0][0] = 1;
-	xform[1][1] = 1;
-	xform[2][2] = 1;
-	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/planegi.geo", &xform);
-	if (mesh != nullptr) {
-		mesh->smoothShading = false;
-		objects.push_back(std::unique_ptr<Object>(mesh));
+	TriangleMesh *plane = scratch::loader::loadPolyMeshFromFile("data/planegi.geo", &Matrix44f::kIdentity);
+	if (plane != nullptr) {
+		plane->diffuseColor = Vec3f(0.225f, 0.144f, 0.144f);
+		plane->materialType = kDiffuse;
+		plane->specularExponent = 10;
+		plane->smoothShading = true;
+		objects.push_back(std::unique_ptr<Object>(plane));
 	}
 
-	float w[5] = {0.04f, 0.08f, 0.1f, 0.15f, 0.2f};
-	for (int i = -4, n = 2, k = 0; i <= 4; i+= 2, n *= 5, k++) {
-		Matrix44f xformSphere;
-		xformSphere[3][0] = i;
-		xformSphere[3][1] = 1;
-		Sphere *sph = new Sphere(xformSphere, 0.9);
+	TriangleMesh *cube = scratch::loader::loadPolyMeshFromFile("data/cubegi.geo", &Matrix44f::kIdentity);
+	if (cube != nullptr) {
+		cube->diffuseColor = Vec3f(0.188559f, 0.287f, 0.200726f);
+		cube->materialType = kDiffuse;
+		cube->specularExponent = 10;
+		cube->smoothShading = true;
+		objects.push_back(std::unique_ptr<Object>(cube));
+	}
+
+	Matrix44f xformSphere;
+	xformSphere[3][1] = 1;
+	Sphere *sph = new Sphere(xformSphere, 1);
+	if (sph != nullptr) {
 		sph->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
-		sph->materialType = kPhong;
-		sph->specularExponent = n;
-		sph->Ks = w[k];
+		sph->materialType = kDiffuse;
+		sph->specularExponent = 10;
 		objects.push_back(std::unique_ptr<Object>(sph));
 	}
 
-	Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
-	lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1.f, 5.f)));
+	Matrix44f l2w(0.916445f, -0.218118f, 0.335488f, 0.f, 0.204618f, -0.465058f, -0.861309f, 0.f, 0.343889f, 0.857989f, -0.381569f, 0.f, 0.f, 0.f, 0.f, 1.f);
+	// lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 16)));
 
 	// finally, render
 	render(options, objects, lights);
 
 	return 0;
 }
+

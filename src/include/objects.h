@@ -200,21 +200,21 @@ public:
 	}
 
 	void getSurfaceProperties(
-		const Vec3f &P,
-		const Vec3f &I,
+		const Vec3f &hitPoint,
+		const Vec3f &viewDirection,
 		const uint32_t &index,
 		const Vec2f &uv,
-		Vec3f &N,
-		Vec2f &st) const
+		Vec3f &hitNormal,
+		Vec2f &hitTextureCoordinates) const
 	{
-		N = (P - center).normalize();
+		hitNormal = (hitPoint - center).normalize();
 		// In this particular case, the normal is simular to a point on a unit sphere
-		// centred around the origin. We can thus use the normal coordinates to compute
+		// centered around the origin. We can thus use the normal coordinates to compute
 		// the spherical coordinates of Phit.
 		// atan2 returns a value in the range [-pi, pi] and we need to remap it to range [0, 1]
 		// acosf returns a value in the range [0, pi] and we also need to remap it to the range [0, 1]
-		st.x = (1 + atan2(N.z, N.x) / M_PI) * 0.5f;
-		st.y = acosf(N.y) / M_PI;
+		hitTextureCoordinates.x = (1 + atan2(hitNormal.z, hitNormal.x) / M_PI) * 0.5f;
+		hitTextureCoordinates.y = acosf(hitNormal.y) / M_PI;
 	}
 
 	Vec3f center;                           /// position of the sphere
@@ -396,14 +396,15 @@ public:
 		Vec2f &hitTextureCoordinates) const
 	{
 		if (smoothShading) {
-			// vertex normal
+			// vertex normals
 			const Vec3f &n0 = N[triIndex * 3];
 			const Vec3f &n1 = N[triIndex * 3 + 1];
 			const Vec3f &n2 = N[triIndex * 3 + 2];
+			// interpolate with barycentric coordinates
 			hitNormal = (1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2;
 		}
 		else {
-			// face normal
+			// face normal - no interpolation
 			const Vec3f &v0 = P[trisIndex[triIndex * 3]];
 			const Vec3f &v1 = P[trisIndex[triIndex * 3 + 1]];
 			const Vec3f &v2 = P[trisIndex[triIndex * 3 + 2]];
@@ -416,6 +417,7 @@ public:
 		const Vec2f &st0 = texCoordinates[triIndex * 3];
 		const Vec2f &st1 = texCoordinates[triIndex * 3 + 1];
 		const Vec2f &st2 = texCoordinates[triIndex * 3 + 2];
+		// interpolate with barycentric coordinates
 		hitTextureCoordinates = (1 - uv.x - uv.y) * st0 + uv.x * st1 + uv.y * st2;
 	}
 
