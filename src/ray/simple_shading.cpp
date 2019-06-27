@@ -228,108 +228,137 @@ int main(int argc, char **argv)
 	std::vector<std::unique_ptr<Light>> lights;
 	Options options;
 
-#if 1
-	// glass and pen example
-	// setting up options
-	options.fov = 36.87f;
-	options.maxDepth = 10;
-	options.bias = 0.001f;
-	options.width = 1920;
-	options.height = 1080;
-	options.cameraToWorld = Matrix44f(-0.972776f, 0.f, -0.231748f, 0.f, -0.114956f, 0.8683f, 0.482536f, 0.f, 0.201227f, 0.49604f, -0.844661f, 0.f, 6.696465f, 22.721296f, -30.097976f, 1.f);
+	auto diffuseReflectionRefractionFunc = [&](void) {
+		// glass and pen example
+		// setting up options
+		options.fov = 36.87f;
+		options.maxDepth = 10;
+		options.bias = 0.001f;
+		options.width = 1920;
+		options.height = 1080;
+		options.cameraToWorld = Matrix44f(-0.972776f, 0.f, -0.231748f, 0.f, -0.114956f, 0.8683f, 0.482536f, 0.f, 0.201227f, 0.49604f, -0.844661f, 0.f, 6.696465f, 22.721296f, -30.097976f, 1.f);
 
-	TriangleMesh *mesh1 = scratch::loader::loadPolyMeshFromFile("data/backdrop.geo", &Matrix44f::kIdentity);
-	if (mesh1 != nullptr) {
-		mesh1->materialType = kDiffuse;
-		objects.push_back(std::unique_ptr<Object>(mesh1));
-	}
+		TriangleMesh *mesh1 = scratch::loader::loadPolyMeshFromFile("data/backdrop.geo", &Matrix44f::kIdentity);
+		if (mesh1 != nullptr) {
+			mesh1->materialType = kDiffuse;
+			objects.push_back(std::unique_ptr<Object>(mesh1));
+		}
 
-	TriangleMesh *mesh3 = scratch::loader::loadPolyMeshFromFile("data/cylinder.geo", &Matrix44f::kIdentity);
-	if (mesh3 != nullptr) {
-		mesh3->materialType = kReflectionAndRefraction;
-		mesh3->ior = 1.5f;
-		objects.push_back(std::unique_ptr<Object>(mesh3));
-	}
+		TriangleMesh *mesh3 = scratch::loader::loadPolyMeshFromFile("data/cylinder.geo", &Matrix44f::kIdentity);
+		if (mesh3 != nullptr) {
+			mesh3->materialType = kReflectionAndRefraction;
+			mesh3->ior = 1.5f;
+			objects.push_back(std::unique_ptr<Object>(mesh3));
+		}
 
-	TriangleMesh *mesh4 = scratch::loader::loadPolyMeshFromFile("data/pen.geo", &Matrix44f::kIdentity);
-	if (mesh4 != nullptr) {
-		mesh4->materialType = kDiffuse;
-		mesh4->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
-		mesh4->smoothShading = false;
-		objects.push_back(std::unique_ptr<Object>(mesh4));
-	}
+		TriangleMesh *mesh4 = scratch::loader::loadPolyMeshFromFile("data/pen.geo", &Matrix44f::kIdentity);
+		if (mesh4 != nullptr) {
+			mesh4->materialType = kDiffuse;
+			mesh4->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
+			mesh4->smoothShading = false;
+			objects.push_back(std::unique_ptr<Object>(mesh4));
+		}
 
-	Matrix44f xform1;
-	xform1[3][0] = -1.2f;
-	xform1[3][1] = 6.f;
-	xform1[3][2] = -3.f;
-	Sphere *sph1 = new Sphere(xform1, 5.f);
-	sph1->materialType = kReflectionAndRefraction;
+		Matrix44f xform1;
+		xform1[3][0] = -1.2f;
+		xform1[3][1] = 6.f;
+		xform1[3][2] = -3.f;
+		Sphere *sph1 = new Sphere(xform1, 5.f);
+		sph1->materialType = kReflectionAndRefraction;
 
-	Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
- #elif 0
-	// simple plane example (patterns)
-	options.fov = 36.87f;
-	options.width = 1920;
-	options.height = 1080;
-	options.cameraToWorld = Matrix44f(0.707107f, 0.f, -0.707107f, 0.f, -0.331295f, 0.883452f, -0.331295f, 0.f, 0.624695f, 0.468521f, 0.624695f, 0.f, 28.f, 21.f, 28.f, 1.f);
+		Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 1)));
 
-	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/plane.geo", &Matrix44f::kIdentity);
-	if (mesh != nullptr) {
-		mesh->materialType = kDiffuse;
-		mesh->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
-		mesh->smoothShading = false;
-		objects.push_back(std::unique_ptr<Object>(mesh));
-	}
+		// finally, render
+		render(options, objects, lights);
+	};
 
-	Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
+	auto patternsFunc = [&](void) {
+		// simple plane example (patterns)
+		options.fov = 36.87f;
+		options.width = 1920;
+		options.height = 1080;
+		options.cameraToWorld = Matrix44f(0.707107f, 0.f, -0.707107f, 0.f, -0.331295f, 0.883452f, -0.331295f, 0.f, 0.624695f, 0.468521f, 0.624695f, 0.f, 28.f, 21.f, 28.f, 1.f);
+
+		TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/plane.geo", &Matrix44f::kIdentity);
+		if (mesh != nullptr) {
+			mesh->materialType = kDiffuse;
+			mesh->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
+			mesh->smoothShading = false;
+			objects.push_back(std::unique_ptr<Object>(mesh));
+		}
+
+		Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 1)));
+
+		// finally, render
+		render(options, objects, lights);
+	};
+
+	auto multipleReflectionRefractionFunc = [&](void) {
+		// multiple glasses example
+		options.fov = 36.87f;
+		options.width = 1920;
+		options.height = 1080;
+		options.cameraToWorld = Matrix44f(0.999945f, 0.f, 0.0104718f, 0.f, 0.00104703f, 0.994989f, -0.0999803f, 0.f, -0.0104193f, 0.0999858f, 0.994934f, 0.f, -0.978596f, 17.911879f, 75.483369f, 1.f);
+
+		TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/glasses.geo", &Matrix44f::kIdentity);
+		if (mesh != nullptr) {
+			mesh->materialType = kReflectionAndRefraction;
+			mesh->ior = 1.3f;
+			objects.push_back(std::unique_ptr<Object>(mesh));
+		}
+
+		TriangleMesh *mesh1 = scratch::loader::loadPolyMeshFromFile("data/backdrop1.geo", &Matrix44f::kIdentity);
+		if (mesh1 != nullptr) {
+			mesh1->materialType = kDiffuse;
+			mesh1->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
+			objects.push_back(std::unique_ptr<Object>(mesh1));
+		}
+
+		Matrix44f l2w(0.95292f, 0.289503f, 0.0901785f, 0.f, -0.0960954f, 0.5704f, -0.815727f, 0.f, -0.287593f, 0.768656f, 0.571365f, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 1)));
+
+		// finally, render
+		render(options, objects, lights);
+	};
+
+	auto aliasingFunc = [&](void) {
+		// aliasing example
+		options.fov = 36.87f;
+		options.width = 1920;
+		options.height = 1080;
+		options.cameraToWorld = Matrix44f(0.999945f, 0.f, 0.0104718f, 0.f, 0.00104703f, 0.994989f, -0.0999803f, 0.f, -0.0104193f, 0.0999858f, 0.994934f, 0.f, -0.978596f, 17.911879f, 75.483369f, 1.f);
+
+		Matrix44f xform;
+		xform[0][0] = 10;
+		xform[1][1] = 10;
+		xform[2][2] = 10;
+		xform[3][2] = -40;
+		TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/plane.geo", &xform);
+		if (mesh != nullptr) {
+			mesh->materialType = kDiffuse;
+			mesh->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
+			mesh->smoothShading = false;
+			objects.push_back(std::unique_ptr<Object>(mesh));
+		}
+
+		Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 1)));
+
+		// finally, render
+		render(options, objects, lights);
+	};
+
+#if 0
+	diffuseReflectionRefractionFunc();
 #elif 0
-	// multiple glasses example
-	options.fov = 36.87f;
-	options.width = 1920;
-	options.height = 1080;
-	options.cameraToWorld = Matrix44f(0.999945f, 0.f, 0.0104718f, 0.f, 0.00104703f, 0.994989f, -0.0999803f, 0.f, -0.0104193f, 0.0999858f, 0.994934f, 0.f, -0.978596f, 17.911879f, 75.483369f, 1.f);
-
-	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/glasses.geo", &Matrix44f::kIdentity);
-	if (mesh != nullptr) {
-		mesh->materialType = kReflectionAndRefraction;
-		mesh->ior = 1.3f;
-		objects.push_back(std::unique_ptr<Object>(mesh));
-	}
-
-	TriangleMesh *mesh1 = scratch::loader::loadPolyMeshFromFile("data/backdrop1.geo", &Matrix44f::kIdentity);
-	if (mesh1 != nullptr) {
-		mesh1->materialType = kDiffuse;
-		mesh1->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
-		objects.push_back(std::unique_ptr<Object>(mesh1));
-	}
-
-	Matrix44f l2w(0.95292f, 0.289503f, 0.0901785f, 0.f, -0.0960954f, 0.5704f, -0.815727f, 0.f, -0.287593f, 0.768656f, 0.571365f, 0.f, 0.f, 0.f, 0.f, 1.f);
+	patternsFunc();
+#elif 1
+	multipleReflectionRefractionFunc();
 #else
-	// aliasing example
-	options.fov = 36.87f;
-	options.width = 1920;
-	options.height = 1080;
-	options.cameraToWorld = Matrix44f(0.999945f, 0.f, 0.0104718f, 0.f, 0.00104703f, 0.994989f, -0.0999803f, 0.f, -0.0104193f, 0.0999858f, 0.994934f, 0.f, -0.978596f, 17.911879f, 75.483369f, 1.f);
-
-	Matrix44f xform;
-	xform[0][0] = 10;
-	xform[1][1] = 10;
-	xform[2][2] = 10;
-	xform[3][2] = -40;
-	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/plane.geo", &xform);
-	if (mesh != nullptr) {
-		mesh->materialType = kDiffuse;
-		mesh->diffuseColor = Vec3f(0.18f, 0.18f, 0.18f);
-		mesh->smoothShading = false;
-		objects.push_back(std::unique_ptr<Object>(mesh));
-	}
-	Matrix44f l2w(11.146836f, -5.781569f, -0.0605886f, 0.f, -1.902827f, -3.543982f, -11.895445f, 0.f, 5.459804f, 10.568624f, -4.02205f, 0.f, 0.f, 0.f, 0.f, 1.f);
+	aliasingFunc();
 #endif
-	lights.push_back(std::unique_ptr<Light>(new DistantLight(l2w, 1, 1)));
-
-	// finally, render
-	render(options, objects, lights);
 
 	return 0;
 }
