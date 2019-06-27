@@ -42,3 +42,5 @@ There are numerous internet resources touching and expanding upon the topics dis
 5. Total Compedium (of global illumination): https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf
 
 6. Physically-based Rendering, this is the definitive reference: http://www.pbr-book.org/3ed-2018/contents.html
+
+7. Real-time Rendering, this has many further links: http://www.realtimerendering.com/
