@@ -16,7 +16,7 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "CLANG")
 	set (CMAKE_CXX_FLAGS_DEBUG "-g")
 	set (CMAKE_CXX_FLAGS_RELEASE "-O3")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
-	set (CMAKE_CXX_FLAGS_RELEASE "/Ox /fp:fast")
+	set (CMAKE_CXX_FLAGS_RELEASE "/O2")
 endif ()
 
 include_directories (${CMAKE_SOURCE_DIR}/src/include)
