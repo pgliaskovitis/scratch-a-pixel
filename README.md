@@ -32,6 +32,7 @@ There are numerous internet resources touching and expanding upon the topics dis
 1. Inigo Quilez's site, this is a treasure trove of practical techniques:
 - Parallelizing ray tracing for CPUs: https://www.iquilezles.org/www/articles/cputiles/cputiles.htm
 - A simple Monte Carlo path tracing architecture: https://www.iquilezles.org/www/articles/simplepathtracing/simplepathtracing.htm
+- Analytical bounding boxes for Bezier curves: https://www.iquilezles.org/www/articles/bezierbbox/bezierbbox.htm
 
 2. Path tracing with SIMD instructions and GPUs: https://aras-p.info/blog/2018/03/28/Daily-Pathtracer-Part-0-Intro/
 
