@@ -77,6 +77,9 @@ class Object
 
 	// shading
 	bool smoothShading = false;
+
+	// bounding box
+	Vec3f BBox[2] = {kInfinity, -kInfinity};
 };
 
 class AABBox

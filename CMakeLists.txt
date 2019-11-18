@@ -65,5 +65,8 @@ add_executable (ray_simple_shading src/ray/simple_shading.cpp)
 add_executable (ray_phong_shading src/ray/phong_shading.cpp)
 add_executable (ray_indirect_diffuse_shading src/ray/indirect_diffuse_shading.cpp)
 
+#advanced raytracing
+add_executable (ray_bezier_teapot src/ray/bezier_teapot.cpp)
+
 # basic noise
 add_executable (noise_value src/noise/value.cpp)
