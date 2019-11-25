@@ -27,11 +27,10 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<> dis(0, 1);
-std::atomic<uint32_t> numRayBBoxTests(0);
 
 int main(int argc, char **argv)
 {
-	BBox<float> box(Vec3f(-1), Vec3f(1), numRayBBoxTests);
+	BBox<float> box(Vec3f(-1), Vec3f(1));
 	gen.seed(0);
 	for (uint32_t i = 0; i < 16; ++i) {
 		Vec3f randDir(2 * dis(gen) - 1, 2 * dis(gen) - 1, 2 * dis(gen) - 1);

@@ -50,11 +50,9 @@ template<typename T = float>
 class BBox
 {
 public:
-	BBox(std::atomic<uint32_t>& counter) :
-		intersection_test_counter(counter) {}
+	BBox() : intersection_test_counter(nullptr) {}
 
-	BBox(Vec3<T> min_, Vec3<T> max_, std::atomic<uint32_t>& counter) :
-		intersection_test_counter(counter)
+	BBox(Vec3<T> min_, Vec3<T> max_) : intersection_test_counter(nullptr)
 	{
 		bounds[0] = min_;
 		bounds[1] = max_;
@@ -78,14 +76,17 @@ public:
 	bool intersect(const Vec3<T>&, const Vec3<T>&, const Vec3b&, float&) const;
 	bool intersect(const Ray &r, float &t) const;
 	Vec3<T> bounds[2] = { kInfinity, -kInfinity };
+	void bind_intersection_test_counter(std::atomic<uint32_t>* counter) { intersection_test_counter = counter; }
 
-	std::atomic<uint32_t>& intersection_test_counter;
+	std::atomic<uint32_t>* intersection_test_counter;
 };
 
 template<typename T>
 bool BBox<T>::intersect(const Vec3<T>& orig, const Vec3<T>& invDir, const Vec3b& sign, float& tHit) const
 {
-	intersection_test_counter++;
+	if (intersection_test_counter != nullptr) {
+		(*intersection_test_counter)++;
+	}
 	float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
 	tmin  = (bounds[sign[0]    ].x - orig.x) * invDir.x;
@@ -172,7 +173,7 @@ public:
 	bool smoothShading = false;
 
 	// bounding box
-	Vec3f BBox[2] = {kInfinity, -kInfinity};
+	BBox<float> bbox;
 };
 
 class Sphere : public Object
