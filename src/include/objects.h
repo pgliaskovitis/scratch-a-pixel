@@ -480,3 +480,65 @@ public:
 	std::unique_ptr<Vec3f []> N; // triangles vertex normals
 	std::unique_ptr<Vec2f []> texCoordinates; // triangles texture coordinates
 };
+
+// [comment]
+// Compute the position of a point along a Bezier curve at t [0:1]
+// [/comment]
+Vec3f evalBezierCurve(const Vec3f *P, const float &t)
+{
+	float b0 = (1 - t) * (1 - t) * (1 - t);
+	float b1 = 3 * t * (1 - t) * (1 - t);
+	float b2 = 3 * t * t * (1 - t);
+	float b3 = t * t * t;
+
+	return P[0] * b0 + P[1] * b1 + P[2] * b2 + P[3] * b3;
+}
+
+Vec3f evalBezierPatch(const Vec3f *controlPoints, const float &u, const float &v)
+{
+	Vec3f uCurve[4];
+	for (int i = 0; i < 4; ++i) {
+		uCurve[i] = evalBezierCurve(controlPoints + 4 * i, u);
+	}
+
+	return evalBezierCurve(uCurve, v);
+}
+
+Vec3f derivBezier(const Vec3f *P, const float &t)
+{
+	return -3 * (1 - t) * (1 - t) * P[0] +
+		(3 * (1 - t) * (1 - t) - 6 * t * (1 - t)) * P[1] +
+		(6 * t * (1 - t) - 3 * t * t) * P[2] +
+		3 * t * t * P[3];
+}
+
+// [comment]
+// Compute the derivative of a point on Bezier patch along the u parametric direction
+// [/comment]
+Vec3f dUBezier(const Vec3f *controlPoints, const float &u, const float &v)
+{
+	Vec3f P[4];
+	Vec3f vCurve[4];
+	for (int i = 0; i < 4; ++i) {
+		P[0] = controlPoints[i];
+		P[1] = controlPoints[4 + i];
+		P[2] = controlPoints[8 + i];
+		P[3] = controlPoints[12 + i];
+		vCurve[i] = evalBezierCurve(P, v);
+	}
+
+	return derivBezier(vCurve, u);
+}
+
+// [comment]
+// Compute the derivative of a point on Bezier patch along the v parametric direction
+// [/comment]
+Vec3f dVBezier(const Vec3f *controlPoints, const float &u, const float &v)
+{
+	Vec3f uCurve[4];
+	for (int i = 0; i < 4; ++i) {
+		uCurve[i] = evalBezierCurve(controlPoints + 4 * i, u);
+	}
+
+	return derivBezier(uCurve, v);
+}
