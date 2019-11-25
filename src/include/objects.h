@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstring>
 #include <random>
 
@@ -42,12 +43,104 @@ public:
 	}
 	Vec3f orig, dir; // ray orig and dir
 	Vec3f invdir;
-	int sign[3];
+	Vec3b sign;
 };
+
+template<typename T = float>
+class BBox
+{
+public:
+	BBox(std::atomic<uint32_t>& counter) :
+		intersection_test_counter(counter) {}
+
+	BBox(Vec3<T> min_, Vec3<T> max_, std::atomic<uint32_t>& counter) :
+		intersection_test_counter(counter)
+	{
+		bounds[0] = min_;
+		bounds[1] = max_;
+	}
+
+	BBox& extendBy(const Vec3<T>& p)
+	{
+		if (p.x < bounds[0].x) bounds[0].x = p.x;
+		if (p.y < bounds[0].y) bounds[0].y = p.y;
+		if (p.z < bounds[0].z) bounds[0].z = p.z;
+		if (p.x > bounds[1].x) bounds[1].x = p.x;
+		if (p.y > bounds[1].y) bounds[1].y = p.y;
+		if (p.z > bounds[1].z) bounds[1].z = p.z;
+
+		return *this;
+	}
+
+	Vec3<T> centroid() const { return (bounds[0] + bounds[1]) * 0.5; }
+	Vec3<T>& operator [] (bool i) { return bounds[i]; }
+	const Vec3<T> operator [] (bool i) const { return bounds[i]; }
+	bool intersect(const Vec3<T>&, const Vec3<T>&, const Vec3b&, float&) const;
+	bool intersect(const Ray &r, float &t) const;
+	Vec3<T> bounds[2] = { kInfinity, -kInfinity };
+
+	std::atomic<uint32_t>& intersection_test_counter;
+};
+
+template<typename T>
+bool BBox<T>::intersect(const Vec3<T>& orig, const Vec3<T>& invDir, const Vec3b& sign, float& tHit) const
+{
+	intersection_test_counter++;
+	float tmin, tmax, tymin, tymax, tzmin, tzmax;
+
+	tmin  = (bounds[sign[0]    ].x - orig.x) * invDir.x;
+	tmax  = (bounds[1 - sign[0]].x - orig.x) * invDir.x;
+	tymin = (bounds[sign[1]    ].y - orig.y) * invDir.y;
+	tymax = (bounds[1 - sign[1]].y - orig.y) * invDir.y;
+
+	if ((tmin > tymax) || (tymin > tmax)) {
+		return false;
+	}
+
+	if (tymin > tmin) {
+		tmin = tymin;
+	}
+	if (tymax < tmax) {
+		tmax = tymax;
+	}
+
+	tzmin = (bounds[sign[2]    ].z - orig.z) * invDir.z;
+	tzmax = (bounds[1 - sign[2]].z - orig.z) * invDir.z;
+
+	if ((tmin > tzmax) || (tzmin > tmax)) {
+		return false;
+	}
+
+	if (tzmin > tmin) {
+		tmin = tzmin;
+	}
+	if (tzmax < tmax) {
+		tmax = tzmax;
+	}
+
+	tHit = tmin;
+
+	/*
+	if (tHit < 0) {
+		tHit = tmax;
+		if (tHit < 0) {
+			return false;
+		}
+	}
+	*/
+
+	return true;
+}
+
+template <typename T>
+bool BBox<T>::intersect(const Ray &r, float &t) const
+{
+	return intersect(r.orig, r.invdir, r.sign, t);
+}
 
 class Object
 {
- public:
+public:
 	Object()
 	{
 		std::random_device rd;
@@ -80,59 +173,6 @@ class Object
 
 	// bounding box
 	Vec3f BBox[2] = {kInfinity, -kInfinity};
-};
-
-class AABBox
-{
-public:
-	AABBox(const Vec3f &b0, const Vec3f &b1) { bounds[0] = b0, bounds[1] = b1; }
-
-	bool intersect(const Ray &r, float &t) const
-	{
-		float tmin, tmax, tymin, tymax, tzmin, tzmax;
-
-		tmin = (bounds[r.sign[0]].x - r.orig.x) * r.invdir.x;
-		tmax = (bounds[1-r.sign[0]].x - r.orig.x) * r.invdir.x;
-		tymin = (bounds[r.sign[1]].y - r.orig.y) * r.invdir.y;
-		tymax = (bounds[1-r.sign[1]].y - r.orig.y) * r.invdir.y;
-
-		if ((tmin > tymax) || (tymin > tmax)) {
-			return false;
-		}
-
-		if (tymin > tmin) {
-			tmin = tymin;
-		}
-		if (tymax < tmax) {
-			tmax = tymax;
-		}
-
-		tzmin = (bounds[r.sign[2]].z - r.orig.z) * r.invdir.z;
-		tzmax = (bounds[1-r.sign[2]].z - r.orig.z) * r.invdir.z;
-
-		if ((tmin > tzmax) || (tzmin > tmax)) {
-			return false;
-		}
-
-		if (tzmin > tmin) {
-			tmin = tzmin;
-		}
-		if (tzmax < tmax) {
-			tmax = tzmax;
-		}
-
-		t = tmin;
-
-		if (t < 0) {
-			t = tmax;
-			if (t < 0) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-	Vec3f bounds[2];
 };
 
 class Sphere : public Object

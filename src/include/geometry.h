@@ -511,9 +511,12 @@ public:
 // Now you can specialize the classes. We are just showing some examples here. In your code
 // you can declare a vector either that way: Vec3<float> a, or that way: Vec3f a
 //[/comment]
-typedef Vec2<float> Vec2f;
-typedef Vec2<int> Vec2i;
-typedef Vec3<float> Vec3f;
-typedef Vec3<unsigned char> Vec3u;
-typedef Matrix44<float> Matrix44f;
+using Vec2f = Vec2<float>;
+using Vec2i = Vec2<int>;
+using Vec3f = Vec3<float>;
+using Vec3b = Vec3<bool>;
+using Vec3i = Vec3<int32_t>;
+using Vec3ui = Vec3<uint32_t>;
+using Vec3u = Vec3<unsigned char>;
+using Matrix44f = Matrix44<float>;
 template <> const Matrix44f Matrix44f::kIdentity = Matrix44f();

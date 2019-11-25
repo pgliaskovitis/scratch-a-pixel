@@ -16,32 +16,13 @@
  */
 
 //[header]
-// Ray trace a bounding box
+// Example of Acceleration Structures for Ray-Tracing (BBox, BVH and Grid)
 //[/header]
-
-#include <cstdlib>
-#include <random>
 
 #include "objects.h"
 
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_real_distribution<> dis(0, 1);
+std::atomic<uint32_t> numPrimaryRays(0);
+std::atomic<uint32_t> numRayTriangleTests(0);
+std::atomic<uint32_t> numRayTriangleIntersections(0);
 std::atomic<uint32_t> numRayBBoxTests(0);
-
-int main(int argc, char **argv)
-{
-	BBox<float> box(Vec3f(-1), Vec3f(1), numRayBBoxTests);
-	gen.seed(0);
-	for (uint32_t i = 0; i < 16; ++i) {
-		Vec3f randDir(2 * dis(gen) - 1, 2 * dis(gen) - 1, 2 * dis(gen) - 1);
-		randDir.normalize();
-		Ray ray(Vec3f(0.f), randDir);
-		float t;
-		if (box.intersect(ray, t)) {
-			Vec3f Phit = ray.orig + ray.dir * t;
-			std::cerr << ray.orig << " " << Phit << std::endl;
-		}
-	}
-	return 0;
-}
+std::atomic<uint32_t> numRayBoundingVolumeTests(0);
