@@ -289,6 +289,7 @@ public:
 		this->numTris = numTris;
 		texCoordinates = std::unique_ptr<Vec2f[]>(new Vec2f[maxIndex]);
 		memcpy(texCoordinates.get(), st, sizeof(Vec2f) * maxIndex);
+		mailbox.resize(numTris, 0); // should all be initialized with 0
 	}
 
 	// Build a triangle mesh from a face index array and a vertex index array
@@ -317,6 +318,7 @@ public:
 		P = std::unique_ptr<Vec3f []>(new Vec3f[maxVertIndex]);
 		for (uint32_t i = 0; i < maxVertIndex; ++i) {
 			P[i] = verts[i];
+			bbox.extendBy(P[i]);
 		}
 
 		// allocate memory to store triangle indices
@@ -347,8 +349,9 @@ public:
 		}
 
 		// you can use move if the input geometry is already triangulated
-		//N = std::move(normals); // transfer ownership
-		//texCoordinates = std::move(st); // transfer ownership
+		// N = std::move(normals); // transfer ownership
+		// texCoordinates = std::move(st); // transfer ownership
+		mailbox.resize(numTris, 0); // should all be initialized with 0
 	}
 
 	TriangleMesh(
@@ -378,16 +381,18 @@ public:
 		P = std::unique_ptr<Vec3f []>(new Vec3f[maxVertIndex]);
 		for (uint32_t i = 0; i < maxVertIndex; ++i) {
 			objectToWorld.multVecMatrix(verts[i], P[i]);
+			bbox.extendBy(P[i]);
 		}
 
 		// allocate memory to store triangle indices
 		trisIndex = std::unique_ptr<uint32_t []>(new uint32_t [numTris * 3]);
-		uint32_t l = 0;
 		N = std::unique_ptr<Vec3f []>(new Vec3f[numTris * 3]);
 		texCoordinates = std::unique_ptr<Vec2f []>(new Vec2f[numTris * 3]);
+		mailbox.resize(numTris, 0); // should all be initialized with 0
 
 		Matrix44f transformNormals = worldToObject.transpose();
 		// generate the triangle index array and set normals and st coordinates
+		uint32_t l = 0;
 		for (uint32_t i = 0, k = 0; i < nfaces; ++i) { // for each face
 			for (uint32_t j = 0; j < faceIndex[i] - 2; ++j) { // for each triangle in the face
 				trisIndex[l] = vertsIndex[k];
@@ -408,27 +413,54 @@ public:
 		}
 	}
 
-	// Test if the ray intersects this triangle mesh with cross products
-	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tnear, uint32_t &triIndex, Vec2f &uv) const
+	bool intersect(const Vec3f& rayOrig, const Vec3f& rayDir, float &tNear) const
 	{
+		// naive approach, loop over all triangles in the mesh and return true if one
+		// of the triangles at least is intersected
 		uint32_t j = 0;
-		bool intersect = false;
-		for (uint32_t k = 0; k < numTris; ++k) {
-			const Vec3f & v0 = P[trisIndex[j]];
-			const Vec3f & v1 = P[trisIndex[j + 1]];
-			const Vec3f & v2 = P[trisIndex[j + 2]];
+		bool intersected = false;
+		uint32_t triIndex;
+		// tNear should be set infinity first time this function is called and it
+		// will get eventually smaller as the ray intersects geometry
+		for (uint32_t i = 0; i < numTris; ++i) {
 			float t, u, v;
-			if (scratch::geometry_utils::rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v) && t < tnear) {
-				tnear = t;
-				uv.x = u;
-				uv.y = v;
-				triIndex = k;
-				intersect |= true;
+			if (scratch::geometry_utils::rayTriangleIntersect(rayOrig, rayDir,
+				P[trisIndex[j]],
+				P[trisIndex[j + 1]],
+				P[trisIndex[j + 2]], t, u, v) && t < tNear)
+			{
+				tNear = t;
+				triIndex = i;
+				intersected |= true;
 			}
 			j += 3;
 		}
 
-		return intersect;
+		return intersected;
+	}
+
+	// Test if the ray intersects this triangle mesh with cross products
+	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tNear, uint32_t &triIndex, Vec2f &uv) const
+	{
+		uint32_t j = 0;
+		bool intersected = false;
+		for (uint32_t k = 0; k < numTris; ++k) {
+			const Vec3f& v0 = P[trisIndex[j]];
+			const Vec3f& v1 = P[trisIndex[j + 1]];
+			const Vec3f& v2 = P[trisIndex[j + 2]];
+			float t, u, v;
+			if (scratch::geometry_utils::rayTriangleIntersect(orig, dir,
+				v0, v1, v2, t, u, v) && t < tNear) {
+				tNear = t;
+				uv.x = u;
+				uv.y = v;
+				triIndex = k;
+				intersected |= true;
+			}
+			j += 3;
+		}
+
+		return intersected;
 	}
 
 	void getSurfaceProperties(
@@ -472,13 +504,17 @@ public:
 		return mix(Vec3f(0.815f, 0.235f, 0.031f), Vec3f(0.937f, 0.937f, 0.231f), pattern);
 	}
 
-
 	// member variables
 	uint32_t numTris; // number of triangles
 	std::unique_ptr<Vec3f []> P; // triangles vertex position
 	std::unique_ptr<uint32_t []> trisIndex; // vertex index array
 	std::unique_ptr<Vec3f []> N; // triangles vertex normals
 	std::unique_ptr<Vec2f []> texCoordinates; // triangles texture coordinates
+
+	// [comment]
+    // Mailboxes are used by the Grid acceleration structure
+    // [/comment]
+    mutable std::vector<uint32_t> mailbox;
 };
 
 // [comment]

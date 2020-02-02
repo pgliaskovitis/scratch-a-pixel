@@ -51,6 +51,12 @@ namespace utils
 		return std::max(lo, std::min(hi, v));
 	}
 
+	template<typename T = float>
+	inline T clamp(const T &v, const T &lo, const T &hi)
+	{
+		return std::max(lo, std::min(hi, v));
+	}
+
 	inline float deg2rad(const float &deg)
 	{
 		return deg * M_PI / 180;

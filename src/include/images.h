@@ -124,8 +124,8 @@ public:
 		}
 		return tmp;
 	}
-	const Rgb& operator [] (const unsigned int &i) const { return pixels[i]; }
-	Rgb& operator [] (const unsigned int &i) { return pixels[i]; }
+	const Rgb& operator [] (uint8_t i) const { return pixels[i]; }
+	Rgb& operator [] (uint8_t i) { return pixels[i]; }
 	~Image() { if (pixels != nullptr) delete [] pixels; }
 	unsigned int w, h;
 	Rgb *pixels;

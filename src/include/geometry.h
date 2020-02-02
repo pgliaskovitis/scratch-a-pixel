@@ -336,7 +336,7 @@ public:
 	// to be computed and to convert the coordinates from homogeneous back to Cartesian
 	// coordinates, we need to divided x, y z by w.
 	//
-	// The coordinate w is more often than not equals to 1, but it can be different than
+	// The coordinate w more often than not equals 1, but it can be different than
 	// 1 especially when the matrix is projective matrix (perspective projection matrix).
 	//[/comment]
 	template<typename S>
