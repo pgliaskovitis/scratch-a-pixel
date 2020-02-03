@@ -125,55 +125,54 @@ BBoxAcceleration(std::vector<std::unique_ptr<const TriangleMesh>>& m) : Accelera
 // [/comment]
 class BVH : public AccelerationStructure
 {
-    static const uint8_t kNumPlaneSetNormals = 7;
-    static const Vec3f planeSetNormals[kNumPlaneSetNormals];
-    struct Extents
-    {
-        Extents()
-        {
-            for (uint8_t i = 0;  i < kNumPlaneSetNormals; ++i)
-                d[i][0] = kInfinity, d[i][1] = -kInfinity;
-        }
-        void extendBy(const Extents& e)
-        {
+	static const uint8_t kNumPlaneSetNormals = 7;
+	static const Vec3f planeSetNormals[kNumPlaneSetNormals];
+	struct Extents
+	{
+		Extents()
+		{
+			for (uint8_t i = 0;  i < kNumPlaneSetNormals; ++i)
+			d[i][0] = kInfinity, d[i][1] = -kInfinity;
+		}
+		void extendBy(const Extents& e)
+		{
+			for (uint8_t i = 0;  i < kNumPlaneSetNormals; ++i) {
+				if (e.d[i][0] < d[i][0]) d[i][0] = e.d[i][0];
+				if (e.d[i][1] > d[i][1]) d[i][1] = e.d[i][1];
+			}
+		}
+		/* inline */
+		Vec3f centroid() const
+		{
+			return Vec3f(
+				d[0][0] + d[0][1] * 0.5,
+				d[1][0] + d[1][1] * 0.5,
+				d[2][0] + d[2][1] * 0.5);
+		}
+		bool intersect(const float*, const float*, float&, float&, uint8_t&) const;
+		float d[kNumPlaneSetNormals][2];
+		AccelerationStats* stats;
+		const TriangleMesh* mesh;
+	};
 
-            for (uint8_t i = 0;  i < kNumPlaneSetNormals; ++i) {
-                if (e.d[i][0] < d[i][0]) d[i][0] = e.d[i][0];
-                if (e.d[i][1] > d[i][1]) d[i][1] = e.d[i][1];
-            }
-        }
-        /* inline */
-        Vec3f centroid() const
-        {
-            return Vec3f(
-                d[0][0] + d[0][1] * 0.5,
-                d[1][0] + d[1][1] * 0.5,
-                d[2][0] + d[2][1] * 0.5);
-        }
-        bool intersect(const float*, const float*, float&, float&, uint8_t&) const;
-        float d[kNumPlaneSetNormals][2];
-        AccelerationStats* stats;
-        const TriangleMesh* mesh;
-    };
+	struct Octree
+	{
+		Octree(const Extents& sceneExtents)
+		{
+			float xDiff = sceneExtents.d[0][1] - sceneExtents.d[0][0];
+			float yDiff = sceneExtents.d[1][1] - sceneExtents.d[1][0];
+			float zDiff = sceneExtents.d[2][1] - sceneExtents.d[2][0];
+			float maxDiff = std::max(xDiff, std::max(yDiff, zDiff));
+			Vec3f minPlusMax(
+			sceneExtents.d[0][0] + sceneExtents.d[0][1],
+			sceneExtents.d[1][0] + sceneExtents.d[1][1],
+			sceneExtents.d[2][0] + sceneExtents.d[2][1]);
+			bbox[0] = (minPlusMax - maxDiff) * 0.5;
+			bbox[1] = (minPlusMax + maxDiff) * 0.5;
+			root = new OctreeNode;
+		}
 
-    struct Octree
-    {
-        Octree(const Extents& sceneExtents)
-        {
-            float xDiff = sceneExtents.d[0][1] - sceneExtents.d[0][0];
-            float yDiff = sceneExtents.d[1][1] - sceneExtents.d[1][0];
-            float zDiff = sceneExtents.d[2][1] - sceneExtents.d[2][0];
-            float maxDiff = std::max(xDiff, std::max(yDiff, zDiff));
-            Vec3f minPlusMax(
-                sceneExtents.d[0][0] + sceneExtents.d[0][1],
-                sceneExtents.d[1][0] + sceneExtents.d[1][1],
-                sceneExtents.d[2][0] + sceneExtents.d[2][1]);
-            bbox[0] = (minPlusMax - maxDiff) * 0.5;
-            bbox[1] = (minPlusMax + maxDiff) * 0.5;
-            root = new OctreeNode;
-        }
-
-        ~Octree() { deleteOctreeNode(root); }
+		~Octree() { deleteOctreeNode(root); }
 
         void insert(const Extents* extents) { insert(root, extents, bbox, 0); }
         void build() { build(root, bbox); };
@@ -508,9 +507,11 @@ Grid::Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationSt
                 if (v2[j] > max[j]) max[j] = v2[j];
             }
             // Convert to cell coordinates
+            min = min - bbox[0];
+            max = max - bbox[0];
             for (uint8_t j = 0; j < 3; ++j) {
-            	min = (min - bbox[0]) / cellDimension[j];
-            	max = (max - bbox[0]) / cellDimension[j];
+				min[j] = min[j] / cellDimension[j];
+				max[j] = max[j] / cellDimension[j];
             }
             uint32_t zmin = scratch::utils::clamp<uint32_t>(std::floor(min[2]), 0, resolution[2] - 1);
             uint32_t zmax = scratch::utils::clamp<uint32_t>(std::floor(max[2]), 0, resolution[2] - 1);
@@ -536,6 +537,7 @@ bool Grid::Cell::intersect(
 	const Vec3f& orig, const Vec3f& dir, const uint32_t& rayId,
 	float& tHit, const TriangleMesh*& intersectedMesh) const
 {
+	uint32_t intersectedTri;
 	float uhit, vhit;
 	for (uint32_t i = 0; i < triangles.size(); ++i) {
 		// [comment]
@@ -543,7 +545,6 @@ bool Grid::Cell::intersect(
 		// in the array are initialized with 0 too
 		// [/comment]
 		if (rayId != triangles[i].mesh->mailbox[triangles[i].tri]) {
-			triangles[i].mesh->mailbox[triangles[i].tri] = rayId;
 			const TriangleMesh *mesh = triangles[i].mesh;
 			uint32_t j = triangles[i].tri * 3;
 			const Vec3f &v0 = mesh->P[mesh->trisIndex[j    ]];
@@ -555,12 +556,18 @@ bool Grid::Cell::intersect(
 					tHit = t;
 					uhit = u;
 					vhit = v;
+					intersectedTri = triangles[i].tri;
 					intersectedMesh = triangles[i].mesh;
 				}
 			}
+		} else {
+			intersectedMesh = triangles[i].mesh;
 		}
 	}
 
+	if (intersectedMesh != nullptr) {
+		intersectedMesh->mailbox[intersectedTri] = rayId;
+	}
 	return (intersectedMesh != nullptr);
 }
 

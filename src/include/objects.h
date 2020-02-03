@@ -284,6 +284,9 @@ public:
 		maxIndex += 1;
 		P = std::unique_ptr<Vec3f[]>(new Vec3f[maxIndex]);
 		memcpy(P.get(), verts, sizeof(Vec3f) * maxIndex);
+		for (uint32_t i = 0; i < maxIndex; ++i) {
+			bbox.extendBy(P[i]);
+		}
 		trisIndex = std::unique_ptr<uint32_t[]>(new uint32_t[numTris * 3]);
 		memcpy(trisIndex.get(), vertsIndex, sizeof(uint32_t) * numTris * 3);
 		this->numTris = numTris;
@@ -381,8 +384,10 @@ public:
 		P = std::unique_ptr<Vec3f []>(new Vec3f[maxVertIndex]);
 		for (uint32_t i = 0; i < maxVertIndex; ++i) {
 			objectToWorld.multVecMatrix(verts[i], P[i]);
-			bbox.extendBy(P[i]);
+			bbox.extendBy(verts[i]);
 		}
+		objectToWorld.multVecMatrix(bbox[0], bbox[0]);
+		objectToWorld.multVecMatrix(bbox[1], bbox[1]);
 
 		// allocate memory to store triangle indices
 		trisIndex = std::unique_ptr<uint32_t []>(new uint32_t [numTris * 3]);

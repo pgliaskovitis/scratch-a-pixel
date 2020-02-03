@@ -36,7 +36,7 @@ struct Options
 	Matrix44f cameraToWorld;
 };
 
-std::vector<std::unique_ptr<const TriangleMesh>> createUtahTeapot()
+std::vector<std::unique_ptr<const TriangleMesh>> createUtahTeapot(const Options& options)
 {
 	Matrix44f rotate90(1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1);
 	std::vector<std::unique_ptr<const TriangleMesh>> meshes;
@@ -81,15 +81,15 @@ std::vector<std::unique_ptr<const TriangleMesh>> createUtahTeapot()
 			}
 		}
 
-		meshes.emplace_back(new TriangleMesh(numPolygons, polyNumVertsArray, polyIndicesInVertPool, vertPool, N, st));
+		meshes.emplace_back(new TriangleMesh(Matrix44f::kIdentity, numPolygons, polyNumVertsArray, polyIndicesInVertPool, vertPool, N, st));
 	}
 
 	return meshes;
 }
 
-void makeScene(std::vector<std::unique_ptr<const TriangleMesh>>& meshes)
+void makeScene(std::vector<std::unique_ptr<const TriangleMesh>>& meshes, const Options& options)
 {
-	meshes = std::move(createUtahTeapot());
+	meshes = std::move(createUtahTeapot(options));
 }
 
 // [comment]
@@ -117,7 +117,7 @@ void render(const std::unique_ptr<AccelerationStructure>& accel, const Options& 
 			accel->getStats().numPrimaryRays++;
 			float tHit = kInfinity;
 			buffer[j * options.width + i] = (accel->intersect(orig, dir, rayId++, tHit)) ? Vec3f(1) :  Vec3f(0);
-			fprintf(stderr, "\r%3d%c", uint32_t(j / (float)options.height * 100), '%');
+			// fprintf(stderr, "\r%3d%c", uint32_t(j / (float)options.height * 100), '%');
 		}
 	}
 	auto timeEnd = std::chrono::high_resolution_clock::now();
@@ -163,33 +163,31 @@ void exportTriangleMesh(const std::vector<std::unique_ptr<const TriangleMesh>>& 
 
 int main(int argc, char **argv)
 {
+	Options options;
+	options.width = 1920;
+	options.height = 1080;
+	options.fov = 90.0f;
+
 	std::vector<std::unique_ptr<const TriangleMesh>> meshes;
-	makeScene(meshes);
-
-	// [comment]
-	// Create the acceleration structure
-	// [/comment]
-// #if defined(ACCEL_BBOX)
-	std::unique_ptr<AccelerationStructure> accel(new BBoxAcceleration(meshes));
-// #elif defined(ACCEL_BVH)
-//	std::unique_ptr<AccelerationStructure> accel(new BVH(meshes));
-// #elif defined(ACCEL_GRID)
-//	std::unique_ptr<AccelerationStructure> accel(new Grid(meshes));
-// #else
-//	std::unique_ptr<AccelerationStructure> accel(new AccelerationStructure(meshes));
-// #endif
-
+	makeScene(meshes, options);
 	// exportTriangleMesh(meshes);
 	uint32_t numTriangles = 0;
 	for (const auto& mesh : meshes) {
 		numTriangles += mesh->numTris;
 	}
-	Options options;
-	options.width = 1920;
-	options.height = 1080;
 
-	// options.cameraToWorld = Matrix44f(0.897258f, 0.f, -0.441506f, 0.f, -0.288129f, 0.757698f, -0.585556f, 0.f, 0.334528f, 0.652606f, 0.679851f, 0.f, 5.439442f, 11.080794f, 10.381341f, 1.f);
-	options.fov = 90.0f;
+	// [comment]
+	// Create the acceleration structure
+	// [/comment]
+// #if defined(ACCEL_BBOX)
+//	std::unique_ptr<AccelerationStructure> accel(new BBoxAcceleration(meshes));
+// #elif defined(ACCEL_BVH)
+//	std::unique_ptr<AccelerationStructure> accel(new BVH(meshes));
+// #elif defined(ACCEL_GRID)
+	std::unique_ptr<AccelerationStructure> accel(new Grid(meshes));
+// #else
+//	std::unique_ptr<AccelerationStructure> accel(new AccelerationStructure(meshes));
+// #endif
 
 	render(accel, options);
 

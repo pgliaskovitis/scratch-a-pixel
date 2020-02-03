@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	options.cameraToWorld = Matrix44f(0.931056f, 0.f, 0.364877f, 0.f, 0.177666f, 0.873446f, -0.45335f, 0.f, -0.3187f, 0.48692f, 0.813227f, 0.f, -41.229214f, 81.862351f, 112.456908f, 1.f);
 	options.fov = 18;
 
-	// loading gemetry
+	// loading geometry
 	std::vector<std::unique_ptr<Object>> objects;
 	Matrix44f objectToWorld = Matrix44f(1.624241f, 0.f, 2.522269f, 0.f, 0.f, 3.f, 0.f, 0.f, -2.522269f, 0.f, 1.624241f, 0.f, 0.f, 0.f, 0.f, 1.f); // Matrix44f::kIdentity;
 	TriangleMesh *mesh = scratch::loader::loadPolyMeshFromFile("data/teapot.geo", &objectToWorld);
