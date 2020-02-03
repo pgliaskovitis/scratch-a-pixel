@@ -191,12 +191,13 @@ int main(int argc, char **argv)
 
 	render(accel, options);
 
-	std::cout << "Total number of triangles                   | " << numTriangles << std::endl;
-	std::cout << "Total number of primary rays                | " << accel->getStats().numPrimaryRays << std::endl;
-	std::cout << "Total number of ray-bbox tests              | " << accel->getStats().numRayBBoxTests << std::endl;
-	std::cout << "Total number of ray-bounding volume tests   | " << accel->getStats().numRayBoundingVolumeTests << std::endl;
-	std::cout << "Total number of ray-triangle tests          | " << accel->getStats().numRayTriangleTests << std::endl;
-	std::cout << "Total number of ray-triangle intersections  | " << accel->getStats().numRayTriangleIntersections << std::endl;
+	std::cout << "Total number of triangles                         | " << numTriangles << std::endl;
+	std::cout << "Total number of primary rays                      | " << accel->getStats().numPrimaryRays << std::endl;
+	std::cout << "Total number of ray-bbox tests                    | " << accel->getStats().numRayBBoxTests << std::endl;
+	std::cout << "Total number of ray-bounding volume tests         | " << accel->getStats().numRayBoundingVolumeTests << std::endl;
+	std::cout << "Total number of ray-bounding volume intersections | " << accel->getStats().numRayBoundingVolumeIntersections << std::endl;
+	std::cout << "Total number of ray-triangle tests                | " << accel->getStats().numRayTriangleTests << std::endl;
+	std::cout << "Total number of ray-triangle intersections        | " << accel->getStats().numRayTriangleIntersections << std::endl;
 
 	return 0;
 }

@@ -27,6 +27,7 @@ struct AccelerationStats {
 	std::atomic<uint32_t> numRayTriangleIntersections;
 	std::atomic<uint32_t> numRayBBoxTests;
 	std::atomic<uint32_t> numRayBoundingVolumeTests;
+	std::atomic<uint32_t> numRayBoundingVolumeIntersections;
 };
 
 // [comment]
@@ -53,12 +54,13 @@ AccelerationStructure(std::vector<std::unique_ptr<const TriangleMesh>>& m) : mes
 		stats.numRayTriangleIntersections = 0;
 		stats.numRayBBoxTests = 0;
 		stats.numRayBoundingVolumeTests = 0;
+		stats.numRayBoundingVolumeIntersections = 0;
 	}
 	virtual ~AccelerationStructure() {}
 	virtual bool intersect(const Vec3f& orig, const Vec3f& dir, const uint32_t& rayId, float& tHit) const
 	{
 		// [comment]
-		// Because we don't want to change the content of the mesh itself, just get a point to it so
+		// Because we don't want to change the content of the mesh itself, just get a pointer to it so
 		// it's safer to make it const (which doesn't mean we can't change its assignment just that
 		// we can't do something like intersectedMesh->color = blue. You would get something like:
 		// "read-only variable is not assignable" error message at compile time)
@@ -67,6 +69,7 @@ AccelerationStructure(std::vector<std::unique_ptr<const TriangleMesh>>& m) : mes
 		float t = kInfinity;
 		for (const auto& mesh: meshes) {
 			if (mesh->intersect(orig, dir, t) && t < tHit) {
+				stats.numRayTriangleIntersections++;
 				intersectedMesh = mesh.get();
 				tHit = t;
 			}
@@ -109,6 +112,7 @@ BBoxAcceleration(std::vector<std::unique_ptr<const TriangleMesh>>& m) : Accelera
 				// then update tNear variable with t and keep a pointer to the intersected mesh
 				stats.numRayBBoxTests++;
 				if (mesh->intersect(orig, dir, t)) {
+					stats.numRayTriangleIntersections++;
 					intersectedMesh = mesh.get();
 					tHit = t;
 				}
@@ -378,7 +382,7 @@ bool BVH::Extents::intersect(
         if (tFarExtents < tFar) tFar = tFarExtents;
         if (tNear > tFar) return false;
     }
-
+    this->stats->numRayBoundingVolumeIntersections++;
     return true;
 }
 
@@ -449,6 +453,7 @@ class Grid : public AccelerationStructure
         bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&, const TriangleMesh*&) const;
 
         std::vector<TriangleDesc> triangles;
+        AccelerationStats* stats;
     };
 public:
     Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m);
@@ -525,6 +530,7 @@ Grid::Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationSt
                     for (uint32_t x = xmin; x <= xmax; ++x) {
                         uint32_t index = z * resolution[0] * resolution[1] + y * resolution[0] + x;
                         if (cells[index] == NULL) cells[index] = new Grid::Cell;
+                        cells[index]->stats = &this->stats;
                         cells[index]->insert(m.get(), i);
                     }
                 }
@@ -558,6 +564,7 @@ bool Grid::Cell::intersect(
 					vhit = v;
 					intersectedTri = triangles[i].tri;
 					intersectedMesh = triangles[i].mesh;
+					this->stats->numRayTriangleIntersections++;
 				}
 			}
 		} else {
