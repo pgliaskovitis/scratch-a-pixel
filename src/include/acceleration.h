@@ -174,161 +174,161 @@ class BVH : public AccelerationStructure
 
 		~Octree() { deleteOctreeNode(root); }
 
-        void insert(const Extents* extents) { insert(root, extents, bbox, 0); }
-        void build() { build(root, bbox); };
-        void bind_intersection_test_counters(AccelerationStats *stats)
-        {
-        	root->stats = stats;
-        	root->nodeExtents.stats = stats;
-        }
+		void insert(const Extents* extents) { insert(root, extents, bbox, 0); }
+		void build() { build(root, bbox); };
+		void bind_intersection_test_counters(AccelerationStats *stats)
+		{
+			root->stats = stats;
+			root->nodeExtents.stats = stats;
+		}
 
-        struct OctreeNode
-        {
-            OctreeNode* child[8] = { nullptr };
-            std::vector<const Extents *> nodeExtentsList; // pointer to the objects extents
-            Extents nodeExtents; // extents of the octree node itself
-            bool isLeaf = true;
-            AccelerationStats* stats;
-        };
+		struct OctreeNode
+		{
+			OctreeNode* child[8] = { nullptr };
+			std::vector<const Extents *> nodeExtentsList; // pointer to the objects extents
+			Extents nodeExtents; // extents of the octree node itself
+			bool isLeaf = true;
+			AccelerationStats* stats;
+		};
 
-        struct QueueElement
-        {
-            const OctreeNode *node; // octree node held by this element in the queue
-            float t; // distance from the ray origin to the extents of the node
-            QueueElement(const OctreeNode *n, float tn) : node(n), t(tn) {}
-            // priority_queue behaves like a min-heap
-            friend bool operator < (const QueueElement &a, const QueueElement &b) { return a.t > b.t; }
-        };
+		struct QueueElement
+		{
+			const OctreeNode *node; // octree node held by this element in the queue
+			float t; // distance from the ray origin to the extents of the node
+			QueueElement(const OctreeNode *n, float tn) : node(n), t(tn) {}
+			// priority_queue behaves like a min-heap
+			friend bool operator < (const QueueElement &a, const QueueElement &b) { return a.t > b.t; }
+		};
 
-        OctreeNode* root = nullptr; // make unique so we don't have to manage deallocation
-        BBox<> bbox;
+		OctreeNode* root = nullptr; // make unique so we don't have to manage deallocation
+		BBox<> bbox;
 
-    private:
+	private:
 
-        void deleteOctreeNode(OctreeNode*& node)
-        {
-            for (uint8_t i = 0; i < 8; i++) {
-                if (node->child[i] != nullptr) {
-                    deleteOctreeNode(node->child[i]);
-                }
-            }
-            delete node;
-        }
+		void deleteOctreeNode(OctreeNode*& node)
+		{
+			for (uint8_t i = 0; i < 8; i++) {
+				if (node->child[i] != nullptr) {
+					deleteOctreeNode(node->child[i]);
+				}
+			}
+			delete node;
+		}
 
-        void insert(OctreeNode*& node, const Extents* extents, const BBox<>& bbox, uint32_t depth)
-        {
-            if (node->isLeaf) {
-                if (node->nodeExtentsList.size() == 0 || depth == 16) {
-                    node->nodeExtentsList.push_back(extents);
-                }
-                else {
-                    node->isLeaf = false;
-                    // Re-insert extents held by this node
-                    while (node->nodeExtentsList.size()) {
-                        insert(node, node->nodeExtentsList.back(), bbox, depth);
-                        node->nodeExtentsList.pop_back();
-                    }
-                    // Insert new extent
-                    insert(node, extents, bbox, depth);
-                }
-            }
-            else {
-                // Need to compute in which child of the current node this extents should
-                // be inserted into
-                Vec3f extentsCentroid = extents->centroid();
-                Vec3f nodeCentroid = (bbox[0] + bbox[1]) * 0.5;
-                BBox<> childBBox;
-                uint8_t childIndex = 0;
-                // x-axis
-                if (extentsCentroid.x > nodeCentroid.x) {
-                    childIndex = 4;
-                    childBBox[0].x = nodeCentroid.x;
-                    childBBox[1].x = bbox[1].x;
-                }
-                else {
-                    childBBox[0].x = bbox[0].x;
-                    childBBox[1].x = nodeCentroid.x;
-                }
-                // y-axis
-                if (extentsCentroid.y > nodeCentroid.y) {
-                    childIndex += 2;
-                    childBBox[0].y = nodeCentroid.y;
-                    childBBox[1].y = bbox[1].y;
-                }
-                else {
-                    childBBox[0].y = bbox[0].y;
-                    childBBox[1].y = nodeCentroid.y;
-                }
-                // z-axis
-                if (extentsCentroid.z > nodeCentroid.z) {
-                    childIndex += 1;
-                    childBBox[0].z = nodeCentroid.z;
-                    childBBox[1].z = bbox[1].z;
-                }
-                else {
-                    childBBox[0].z = bbox[0].z;
-                    childBBox[1].z = nodeCentroid.z;
-                }
+		void insert(OctreeNode*& node, const Extents* extents, const BBox<>& bbox, uint32_t depth)
+		{
+			if (node->isLeaf) {
+				if (node->nodeExtentsList.size() == 0 || depth == 16) {
+					node->nodeExtentsList.push_back(extents);
+				}
+				else {
+					node->isLeaf = false;
+					// Re-insert extents held by this node
+					while (node->nodeExtentsList.size()) {
+						insert(node, node->nodeExtentsList.back(), bbox, depth);
+						node->nodeExtentsList.pop_back();
+					}
+					// Insert new extent
+					insert(node, extents, bbox, depth);
+				}
+			}
+			else {
+				// Need to compute in which child of the current node this extents should
+				// be inserted into
+				Vec3f extentsCentroid = extents->centroid();
+				Vec3f nodeCentroid = (bbox[0] + bbox[1]) * 0.5;
+				BBox<> childBBox;
+				uint8_t childIndex = 0;
+				// x-axis
+				if (extentsCentroid.x > nodeCentroid.x) {
+					childIndex = 4;
+					childBBox[0].x = nodeCentroid.x;
+					childBBox[1].x = bbox[1].x;
+				}
+				else {
+					childBBox[0].x = bbox[0].x;
+					childBBox[1].x = nodeCentroid.x;
+				}
+				// y-axis
+				if (extentsCentroid.y > nodeCentroid.y) {
+					childIndex += 2;
+					childBBox[0].y = nodeCentroid.y;
+					childBBox[1].y = bbox[1].y;
+				}
+				else {
+					childBBox[0].y = bbox[0].y;
+					childBBox[1].y = nodeCentroid.y;
+				}
+				// z-axis
+				if (extentsCentroid.z > nodeCentroid.z) {
+					childIndex += 1;
+					childBBox[0].z = nodeCentroid.z;
+					childBBox[1].z = bbox[1].z;
+				}
+				else {
+					childBBox[0].z = bbox[0].z;
+					childBBox[1].z = nodeCentroid.z;
+				}
 
-                // Create the child node if it doesn't exsit yet and then insert the extents in it
-                if (node->child[childIndex] == nullptr) {
-                    node->child[childIndex] = new OctreeNode;
-                    node->child[childIndex]->stats = node->stats;
-                    node->child[childIndex]->nodeExtents.stats = node->stats;
-                }
-                insert(node->child[childIndex], extents, childBBox, depth + 1);
-            }
-        }
+				// Create the child node if it doesn't exsit yet and then insert the extents in it
+				if (node->child[childIndex] == nullptr) {
+					node->child[childIndex] = new OctreeNode;
+					node->child[childIndex]->stats = node->stats;
+					node->child[childIndex]->nodeExtents.stats = node->stats;
+				}
+				insert(node->child[childIndex], extents, childBBox, depth + 1);
+			}
+		}
 
-        void build(OctreeNode*& node, const BBox<>& bbox)
-        {
-            if (node->isLeaf) {
-                for (const auto& e: node->nodeExtentsList) {
-                    node->nodeExtents.extendBy(*e);
-                }
-            }
-            else {
-                for (uint8_t i = 0; i < 8; ++i) {
-                    if (node->child[i]) {
-                    	BBox<> childBBox;
-                    	Vec3f centroid = bbox.centroid();
-                    	// x-axis
-                    	childBBox[0].x = (i & 4) ? centroid.x : bbox[0].x;
-                    	childBBox[1].x = (i & 4) ? bbox[1].x : centroid.x;
-                    	// y-axis
-                    	childBBox[0].y = (i & 2) ? centroid.y : bbox[0].y;
-                    	childBBox[1].y = (i & 2) ? bbox[1].y : centroid.y;
-                    	// z-axis
-                    	childBBox[0].z = (i & 1) ? centroid.z : bbox[0].z;
-                    	childBBox[1].z = (i & 1) ? bbox[1].z : centroid.z;
+		void build(OctreeNode*& node, const BBox<>& bbox)
+		{
+			if (node->isLeaf) {
+				for (const auto& e: node->nodeExtentsList) {
+					node->nodeExtents.extendBy(*e);
+				}
+			}
+			else {
+				for (uint8_t i = 0; i < 8; ++i) {
+					if (node->child[i]) {
+						BBox<> childBBox;
+						Vec3f centroid = bbox.centroid();
+						// x-axis
+						childBBox[0].x = (i & 4) ? centroid.x : bbox[0].x;
+						childBBox[1].x = (i & 4) ? bbox[1].x : centroid.x;
+						// y-axis
+						childBBox[0].y = (i & 2) ? centroid.y : bbox[0].y;
+						childBBox[1].y = (i & 2) ? bbox[1].y : centroid.y;
+						// z-axis
+						childBBox[0].z = (i & 1) ? centroid.z : bbox[0].z;
+						childBBox[1].z = (i & 1) ? bbox[1].z : centroid.z;
 
-                    	// Inspect child
-                    	build(node->child[i], childBBox);
+						// Inspect child
+						build(node->child[i], childBBox);
 
-                    	// Expand extents with extents of child
-                    	node->nodeExtents.extendBy(node->child[i]->nodeExtents);
-                    }
-                }
-            }
-        }
-    };
+						// Expand extents with extents of child
+						node->nodeExtents.extendBy(node->child[i]->nodeExtents);
+					}
+				}
+			}
+		}
+	};
 
-    std::vector<Extents> extentsList;
-    Octree* octree = nullptr;
+	std::vector<Extents> extentsList;
+	Octree* octree = nullptr;
 public:
-    BVH(std::vector<std::unique_ptr<const TriangleMesh>>& m);
-    bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&) const;
-    ~BVH() { delete octree; }
+	BVH(std::vector<std::unique_ptr<const TriangleMesh>>& m);
+	bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&) const;
+	~BVH() { delete octree; }
 };
 
 const Vec3f BVH::planeSetNormals[BVH::kNumPlaneSetNormals] = {
-    Vec3f(1, 0, 0),
-    Vec3f(0, 1, 0),
-    Vec3f(0, 0, 1),
-    Vec3f( sqrtf(3) / 3.f,  sqrtf(3) / 3.f, sqrtf(3) / 3.f),
-    Vec3f(-sqrtf(3) / 3.f,  sqrtf(3) / 3.f, sqrtf(3) / 3.f),
-    Vec3f(-sqrtf(3) / 3.f, -sqrtf(3) / 3.f, sqrtf(3) / 3.f),
-    Vec3f( sqrtf(3) / 3.f, -sqrtf(3) / 3.f, sqrtf(3) / 3.f)
+	Vec3f(1, 0, 0),
+	Vec3f(0, 1, 0),
+	Vec3f(0, 0, 1),
+	Vec3f( sqrtf(3) / 3.f,  sqrtf(3) / 3.f, sqrtf(3) / 3.f),
+	Vec3f(-sqrtf(3) / 3.f,  sqrtf(3) / 3.f, sqrtf(3) / 3.f),
+	Vec3f(-sqrtf(3) / 3.f, -sqrtf(3) / 3.f, sqrtf(3) / 3.f),
+	Vec3f( sqrtf(3) / 3.f, -sqrtf(3) / 3.f, sqrtf(3) / 3.f)
 };
 
 BVH::BVH(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationStructure(m)
