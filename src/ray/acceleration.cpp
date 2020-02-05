@@ -182,9 +182,9 @@ int main(int argc, char **argv)
 // #if defined(ACCEL_BBOX)
 //	std::unique_ptr<AccelerationStructure> accel(new BBoxAcceleration(meshes));
 // #elif defined(ACCEL_BVH)
-//	std::unique_ptr<AccelerationStructure> accel(new BVH(meshes));
+	std::unique_ptr<AccelerationStructure> accel(new BVH(meshes));
 // #elif defined(ACCEL_GRID)
-	std::unique_ptr<AccelerationStructure> accel(new Grid(meshes));
+//	std::unique_ptr<AccelerationStructure> accel(new Grid(meshes));
 // #else
 //	std::unique_ptr<AccelerationStructure> accel(new AccelerationStructure(meshes));
 // #endif

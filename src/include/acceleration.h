@@ -337,99 +337,99 @@ const Vec3f BVH::planeSetNormals[BVH::kNumPlaneSetNormals] = {
 
 BVH::BVH(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationStructure(m)
 {
-    Extents sceneExtents; // that's the extent of the entire scene which we need to compute for the octree
-    extentsList.reserve(meshes.size());
-    for (uint32_t i = 0; i < meshes.size(); ++i) {
-        for (uint8_t j = 0; j < kNumPlaneSetNormals; ++j) {
-            for (uint32_t k = 0; k < meshes[i]->numTris * 3; ++k) {
-                float d = planeSetNormals[j].dotProduct(meshes[i]->P[k]);
-                // set dNear and dFar
-                if (d < extentsList[i].d[j][0]) extentsList[i].d[j][0] = d;
-                if (d > extentsList[i].d[j][1]) extentsList[i].d[j][1] = d;
-            }
-        }
-        sceneExtents.extendBy(extentsList[i]); // expand the scene extent of this object's extent
-        extentsList[i].mesh = meshes[i].get(); // the extent itself needs to keep a pointer to the object its holds
-    	extentsList[i].stats = &this->stats;
-    }
+	Extents sceneExtents; // that's the extent of the entire scene which we need to compute for the octree
+	extentsList.reserve(meshes.size());
+	for (uint32_t i = 0; i < meshes.size(); ++i) {
+		for (uint8_t j = 0; j < kNumPlaneSetNormals; ++j) {
+			for (uint32_t k = 0; k < meshes[i]->numTris * 3; ++k) {
+				float d = planeSetNormals[j].dotProduct(meshes[i]->P[k]);
+				// set dNear and dFar
+				if (d < extentsList[i].d[j][0]) extentsList[i].d[j][0] = d;
+				if (d > extentsList[i].d[j][1]) extentsList[i].d[j][1] = d;
+			}
+		}
+		sceneExtents.extendBy(extentsList[i]); // expand the scene extent of this object's extent
+		extentsList[i].mesh = meshes[i].get(); // the extent itself needs to keep a pointer to the object its holds
+		extentsList[i].stats = &this->stats;
+	}
 
-    // Now that we have the extent of the scene we can start building our octree
-    // Using C++ make_unique function here but you don't need to, just to learn something...
-    octree = new Octree(sceneExtents);
-    octree->bind_intersection_test_counters(&this->stats);
+	// Now that we have the extent of the scene we can start building our octree
+	// Using C++ make_unique function here but you don't need to, just to learn something...
+	octree = new Octree(sceneExtents);
+	octree->bind_intersection_test_counters(&this->stats);
 
-    for (uint32_t i = 0; i < meshes.size(); ++i) {
-        octree->insert(&extentsList[i]);
-    }
+	for (uint32_t i = 0; i < meshes.size(); ++i) {
+		octree->insert(&extentsList[i]);
+	}
 
-    // Build from bottom up
-    octree->build();
+	// Build from bottom up
+	octree->build();
 }
 
 bool BVH::Extents::intersect(
-    const float* precomputedNumerator,
-    const float* precomputedDenominator,
-    float& tNear,   // tn and tf in this method need to be contained
-    float& tFar,    // within the range [tNear:tFar]
-    uint8_t& planeIndex) const
+	const float* precomputedNumerator,
+	const float* precomputedDenominator,
+	float& tNear,   // tn and tf in this method need to be contained
+	float& tFar,    // within the range [tNear:tFar]
+	uint8_t& planeIndex) const
 {
-    this->stats->numRayBoundingVolumeTests++;
-    for (uint8_t i = 0; i < kNumPlaneSetNormals; ++i) {
-        float tNearExtents = (d[i][0] - precomputedNumerator[i]) / precomputedDenominator[i];
-        float tFarExtents = (d[i][1] - precomputedNumerator[i]) / precomputedDenominator[i];
-        if (precomputedDenominator[i] < 0) std::swap(tNearExtents, tFarExtents);
-        if (tNearExtents > tNear) tNear = tNearExtents, planeIndex = i;
-        if (tFarExtents < tFar) tFar = tFarExtents;
-        if (tNear > tFar) return false;
-    }
-    this->stats->numRayBoundingVolumeIntersections++;
-    return true;
+	this->stats->numRayBoundingVolumeTests++;
+	for (uint8_t i = 0; i < kNumPlaneSetNormals; ++i) {
+		float tNearExtents = (d[i][0] - precomputedNumerator[i]) / precomputedDenominator[i];
+		float tFarExtents = (d[i][1] - precomputedNumerator[i]) / precomputedDenominator[i];
+		if (precomputedDenominator[i] < 0) std::swap(tNearExtents, tFarExtents);
+		if (tNearExtents > tNear) tNear = tNearExtents, planeIndex = i;
+		if (tFarExtents < tFar) tFar = tFarExtents;
+		if (tNear > tFar) return false;
+	}
+	this->stats->numRayBoundingVolumeIntersections++;
+	return true;
 }
 
 bool BVH::intersect(const Vec3f& orig, const Vec3f& dir, const uint32_t& rayId, float& tHit) const
 {
-    tHit = kInfinity;
-    const TriangleMesh* intersectedMesh = nullptr;
-    float precomputedNumerator[BVH::kNumPlaneSetNormals];
-    float precomputedDenominator[BVH::kNumPlaneSetNormals];
-    for (uint8_t i = 0; i < kNumPlaneSetNormals; ++i) {
-        precomputedNumerator[i] = planeSetNormals[i].dotProduct(orig);
-        precomputedDenominator[i] = planeSetNormals[i].dotProduct(dir);
-    }
+	tHit = kInfinity;
+	const TriangleMesh* intersectedMesh = nullptr;
+	float precomputedNumerator[BVH::kNumPlaneSetNormals];
+	float precomputedDenominator[BVH::kNumPlaneSetNormals];
+	for (uint8_t i = 0; i < kNumPlaneSetNormals; ++i) {
+		precomputedNumerator[i] = planeSetNormals[i].dotProduct(orig);
+		precomputedDenominator[i] = planeSetNormals[i].dotProduct(dir);
+	}
 
-    uint8_t planeIndex;
-    float tNear = 0, tFar = kInfinity; // tNear, tFar for the intersected extents
-    if (!octree->root->nodeExtents.intersect(precomputedNumerator, precomputedDenominator, tNear, tFar, planeIndex) || tFar < 0)
-        return false;
-    tHit = tFar;
-    std::priority_queue<BVH::Octree::QueueElement> queue;
-    queue.push(BVH::Octree::QueueElement(octree->root, 0));
-    while (!queue.empty() && queue.top().t < tHit) {
-        const Octree::OctreeNode *node = queue.top().node;
-        queue.pop();
-        if (node->isLeaf) {
-            for (const auto& e: node->nodeExtentsList) {
-                float t = kInfinity;
-                if (e->mesh->intersect(orig, dir, t) && t < tHit) {
-                    tHit = t;
-                    intersectedMesh = e->mesh;
-                }
-            }
-        }
-        else {
-            for (uint8_t i = 0; i < 8; ++i) {
-                if (node->child[i] != nullptr) {
-                    float tNearChild = 0, tFarChild = tFar;
-                    if (node->child[i]->nodeExtents.intersect(precomputedNumerator, precomputedDenominator, tNearChild, tFarChild, planeIndex)) {
-                        float t = (tNearChild < 0 && tFarChild >= 0) ? tFarChild : tNearChild;
-                        queue.push(BVH::Octree::QueueElement(node->child[i], t));
-                    }
-                }
-            }
-        }
-    }
+	uint8_t planeIndex;
+	float tNear = 0, tFar = kInfinity; // tNear, tFar for the intersected extents
+	if (!octree->root->nodeExtents.intersect(precomputedNumerator, precomputedDenominator, tNear, tFar, planeIndex) || tFar < 0)
+		return false;
+	tHit = tFar;
+	std::priority_queue<BVH::Octree::QueueElement> queue;
+	queue.push(BVH::Octree::QueueElement(octree->root, 0));
+	while (!queue.empty() && queue.top().t < tHit) {
+		const Octree::OctreeNode *node = queue.top().node;
+		queue.pop();
+		if (node->isLeaf) {
+			for (const auto& e: node->nodeExtentsList) {
+				float t = kInfinity;
+				if (e->mesh->intersect(orig, dir, t) && t < tHit) {
+					tHit = t;
+					intersectedMesh = e->mesh;
+				}
+			}
+		}
+		else {
+			for (uint8_t i = 0; i < 8; ++i) {
+				if (node->child[i] != nullptr) {
+					float tNearChild = 0, tFarChild = tFar;
+					if (node->child[i]->nodeExtents.intersect(precomputedNumerator, precomputedDenominator, tNearChild, tFarChild, planeIndex)) {
+						float t = (tNearChild < 0 && tFarChild >= 0) ? tFarChild : tNearChild;
+						queue.push(BVH::Octree::QueueElement(node->child[i], t));
+					}
+				}
+			}
+		}
+	}
 
-    return (intersectedMesh != nullptr);
+	return (intersectedMesh != nullptr);
 }
 
 // [comment]
@@ -437,112 +437,113 @@ bool BVH::intersect(const Vec3f& orig, const Vec3f& dir, const uint32_t& rayId, 
 // [/comment]
 class Grid : public AccelerationStructure
 {
-    struct Cell
+	struct Cell
 	{
-        Cell() {}
-        struct TriangleDesc
-        {
-            TriangleDesc(const TriangleMesh* m, const uint32_t &t) : mesh(m), tri(t) {}
-            const TriangleMesh* mesh;
-            uint32_t tri;
-        };
+		Cell() {}
+		struct TriangleDesc
+		{
+			TriangleDesc(const TriangleMesh* m, const uint32_t &t) : mesh(m), tri(t) {}
+			const TriangleMesh* mesh;
+			uint32_t tri;
+		};
 
-        void insert(const TriangleMesh* mesh, uint32_t t)
-        { triangles.push_back(Grid::Cell::TriangleDesc(mesh, t)); }
+		void insert(const TriangleMesh* mesh, uint32_t t)
+		{ triangles.push_back(Grid::Cell::TriangleDesc(mesh, t)); }
 
-        bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&, const TriangleMesh*&) const;
+		bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&, const TriangleMesh*&) const;
 
-        std::vector<TriangleDesc> triangles;
-        AccelerationStats* stats;
-    };
+		std::vector<TriangleDesc> triangles;
+		AccelerationStats* stats;
+	};
 public:
-    Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m);
-    ~Grid()
-    {
-        for (uint32_t i = 0; i < resolution[0] * resolution[1] * resolution[2]; ++i)
-            if (cells[i] != NULL) delete cells[i];
-        delete [] cells;
-    }
-    bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&) const;
-    Cell **cells;
-    BBox<> bbox;
-    Vec3ui resolution;
-    Vec3f cellDimension;
-};
+	Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m);
+	~Grid()
+	{
+		for (uint32_t i = 0; i < resolution[0] * resolution[1] * resolution[2]; ++i)
+			if (cells[i] != NULL) delete cells[i];
+			delete [] cells;
+		}
+		bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&) const;
+		Cell **cells;
+		BBox<> bbox;
+		Vec3ui resolution;
+		Vec3f cellDimension;
+	};
 
 Grid::Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationStructure(m)
 {
-    uint32_t totalNumTriangles = 0;
-    for (const auto& m : meshes) {
-        bbox.extendBy(m->bbox[0]);
-        bbox.extendBy(m->bbox[1]);
-        totalNumTriangles += m->numTris;
-    }
-    // Create the grid
-    Vec3f size = bbox[1] - bbox[0];
-    float cubeRoot = powf(totalNumTriangles / (size.x * size.y * size.z), 1. / 3.f);
-    for (uint8_t i = 0; i < 3; ++i) {
-        resolution[i] = std::floor(size[i] * cubeRoot);
-        if (resolution[i] < 1) resolution[i] = 1;
-        if (resolution[i] > 128) resolution[i] = 128;
-        cellDimension[i] = size[i] / resolution[i];
-    }
+	uint32_t totalNumTriangles = 0;
+	for (const auto& m : meshes) {
+		bbox.extendBy(m->bbox[0]);
+		bbox.extendBy(m->bbox[1]);
+		totalNumTriangles += m->numTris;
+	}
+	// Create the grid
+	Vec3f size = bbox[1] - bbox[0];
+	float cubeRoot = powf(totalNumTriangles / (size.x * size.y * size.z), 1. / 3.f);
+	for (uint8_t i = 0; i < 3; ++i) {
+		resolution[i] = std::floor(size[i] * cubeRoot);
+		if (resolution[i] < 1) resolution[i] = 1;
+		if (resolution[i] > 128) resolution[i] = 128;
+		cellDimension[i] = size[i] / resolution[i];
+	}
 
-    // [comment]
-    // Allocate memory - note that we don't create the cells yet at this
-    // point but just an array of pointers to cell. We will create the cells
-    // dynamically later when we are sure to insert something in them
-    // [/comment]
-    uint32_t numCells = resolution.x * resolution.y * resolution.z;
-    cells = new Grid::Cell* [numCells];
-    memset(cells, 0x0, sizeof(Grid::Cell*) * numCells);
+	// [comment]
+	// Allocate memory - note that we don't create the cells yet at this
+	// point but just an array of pointers to cell. We will create the cells
+	// dynamically later when we are sure to insert something in them
+	// [/comment]
+	uint32_t numCells = resolution.x * resolution.y * resolution.z;
+	cells = new Grid::Cell* [numCells];
+	memset(cells, 0x0, sizeof(Grid::Cell*) * numCells);
 
-    for (const auto& m : meshes) {
-        for (uint32_t i = 0, off = 0; i < m->numTris; ++i, off += 3) {
-            Vec3f min(kInfinity), max(-kInfinity);
-            const Vec3f& v0 = m->P[m->trisIndex[off]];
-            const Vec3f& v1 = m->P[m->trisIndex[off + 1]];
-            const Vec3f& v2 = m->P[m->trisIndex[off + 2]];
-            for (uint8_t j = 0; j < 3; ++j) {
-                if (v0[j] < min[j]) min[j] = v0[j];
-                if (v1[j] < min[j]) min[j] = v1[j];
-                if (v2[j] < min[j]) min[j] = v2[j];
-                if (v0[j] > max[j]) max[j] = v0[j];
-                if (v1[j] > max[j]) max[j] = v1[j];
-                if (v2[j] > max[j]) max[j] = v2[j];
-            }
-            // Convert to cell coordinates
-            min = min - bbox[0];
-            max = max - bbox[0];
-            for (uint8_t j = 0; j < 3; ++j) {
+	for (const auto& m : meshes) {
+		for (uint32_t i = 0, off = 0; i < m->numTris; ++i, off += 3) {
+			Vec3f min(kInfinity), max(-kInfinity);
+			const Vec3f& v0 = m->P[m->trisIndex[off]];
+			const Vec3f& v1 = m->P[m->trisIndex[off + 1]];
+			const Vec3f& v2 = m->P[m->trisIndex[off + 2]];
+			for (uint8_t j = 0; j < 3; ++j) {
+				if (v0[j] < min[j]) min[j] = v0[j];
+				if (v1[j] < min[j]) min[j] = v1[j];
+				if (v2[j] < min[j]) min[j] = v2[j];
+				if (v0[j] > max[j]) max[j] = v0[j];
+				if (v1[j] > max[j]) max[j] = v1[j];
+				if (v2[j] > max[j]) max[j] = v2[j];
+			}
+			// Convert to cell coordinates
+			min = min - bbox[0];
+			max = max - bbox[0];
+			for (uint8_t j = 0; j < 3; ++j) {
 				min[j] = min[j] / cellDimension[j];
 				max[j] = max[j] / cellDimension[j];
-            }
-            uint32_t zmin = scratch::utils::clamp<uint32_t>(std::floor(min[2]), 0, resolution[2] - 1);
-            uint32_t zmax = scratch::utils::clamp<uint32_t>(std::floor(max[2]), 0, resolution[2] - 1);
-            uint32_t ymin = scratch::utils::clamp<uint32_t>(std::floor(min[1]), 0, resolution[1] - 1);
-            uint32_t ymax = scratch::utils::clamp<uint32_t>(std::floor(max[1]), 0, resolution[1] - 1);
-            uint32_t xmin = scratch::utils::clamp<uint32_t>(std::floor(min[0]), 0, resolution[0] - 1);
-            uint32_t xmax = scratch::utils::clamp<uint32_t>(std::floor(max[0]), 0, resolution[0] - 1);
-            // Loop over the cells the triangle overlaps and insert
-            for (uint32_t z = zmin; z <= zmax; ++z) {
-                for (uint32_t y = ymin; y <= ymax; ++y) {
-                    for (uint32_t x = xmin; x <= xmax; ++x) {
-                        uint32_t index = z * resolution[0] * resolution[1] + y * resolution[0] + x;
-                        if (cells[index] == NULL) cells[index] = new Grid::Cell;
-                        cells[index]->stats = &this->stats;
-                        cells[index]->insert(m.get(), i);
-                    }
-                }
-            }
-        }
-    }
+			}
+			uint32_t zmin = scratch::utils::clamp<uint32_t>(std::floor(min[2]), 0, resolution[2] - 1);
+			uint32_t zmax = scratch::utils::clamp<uint32_t>(std::floor(max[2]), 0, resolution[2] - 1);
+			uint32_t ymin = scratch::utils::clamp<uint32_t>(std::floor(min[1]), 0, resolution[1] - 1);
+			uint32_t ymax = scratch::utils::clamp<uint32_t>(std::floor(max[1]), 0, resolution[1] - 1);
+			uint32_t xmin = scratch::utils::clamp<uint32_t>(std::floor(min[0]), 0, resolution[0] - 1);
+			uint32_t xmax = scratch::utils::clamp<uint32_t>(std::floor(max[0]), 0, resolution[0] - 1);
+			// Loop over the cells the triangle overlaps and insert
+			for (uint32_t z = zmin; z <= zmax; ++z) {
+				for (uint32_t y = ymin; y <= ymax; ++y) {
+					for (uint32_t x = xmin; x <= xmax; ++x) {
+						uint32_t index = z * resolution[0] * resolution[1] + y * resolution[0] + x;
+						if (cells[index] == NULL) cells[index] = new Grid::Cell;
+						cells[index]->stats = &this->stats;
+						cells[index]->insert(m.get(), i);
+					}
+				}
+			}
+		}
+	}
 }
 
 bool Grid::Cell::intersect(
 	const Vec3f& orig, const Vec3f& dir, const uint32_t& rayId,
 	float& tHit, const TriangleMesh*& intersectedMesh) const
 {
+	bool intersected = false;
 	uint32_t intersectedTri;
 	float uhit, vhit;
 	for (uint32_t i = 0; i < triangles.size(); ++i) {
@@ -557,11 +558,13 @@ bool Grid::Cell::intersect(
 			const Vec3f &v1 = mesh->P[mesh->trisIndex[j + 1]];
 			const Vec3f &v2 = mesh->P[mesh->trisIndex[j + 2]];
 			float t, u, v;
+			this->stats->numRayTriangleTests++;
 			if (scratch::geometry_utils::rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v)) {
 				if (t < tHit) {
 					tHit = t;
 					uhit = u;
 					vhit = v;
+					intersected = true;
 					intersectedTri = triangles[i].tri;
 					intersectedMesh = triangles[i].mesh;
 					this->stats->numRayTriangleIntersections++;
@@ -572,7 +575,7 @@ bool Grid::Cell::intersect(
 		}
 	}
 
-	if (intersectedMesh != nullptr) {
+	if (intersected) {
 		intersectedMesh->mailbox[intersectedTri] = rayId;
 	}
 	return (intersectedMesh != nullptr);
@@ -580,53 +583,53 @@ bool Grid::Cell::intersect(
 
 bool Grid::intersect(const Vec3f& orig, const Vec3f& dir, const uint32_t& rayId, float& tHit) const
 {
-    const Vec3f invDir = 1 / dir;
-    const Vec3b sign(dir.x < 0, dir.y < 0, dir.z < 0);
-    float tHitBox;
-    if (!bbox.intersect(orig, invDir, sign, tHitBox)) return false;
+	const Vec3f invDir = 1 / dir;
+	const Vec3b sign(dir.x < 0, dir.y < 0, dir.z < 0);
+	float tHitBox;
+	if (!bbox.intersect(orig, invDir, sign, tHitBox)) return false;
 
-    // initialization step
-    Vec3i exit, step, cell;
-    Vec3f deltaT, nextCrossingT;
-    for (uint8_t i = 0; i < 3; ++i) {
-        // convert ray starting point to cell coordinates
-        float rayOrigCell = ((orig[i] + dir[i] * tHitBox) -  bbox[0][i]);
-        cell[i] = scratch::utils::clamp<uint32_t>(std::floor(rayOrigCell / cellDimension[i]), 0, resolution[i] - 1);
-        if (dir[i] < 0) {
-            deltaT[i] = -cellDimension[i] * invDir[i];
-            nextCrossingT[i] = tHitBox + (cell[i] * cellDimension[i] - rayOrigCell) * invDir[i];
-            exit[i] = -1;
-            step[i] = -1;
-        }
-        else {
-            deltaT[i] = cellDimension[i] * invDir[i];
-            nextCrossingT[i] = tHitBox + ((cell[i] + 1)  * cellDimension[i] - rayOrigCell) * invDir[i];
-            exit[i] = resolution[i];
-            step[i] = 1;
-        }
-    }
+	// initialization step
+	Vec3i exit, step, cell;
+	Vec3f deltaT, nextCrossingT;
+	for (uint8_t i = 0; i < 3; ++i) {
+		// convert ray starting point to cell coordinates
+		float rayOrigCell = ((orig[i] + dir[i] * tHitBox) -  bbox[0][i]);
+		cell[i] = scratch::utils::clamp<uint32_t>(std::floor(rayOrigCell / cellDimension[i]), 0, resolution[i] - 1);
+		if (dir[i] < 0) {
+			deltaT[i] = -cellDimension[i] * invDir[i];
+			nextCrossingT[i] = tHitBox + (cell[i] * cellDimension[i] - rayOrigCell) * invDir[i];
+			exit[i] = -1;
+			step[i] = -1;
+		}
+		else {
+			deltaT[i] = cellDimension[i] * invDir[i];
+			nextCrossingT[i] = tHitBox + ((cell[i] + 1)  * cellDimension[i] - rayOrigCell) * invDir[i];
+			exit[i] = resolution[i];
+			step[i] = 1;
+		}
+	}
 
-    // Walk through each cell of the grid and test for an intersection if
-    // current cell contains geometry
-    const TriangleMesh* intersectedMesh = nullptr;
-    while (1) {
-        uint32_t o = cell[2] * resolution[0] * resolution[1] + cell[1] * resolution[0] + cell[0];
-        if (cells[o] != nullptr) {
-            cells[o]->intersect(orig, dir, rayId, tHit, intersectedMesh);
-            //if (intersectedMesh != nullptr) { ray.color = cells[o]->color; }
-        }
-        uint8_t k =
-            ((nextCrossingT[0] < nextCrossingT[1]) << 2) +
-            ((nextCrossingT[0] < nextCrossingT[2]) << 1) +
-            ((nextCrossingT[1] < nextCrossingT[2]));
-        static const uint8_t map[8] = {2, 1, 2, 1, 2, 2, 0, 0};
-        uint8_t axis = map[k];
+	// Walk through each cell of the grid and test for an intersection if
+	// current cell contains geometry
+	const TriangleMesh* intersectedMesh = nullptr;
+	while (1) {
+		uint32_t o = cell[2] * resolution[0] * resolution[1] + cell[1] * resolution[0] + cell[0];
+		if (cells[o] != nullptr) {
+			cells[o]->intersect(orig, dir, rayId, tHit, intersectedMesh);
+			//if (intersectedMesh != nullptr) { ray.color = cells[o]->color; }
+		}
+		uint8_t k =
+			((nextCrossingT[0] < nextCrossingT[1]) << 2) +
+			((nextCrossingT[0] < nextCrossingT[2]) << 1) +
+			((nextCrossingT[1] < nextCrossingT[2]));
+		static const uint8_t map[8] = {2, 1, 2, 1, 2, 2, 0, 0};
+		uint8_t axis = map[k];
 
-        if (tHit < nextCrossingT[axis]) break;
-        cell[axis] += step[axis];
-        if (cell[axis] == exit[axis]) break;
-        nextCrossingT[axis] += deltaT[axis];
-    }
+		if (tHit < nextCrossingT[axis]) break;
+		cell[axis] += step[axis];
+		if (cell[axis] == exit[axis]) break;
+		nextCrossingT[axis] += deltaT[axis];
+	}
 
-    return (intersectedMesh != nullptr);
+	return (intersectedMesh != nullptr);
 }
