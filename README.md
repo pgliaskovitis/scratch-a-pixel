@@ -21,7 +21,7 @@ Changes compared to the original code:
 
 - Original loadPolyMeshFromFile function needs to close the file when returning a valid mesh object.
 
-- Original acceleration.cpp has a few compilation issues and needs more extensive consolidation with the common header files. Consolidation is a work in progress.
+- Original acceleration.cpp has a few compilation issues and needs more extensive consolidation with the common header files.
 
 - Render timers have been added where applicable.
 

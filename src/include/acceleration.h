@@ -23,11 +23,12 @@
 
 struct AccelerationStats {
 	std::atomic<uint32_t> numPrimaryRays;
-	std::atomic<uint32_t> numRayTriangleTests;
-	std::atomic<uint32_t> numRayTriangleIntersections;
+	std::atomic<uint32_t> numRayMeshTests;
 	std::atomic<uint32_t> numRayBBoxTests;
 	std::atomic<uint32_t> numRayBoundingVolumeTests;
 	std::atomic<uint32_t> numRayBoundingVolumeIntersections;
+	std::atomic<uint32_t> numRayTriangleTests;
+	std::atomic<uint32_t> numRayTriangleIntersections;
 };
 
 // [comment]
@@ -38,16 +39,16 @@ struct AccelerationStats {
 class AccelerationStructure
 {
 public:
-// [comment]
-// We transfer owner ship of the mesh list to the acceleration structure. This makes
-// more sense from a functional/structure stand point because the objects/meshes themselves
-// should be destroyed/deleted when the acceleration structure is being deleted
-// Ideally this means the render function() itself should be bounded (in terms of lifespan)
-// to the lifespan of the acceleration structure (aka we should wrap the accel structure instance
-// and the render method() within the same object, so that when this object is deleted,
-// the render function can't be called anymore.
-// [/comment]
-AccelerationStructure(std::vector<std::unique_ptr<const TriangleMesh>>& m) : meshes(std::move(m))
+	// [comment]
+	// We transfer owner ship of the mesh list to the acceleration structure. This makes
+	// more sense from a functional/structure stand point because the objects/meshes themselves
+	// should be destroyed/deleted when the acceleration structure is being deleted
+	// Ideally this means the render function() itself should be bounded (in terms of lifespan)
+	// to the lifespan of the acceleration structure (aka we should wrap the accel structure instance
+	// and the render method() within the same object, so that when this object is deleted,
+	// the render function can't be called anymore.
+	// [/comment]
+	AccelerationStructure(std::vector<std::unique_ptr<const TriangleMesh>>& m) : meshes(std::move(m))
 	{
 		stats.numPrimaryRays = 0;
 		stats.numRayTriangleTests = 0;
@@ -68,8 +69,10 @@ AccelerationStructure(std::vector<std::unique_ptr<const TriangleMesh>>& m) : mes
 		const TriangleMesh* intersectedMesh = nullptr;
 		float t = kInfinity;
 		for (const auto& mesh: meshes) {
-			if (mesh->intersect(orig, dir, t) && t < tHit) {
-				stats.numRayTriangleIntersections++;
+			stats.numRayMeshTests++;
+			if (mesh->intersect(orig, dir, t,
+					    stats.numRayTriangleTests,
+					    stats.numRayTriangleIntersections) && t < tHit) {
 				intersectedMesh = mesh.get();
 				tHit = t;
 			}
@@ -90,7 +93,7 @@ protected:
 class BBoxAcceleration : public AccelerationStructure
 {
 public:
-BBoxAcceleration(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationStructure(m) {}
+	BBoxAcceleration(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationStructure(m) {}
 
 	// [comment]
 	// Implement the ray-bbox acceleration method. The method consist of intersecting the
@@ -106,13 +109,15 @@ BBoxAcceleration(std::vector<std::unique_ptr<const TriangleMesh>>& m) : Accelera
 		float t = kInfinity;
 		for (const auto& mesh : meshes) {
 			// If you intersect the box
+			stats.numRayBBoxTests++;
 			if (mesh->bbox.intersect(orig, invDir, sign, t)) {
 				// Then test if the ray intersects the mesh and if it does then first check
 				// if the intersection distance is the nearest and if we pass that test as well
 				// then update tNear variable with t and keep a pointer to the intersected mesh
-				stats.numRayBBoxTests++;
-				if (mesh->intersect(orig, dir, t)) {
-					stats.numRayTriangleIntersections++;
+				stats.numRayMeshTests++;
+				if (mesh->intersect(orig, dir, t,
+						    stats.numRayTriangleTests,
+						    stats.numRayTriangleIntersections)) {
 					intersectedMesh = mesh.get();
 					tHit = t;
 				}
@@ -459,16 +464,19 @@ public:
 	Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m);
 	~Grid()
 	{
-		for (uint32_t i = 0; i < resolution[0] * resolution[1] * resolution[2]; ++i)
-			if (cells[i] != NULL) delete cells[i];
-			delete [] cells;
+		for (uint32_t i = 0; i < resolution[0] * resolution[1] * resolution[2]; ++i) {
+			if (cells[i] != NULL) {
+				delete cells[i];
+			}
 		}
-		bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&) const;
-		Cell **cells;
-		BBox<> bbox;
-		Vec3ui resolution;
-		Vec3f cellDimension;
-	};
+		delete [] cells;
+	}
+	bool intersect(const Vec3f&, const Vec3f&, const uint32_t&, float&) const;
+	Cell **cells;
+	BBox<> bbox;
+	Vec3ui resolution;
+	Vec3f cellDimension;
+};
 
 Grid::Grid(std::vector<std::unique_ptr<const TriangleMesh>>& m) : AccelerationStructure(m)
 {
@@ -558,7 +566,7 @@ bool Grid::Cell::intersect(
 			const Vec3f &v1 = mesh->P[mesh->trisIndex[j + 1]];
 			const Vec3f &v2 = mesh->P[mesh->trisIndex[j + 2]];
 			float t, u, v;
-			this->stats->numRayTriangleTests++;
+			stats->numRayTriangleTests++;
 			if (scratch::geometry_utils::rayTriangleIntersect(orig, dir, v0, v1, v2, t, u, v)) {
 				if (t < tHit) {
 					tHit = t;
@@ -567,7 +575,7 @@ bool Grid::Cell::intersect(
 					intersected = true;
 					intersectedTri = triangles[i].tri;
 					intersectedMesh = triangles[i].mesh;
-					this->stats->numRayTriangleIntersections++;
+					stats->numRayTriangleIntersections++;
 				}
 			}
 		} else {

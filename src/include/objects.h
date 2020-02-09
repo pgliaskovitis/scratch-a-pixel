@@ -438,8 +438,40 @@ public:
 		return intersected;
 	}
 
+	bool intersect(const Vec3f& rayOrig, const Vec3f& rayDir, float &tNear,
+			std::atomic<uint32_t>& triangle_test_counter,
+			std::atomic<uint32_t>& triangle_intersection_counter) const
+	{
+		// naive approach, loop over all triangles in the mesh and return true if one
+		// of the triangles at least is intersected
+		uint32_t j = 0;
+		bool intersected = false;
+		uint32_t triIndex;
+		// tNear should be set infinity first time this function is called and it
+		// will get eventually smaller as the ray intersects geometry
+		for (uint32_t i = 0; i < numTris; ++i) {
+			float t, u, v;
+			triangle_test_counter++;
+			if (scratch::geometry_utils::rayTriangleIntersect(rayOrig, rayDir,
+				P[trisIndex[j]],
+				P[trisIndex[j + 1]],
+				P[trisIndex[j + 2]], t, u, v) && t < tNear)
+			{
+				tNear = t;
+				triIndex = i;
+				intersected |= true;
+				triangle_intersection_counter++;
+			}
+			j += 3;
+		}
+
+		return intersected;
+	}
+
 	// Test if the ray intersects this triangle mesh with cross products
-	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tNear, uint32_t &triIndex, Vec2f &uv) const
+	bool intersect(const Vec3f &orig, const Vec3f &dir, float &tNear,
+			uint32_t &triIndex,
+			Vec2f &uv) const
 	{
 		uint32_t j = 0;
 		bool intersected = false;
@@ -511,9 +543,9 @@ public:
 	std::unique_ptr<Vec2f []> texCoordinates; // triangles texture coordinates
 
 	// [comment]
-    // Mailboxes are used by the Grid acceleration structure
-    // [/comment]
-    mutable std::vector<uint32_t> mailbox;
+	// Mailboxes are used by the Grid acceleration structure
+	// [/comment]
+	mutable std::vector<uint32_t> mailbox;
 };
 
 // [comment]
