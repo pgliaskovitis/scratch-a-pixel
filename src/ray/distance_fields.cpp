@@ -18,6 +18,7 @@
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <chrono>
 
 #include "geometry.h"
 #include "lights.h"
@@ -160,15 +161,15 @@ int main(int argc, char **argv)
 	lights.push_back(std::make_unique<PointLight>(Vec3f(-20, 30, -20), Vec3f(0.8, 0.9, 1.0), 4000));
 	lights.push_back(std::make_unique<PointLight>(Vec3f( -5, 10,  20), Vec3f(1.0, 1.0, 1.0), 3000));
 
-	constexpr uint32_t width = 640, height = 480;
+	constexpr uint32_t width = 1920, height = 1080;
 	constexpr float ratio = width / static_cast<float>(height);
 	constexpr float fov = 60;
 	float angle = tan(scratch::utils::deg2rad(fov * 0.5));
-
 	Vec3f *buffer = new Vec3f[width * height];
-
 	Vec3f rayOrigin;
 	camToWorld.multVecMatrix(Vec3f(0), rayOrigin);
+
+	auto timeStart = std::chrono::high_resolution_clock::now();
 	for (uint32_t j = 0; j < height; ++j) {
 		for (uint32_t i = 0; i < width; ++i) {
 			float x = (2 * i / static_cast<float>(width) - 1) * ratio * angle;
@@ -180,9 +181,12 @@ int main(int argc, char **argv)
 			buffer[width * j + i] = pixelColor;
 		}
 	}
+	auto timeEnd = std::chrono::high_resolution_clock::now();
+	auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
+	fprintf(stderr, "\rDone: %.2f (sec)\n", passedTime / 1000);
 
 	std::ofstream ofs;
-	ofs.open("./ray_distance_fields.ppm");
+	ofs.open("./ray_distance_fields.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 	for (uint32_t i = 0; i < width * height; ++i) {
 		unsigned char r = static_cast<unsigned char>(std::min(1.0f, buffer[i][0]) * 255);
