@@ -520,3 +520,34 @@ using Vec3ui = Vec3<uint32_t>;
 using Vec3u = Vec3<unsigned char>;
 using Matrix44f = Matrix44<float>;
 template <> const Matrix44f Matrix44f::kIdentity = Matrix44f();
+
+Matrix44f lookAt(const Vec3f& from, const Vec3f& to, Vec3f tmp = Vec3f(0, 1, 0))
+{
+	// because the forward axis in a right hand coordinate system points backward we compute -(to - from)
+	Vec3f z = from - to;
+	z.normalize();
+	Vec3f x = tmp.normalize().crossProduct(z);
+	x.normalize(); // this is just in case Up is not normalized
+	Vec3f y = z.crossProduct(x);
+
+	Matrix44f camToWorld;
+
+	// set x-axis
+	camToWorld[0][0] = x[0];
+	camToWorld[0][1] = x[1];
+	camToWorld[0][2] = x[2];
+	// set y-axis
+	camToWorld[1][0] = y[0];
+	camToWorld[1][1] = y[1];
+	camToWorld[1][2] = y[2];
+	// set z-axis
+	camToWorld[2][0] = z[0];
+	camToWorld[2][1] = z[1];
+	camToWorld[2][2] = z[2];
+	// set position
+	camToWorld[3][0] = from[0];
+	camToWorld[3][1] = from[1];
+	camToWorld[3][2] = from[2];
+
+	return camToWorld;
+}

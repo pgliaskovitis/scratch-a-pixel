@@ -68,6 +68,8 @@ add_executable (ray_indirect_diffuse_shading src/ray/indirect_diffuse_shading.cp
 #advanced raytracing
 add_executable (ray_bezier_teapot src/ray/bezier_teapot.cpp)
 add_executable (ray_acceleration src/ray/acceleration.cpp)
+add_executable (ray_implicit_2D src/ray/2d_implicit.cpp)
+add_executable (ray_distance_fields src/ray/distance_fields.cpp)
 
 # basic noise
 add_executable (noise_value src/noise/value.cpp)

@@ -126,7 +126,7 @@ void render(const std::unique_ptr<AccelerationStructure>& accel, const Options& 
 
 	// store to PPM file
 	std::ofstream ofs;
-	ofs.open("ray_acceleration.ppm");
+	ofs.open("ray_acceleration.ppm", std::ios::out | std::ios::binary);
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
 	for (uint32_t i = 0; i < options.width * options.height; ++i) {
 		Vec3<uint8_t> pixRgb;

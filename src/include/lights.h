@@ -36,6 +36,7 @@ class Light
 {
 public:
 	Light(const Matrix44f &l2w, const Vec3f &c = 1.f, const float &i = 1.f) : lightToWorld(l2w), color(c), intensity(i) {}
+	Light(const Vec3f& c, const float& i) : color(c), intensity(i) {}
 	virtual ~Light() {}
 	virtual void illuminate(const Vec3f &P, Vec3f &, Vec3f &, float &) const = 0;
 	Vec3f color;
@@ -45,7 +46,6 @@ public:
 
 class DistantLight : public Light
 {
-	Vec3f dir;
 public:
 	DistantLight(const Matrix44f &l2w, const Vec3f &c = 1.f, const float &i = 1.f) : Light(l2w, c, i)
 	{
@@ -59,16 +59,19 @@ public:
 		lightIntensity = color * intensity;
 		distance = kInfinity;
 	}
+
+	Vec3f dir;
 };
 
 class PointLight : public Light
 {
-    Vec3f pos;
 public:
 	PointLight(const Matrix44f &l2w, const Vec3f &c = 1.f, const float &i = 1.f) : Light(l2w, c, i)
 	{
 		l2w.multVecMatrix(Vec3f(0), pos);
 	}
+
+	PointLight(const Vec3f& p, const Vec3f& c, const float& i) : Light(c, i), pos(p) {}
 
 	// P: is the shaded point
 	void illuminate(const Vec3f &P, Vec3f &lightDir, Vec3f &lightIntensity, float &distance) const
@@ -80,4 +83,6 @@ public:
 		// avoid division by 0
 		lightIntensity = color * intensity / (4 * M_PI * r2);
 	}
+
+	Vec3f pos;
 };
