@@ -31,11 +31,12 @@ Suggestions on where to go from here
 ====================================
 There are numerous internet resources touching and expanding upon the topics discussed by the first scratch-a-pixel lessons, although not as thoroughly and cohesively, one has to dig their way through. I am going to mention some of them, surely there are others I am not aware of.
 
-1. Inigo Quilez's site, this is a _treasure trove_ of practical techniques:
+1. Inigo Quilez's site, this is a _treasure trove_ of practical techniques, e.g.:
 - Parallelizing ray tracing for CPUs: https://www.iquilezles.org/www/articles/cputiles/cputiles.htm
 - A simple Monte Carlo path tracing architecture: https://www.iquilezles.org/www/articles/simplepathtracing/simplepathtracing.htm
 - Analytical bounding boxes for Bezier curves: https://www.iquilezles.org/www/articles/bezierbbox/bezierbbox.htm
 - Smooth blending for constructive solid geometry: http://www.iquilezles.org/www/articles/smin/smin.htm
+- Analytical derivatives for value noise: https://www.iquilezles.org/www/articles/morenoise/morenoise.htm
 
 2. Path tracing with SIMD instructions and GPUs: https://aras-p.info/blog/2018/03/28/Daily-Pathtracer-Part-0-Intro/
 
