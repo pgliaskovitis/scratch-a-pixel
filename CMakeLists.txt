@@ -73,3 +73,4 @@ add_executable (ray_distance_fields src/ray/distance_fields.cpp)
 
 # basic noise
 add_executable (noise_value src/noise/value.cpp)
+add_executable (noise_perlin src/noise/perlin.cpp)

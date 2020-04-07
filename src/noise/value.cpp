@@ -37,7 +37,7 @@ template <float (*F)(const float &)>
 class ValueNoise
 {
 public:
-	ValueNoise(unsigned seed = 2016)
+	ValueNoise(unsigned seed = 2020)
 	{
 		std::mt19937 gen(seed);
 		std::uniform_real_distribution<float> distrFloat;

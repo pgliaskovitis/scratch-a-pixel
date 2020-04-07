@@ -91,6 +91,24 @@ namespace utils
 		return t * t * (3 - 2 * t);
 	}
 
+	template<typename T = float>
+	inline T smoothstepDeriv(const T &t)
+	{
+		return t * (6 - 6 * t);
+	}
+
+	template<typename T = float>
+	inline T quintic(const T &t)
+	{
+		return t * t * t * (t * (t * 6 - 15) + 10);
+	}
+
+	template<typename T = float>
+	inline T quinticDeriv(const T &t)
+	{
+		return 30 * t * t * (t * (t - 2) + 1);
+	}
+
 	inline bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, float &x1)
 	{
 		float discr = b * b - 4 * a * c;
