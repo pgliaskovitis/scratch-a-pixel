@@ -38,14 +38,12 @@ There are numerous internet resources touching and expanding upon the topics dis
 - Smooth blending for constructive solid geometry: http://www.iquilezles.org/www/articles/smin/smin.htm
 - Analytical derivatives for value noise: https://www.iquilezles.org/www/articles/morenoise/morenoise.htm
 
-2. Path tracing with SIMD instructions and GPUs: https://aras-p.info/blog/2018/03/28/Daily-Pathtracer-Part-0-Intro/
+2. Peter Shirley's Ray Tracing series of books: https://github.com/petershirley/raytracinginoneweekend
 
-3. Peter Shirley's Ray Tracing series of books: https://github.com/petershirley/raytracinginoneweekend
+3. UC Davis graduate course on ray tracing for global illumination: https://www.youtube.com/watch?v=wENIThh7XWo&list=PLslgisHe5tBPckSYyKoU3jEA4bqiFmNBJ&index=1
 
-4. Pixar's optimization for shooting path tracing rays: https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+4. Total Compedium (of global illumination): https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf
 
-5. Total Compedium (of global illumination): https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf
+5. Physically-based Rendering, this is the definitive reference: http://www.pbr-book.org/3ed-2018/contents.html
 
-6. Physically-based Rendering, this is the definitive reference: http://www.pbr-book.org/3ed-2018/contents.html
-
-7. Real-time Rendering, this has many further links: http://www.realtimerendering.com/
+6. Real-time Rendering, this has many further links: http://www.realtimerendering.com/
