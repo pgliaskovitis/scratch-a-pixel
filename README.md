@@ -42,8 +42,10 @@ There are numerous internet resources touching and expanding upon the topics dis
 
 3. UC Davis graduate course on ray tracing for global illumination: https://www.youtube.com/watch?v=wENIThh7XWo&list=PLslgisHe5tBPckSYyKoU3jEA4bqiFmNBJ&index=1
 
-4. Total Compedium (of global illumination): https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf
+4. Charles University of Prague graduate course on computer graphics: https://cgg.mff.cuni.cz/~jaroslav/teaching/2015-npgr010/
 
-5. Physically-based Rendering, this is the definitive reference: http://www.pbr-book.org/3ed-2018/contents.html
+5. Total Compedium (of global illumination): https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf
 
-6. Real-time Rendering, this has many further links: http://www.realtimerendering.com/
+6. Physically-based Rendering, this is the definitive reference: http://www.pbr-book.org/3ed-2018/contents.html
+
+7. Real-time Rendering, this has many further links: http://www.realtimerendering.com/
