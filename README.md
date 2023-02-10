@@ -1,8 +1,8 @@
-# scratch-a-pixel
-
 Attention
 =========
 This code repo is no longer maintained. Please checkout out the latest code additions at the official Scratch A Pixel repo at https://github.com/scratchapixel.
+
+# scratch-a-pixel
 
 A repository of the code contained in the amazing Scratchapixel lessons https://www.scratchapixel.com/
 
