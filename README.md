@@ -1,4 +1,9 @@
 # scratch-a-pixel
+
+Attention
+=========
+This code repo is no longer maintained. Please checkout out the latest code additions at the official Scratch A Pixel repo at https://github.com/scratchapixel.
+
 A repository of the code contained in the amazing Scratchapixel lessons https://www.scratchapixel.com/
 
 This is for personal use and experimentation first and foremost. I do not own the original copyright to this code, https://www.scratchapixel.com/ does.
