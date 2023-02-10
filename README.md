@@ -1,6 +1,6 @@
 Attention
 =========
-This code repo is no longer maintained. Please checkout out the latest code additions at the official Scratch A Pixel repo at https://github.com/scratchapixel.
+This repo is no longer maintained. Please checkout out the latest code additions at the official Scratchapixel 3.0 repo at https://github.com/scratchapixel.
 
 # scratch-a-pixel
 
